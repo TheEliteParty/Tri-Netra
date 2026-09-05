@@ -1,0 +1,136 @@
+name: GeoShield CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+      - name: Run Python syntax check
+        run: |
+          cd backend
+          python -m py_compile app/main.py
+          python -m py_compile app/models.py
+          python -m py_compile app/database.py
+          python -m py_compile app/auth.py
+          python -m py_compile app/seed_data.py
+          python -m py_compile app/routers/sensors.py
+          python -m py_compile app/routers/dashboard.py
+          python -m py_compile app/routers/alerts.py
+          python -m py_compile app/routers/reports.py
+          python -m py_compile app/routers/weather.py
+          python -m py_compile app/routers/simulator.py
+          python -m py_compile app/routers/satellite.py
+          python -m py_compile app/routers/predict.py
+          python -m py_compile app/routers/alerts_timeline.py
+          python -m py_compile app/ai_engine/risk_predictor.py
+      - name: Test AI model
+        run: |
+          cd backend
+          python -c "
+          from app.ai_engine.risk_predictor import get_predictor
+          p = get_predictor()
+          r = p.predict_risk(
+              {'rainfall_mm': 50, 'soil_moisture': 70, 'ground_displacement': 3},
+              {'slope_angle': 45, 'elevation': 1200, 'vegetation_cover': 30}
+          )
+          assert r['risk_score'] > 0, 'Risk score should be positive'
+          assert r['risk_level'] in ['low', 'moderate', 'high', 'critical'], 'Invalid risk level'
+          assert len(r['contributing_factors']) > 0, 'Should have contributing factors'
+          print(f'✅ AI Model: {r[\"risk_score\"]}/100 ({r[\"risk_level\"]})')
+          "
+      - name: Test FastAPI app loads
+        run: |
+          cd backend
+          python -c "
+          from app.main import app
+          routes = [r.path for r in app.routes if hasattr(r, 'path')]
+          assert '/api/health' in routes, 'Health endpoint missing'
+          print(f'✅ FastAPI app loaded with {len(routes)} routes')
+          "
+
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      - name: TypeScript type check
+        run: |
+          cd frontend
+          npx tsc --noEmit
+      - name: Build production
+        run: |
+          cd frontend
+          npm run build
+      - name: Verify build output
+        run: |
+          cd frontend
+          test -f dist/index.html && echo "✅ index.html exists"
+          test -d dist/assets && echo "✅ assets directory exists"
+          ls -la dist/
+
+  integration:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install backend deps
+        run: cd backend && pip install -r requirements.txt
+      - name: Install frontend deps + build
+        run: cd frontend && npm ci && npm run build
+      - name: Start server and test endpoints
+        run: |
+          cd backend
+          python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 12
+          echo "=== Health ==="
+          curl -sf http://localhost:8000/api/health
+          echo ""
+          echo "=== Stations ==="
+          curl -sf http://localhost:8000/api/sensors/stations | python -c "import sys,json; print(f'{len(json.load(sys.stdin))} stations')"
+          echo "=== Predict ==="
+          curl -sf -X POST http://localhost:8000/api/predict \
+            -H "Content-Type: application/json" \
+            -d '{"latitude":27.5,"longitude":91.8}' | python -c "import sys,json; d=json.load(sys.stdin); print(f'Risk: {d[\"risk_assessment\"][\"risk_score\"]}/100')"
+          echo "=== Export GeoJSON ==="
+          curl -sf http://localhost:8000/api/export/geojson | python -c "import sys,json; print(f'{len(json.load(sys.stdin)[\"features\"])} features')"
+          echo "=== Timeline ==="
+          curl -sf http://localhost:8000/api/alerts/timeline | python -c "import sys,json; d=json.load(sys.stdin); print(f'{len(d[\"timeline\"])} entries')"
+          echo "=== Frontend ==="
+          curl -sf http://localhost:8000/ | head -1
+          echo ""
+          echo "✅ ALL INTEGRATION TESTS PASSED"
+          kill %1 2>/dev/null

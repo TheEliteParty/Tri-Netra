@@ -1,0 +1,91 @@
+{
+  "appId": "com.geoshield.app",
+  "productName": "GeoShield",
+  "copyright": "Copyright © 2026 Team GeoShield",
+  "directories": {
+    "output": "dist-electron"
+  },
+  "files": [
+    "electron/**/*",
+    "frontend/dist/**/*",
+    "branding/**/*",
+    "backend/**/*",
+    "!backend/**/*.pyc",
+    "!backend/__pycache__/**",
+    "!backend/.venv/**",
+    "!backend/**/__pycache__/**"
+  ],
+  "extraResources": [
+    {
+      "from": "backend",
+      "to": "backend",
+      "filter": [
+        "**/*.py",
+        "**/*.txt",
+        "**/*.db",
+        "**/*.pkl",
+        "app/seed_*.py"
+      ]
+    }
+  ],
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64"]
+      },
+      {
+        "target": "tar.gz",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "branding/team_logo.png",
+    "category": "Science;Education",
+    "description": "AI-Based Early Warning & Landslide Risk Monitoring System",
+    "maintainer": "Team GeoShield <team@geoshield.dev>",
+    "synopsis": "Landslide Monitoring for North Eastern India"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      },
+      {
+        "target": "dir",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "branding/team_logo.ico",
+    "artifactName": "GeoShield-${version}-Setup.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "GeoShield",
+    "installerIcon": "branding/team_logo.ico",
+    "uninstallerIcon": "branding/team_logo.ico",
+    "installerHeaderIcon": "branding/team_logo.ico",
+    "deleteAppDataOnUninstall": false,
+    "allowElevation": true,
+    "runAfterFinish": true,
+    "artifactName": "GeoShield-${version}-Setup.${ext}"
+  },
+  "mac": {
+    "target": ["dmg"],
+    "icon": "branding/team_logo.png",
+    "category": "public.app-category.education"
+  },
+  "compression": "maximum"
+}

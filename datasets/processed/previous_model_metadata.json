@@ -1,0 +1,19 @@
+{
+  "features": [
+    "latitude",
+    "longitude",
+    "slope",
+    "aspect",
+    "elevation",
+    "rainfall_7days",
+    "ndvi",
+    "soil_moisture",
+    "distance_to_road"
+  ],
+  "accuracy": 0.8025,
+  "cv_mean": 0.8135,
+  "cv_std": 0.013564659966250548,
+  "training_samples": 1600,
+  "test_samples": 400,
+  "n_features": 9
+}

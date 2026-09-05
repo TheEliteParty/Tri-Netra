@@ -1,0 +1,20 @@
+station_id,name,latitude,longitude,state,district,real_elevation,estimated_slope
+NER-001,Gangtok North Slope,27.3389,88.6065,Sikkim,Gangtok,1487.0,39.7
+NER-002,Mangan Hill Monitor,27.5124,88.5281,Sikkim,Mangan,796.0,29.9
+NER-003,Namchi Valley Watch,27.1684,88.551,Sikkim,Namchi,814.0,30.5
+NER-004,Guwahati Foothills,26.1445,91.7362,Assam,Kamrup,52.0,11.0
+NER-006,Imphal Valley Edge,24.817,93.9368,Manipur,Imphal East,782.0,29.4
+NER-007,Churachandpur Hills,24.3322,93.6825,Manipur,Churachandpur,862.0,32.1
+NER-008,Aizawl Ridge Monitor,23.7271,92.7176,Mizoram,Aizawl,1069.0,31.4
+NER-009,Lunglei Slope Watch,22.9,92.75,Mizoram,Lunglei,890.0,33.0
+NER-010,Shillong Plateau Edge,25.5788,91.8933,Meghalaya,East Khasi Hills,1436.0,38.7
+NER-011,Cherrapunji Monitor,25.2838,91.7344,Meghalaya,East Khasi Hills,1029.0,30.6
+NER-012,Tura Hills Watch,25.514,90.22,Meghalaya,West Garo Hills,342.0,16.8
+NER-013,Kohima Ridge,25.6586,94.1086,Nagaland,Kohima,1365.0,37.3
+NER-014,Dimapur Lowlands,25.9,93.7266,Nagaland,Dimapur,147.0,12.9
+NER-015,Agartala Slope Monitor,23.8315,91.2868,Tripura,West Tripura,12.0,10.2
+NER-016,Itanagar Foothills,27.0844,93.692,Arunachal Pradesh,Papum Pare,160.0,13.2
+NER-017,Ziro Valley Watch,27.5887,93.8492,Arunachal Pradesh,Lower Subansiri,1592.0,41.8
+NER-018,Pasighat Monitor,28.07,95.33,Arunachal Pradesh,East Siang,162.0,13.2
+NER-019,Tawang Ridge,27.586,91.88,Arunachal Pradesh,Tawang,2791.0,52.9
+NER-020,Dima Hasao Watch,25.45,93.18,Assam,Dima Hasao,413.0,18.3

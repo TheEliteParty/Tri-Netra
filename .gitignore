@@ -1,0 +1,171 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.venv/
+.env/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+frontend/dist/
+frontend/build/
+
+# Datasets - keep real training data, ignore generated samples
+datasets/kaggle/
+datasets/satellite/
+*.shp
+*.shx
+*.dbf
+*.prj
+*.tif
+*.tiff
+
+# Model files
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+
+# Uploads
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Documentation build
+docs/_build/
+site/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache/
+
+# pyright
+pyrightconfig.json
+*.pkl
+geoshield.db
+
+# Build artifacts (too large for GitHub)
+GeoShield-Android.apk
+GeoShield-Linux.AppImage
+dist-electron/
+frontend/android/
+branding/team_logo.ico
+android/
+frontend/android/
+*.AppImage
+*.apk

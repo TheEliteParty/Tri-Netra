@@ -1,0 +1,45 @@
+Date,Location,State,District,Latitude,Longitude,Cause,Casualties,Damage,Source
+2024-06-15,Tadong,Sikkim,Gangtok,27.3389,88.6065,Heavy Rain,0,Road Blocked,News Reports
+2024-07-22,Mawlynnong,Meghalaya,East Khasi Hills,25.2592,91.7276,Heavy Rain,0,Minor,News Reports
+2024-08-05,Rangpo,East Sikkim,,27.1800,88.5300,Heavy Rain,1,Road Blocked,News Reports
+2023-06-18,Cherrapunji,Meghalaya,East Khasi Hills,25.2838,91.7344,Heavy Rain,3,Road Blocked,News Reports
+2023-07-12,Aizawl,Mizoram,,23.7271,92.7176,Heavy Rain,0,Road Blocked,News Reports
+2023-08-20,Porompat,Manipur,Imphal East,24.8170,93.9368,Heavy Rain,0,Road Blocked,News Reports
+2022-06-25,Kohima,Nagaland,,25.6586,94.1086,Heavy Rain,2,Road Blocked,News Reports
+2022-07-30,Tawang,Arunachal Pradesh,,27.5860,91.8800,Flood,5,Road Blocked,News Reports
+2022-08-15,Dimapur,Nagaland,,25.9000,93.7266,Flood,1,Road Blocked,News Reports
+2022-09-05,Pasighat,Arunachal Pradesh,East Siang,28.0700,95.3300,Flood,0,Road Blocked,News Reports
+2021-06-20,Gangtok,Sikkim,,27.3300,88.6100,Heavy Rain,0,Road Blocked,News Reports
+2021-07-08,Shillong,Meghalaya,East Khasi Hills,25.5788,91.8933,Heavy Rain,0,Road Blocked,News Reports
+2020-06-15,Mangan,North Sikkim,,27.5124,88.5281,Heavy Rain,1,Road Blocked,News Reports
+2020-07-22,Itanagar,Arunachal Pradesh,Papum Pare,27.0844,93.6920,Heavy Rain,0,Minor,News Reports
+2020-08-10,Lunglei,Mizoram,,22.9000,92.7500,Heavy Rain,0,Road Blocked,News Reports
+2019-07-15,Ziro,Arunachal Pradesh,Lower Subansiri,27.5887,93.8492,Heavy Rain,0,Minor,News Reports
+2018-06-28,Haflong,Assam,Dima Hasao,25.4500,93.1800,Heavy Rain,2,Road Blocked,News Reports
+2018-07-20,Chandrapur,Assam,Kamrup,26.1445,91.7362,Heavy Rain,0,Minor,News Reports
+2018-08-05,Churachandpur,Manipur,,24.3322,93.6825,Heavy Rain,0,Road Blocked,News Reports
+2017-06-12,Ranka,Sikkim,Gangtok,27.3100,88.5800,Heavy Rain,0,Minor,News Reports
+2017-07-25,Agartala,West Tripura,,23.8315,91.2868,Heavy Rain,0,Minor,News Reports
+2017-08-18,Kohima,Nagaland,,25.6600,94.1100,Heavy Rain,0,Road Blocked,News Reports
+2015-06-22,Mangan,North Sikkim,,27.5200,88.5300,Heavy Rain,2,Road Blocked,News Reports
+2015-07-10,Diphu,Assam,Karbi Anglong,25.8500,93.4200,Heavy Rain,0,Road Blocked,News Reports
+2014-06-18,Namchi,South Sikkim,,27.1684,88.5510,Heavy Rain,0,Road Blocked,News Reports
+2014-07-28,Tura,Meghalaya,West Garo Hills,25.5140,90.2200,Heavy Rain,0,Minor,News Reports
+2013-07-15,Mangan,North Sikkim,,27.5124,88.5281,Heavy Rain,2,Road Blocked,News Reports
+2013-08-05,Aizawl,Mizoram,,23.7200,92.7200,Heavy Rain,0,Road Blocked,News Reports
+2011-06-18,Tadong,Sikkim,Gangtok,27.3389,88.6065,Heavy Rain,0,Road Blocked,News Reports
+2011-07-22,Shillong,Meghalaya,East Khasi Hills,25.5788,91.8933,Heavy Rain,0,Minor,News Reports
+2018-06-15,Imphal,Manipur,,24.8100,93.9400,Heavy Rain,0,Road Blocked,News Reports
+2020-07-05,Gangtok,Sikkim,,27.3350,88.6080,Heavy Rain,0,Minor,News Reports
+2023-06-30,Kohima,Nagaland,,25.6586,94.1086,Heavy Rain,0,Road Blocked,News Reports
+2015-07-20,Dimapur,Nagaland,,25.9000,93.7266,Heavy Rain,0,Minor,News Reports
+2018-07-05,Itanagar,Arunachal Pradesh,,27.0844,93.6920,Heavy Rain,0,Road Blocked,News Reports
+2022-06-10,Lunglei,Mizoram,,22.9000,92.7500,Heavy Rain,0,Minor,News Reports
+2014-08-10,Pasighat,Arunachal Pradesh,,28.0700,95.3300,Heavy Rain,0,Minor,News Reports
+2017-06-28,Chandrapur,Assam,,26.1445,91.7362,Heavy Rain,0,Minor,News Reports
+2024-07-10,Namchi,Sikkim,,27.1684,88.5510,Heavy Rain,0,Minor,News Reports
+2023-07-05,Ziro,Arunachal Pradesh,,27.5887,93.8492,Heavy Rain,0,Minor,News Reports
+2011-08-05,Tura,Meghalaya,,25.5140,90.2200,Heavy Rain,0,Minor,News Reports
+2022-07-15,Churachandpur,Manipur,,24.3322,93.6825,Heavy Rain,0,Minor,News Reports
+2013-06-20,Agartala,Tripura,,23.8315,91.2868,Heavy Rain,0,Minor,News Reports
+2011-07-05,Gangtok,Sikkim,,27.3400,88.6100,Heavy Rain,0,Minor,News Reports

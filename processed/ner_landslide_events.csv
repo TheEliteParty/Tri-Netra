@@ -1,0 +1,13 @@
+date,latitude,longitude,state,district,trigger,severity,elevation,slope,soil_type,vegetation_cover
+2024-06-15,27.3389,88.6065,Sikkim,Gangtok,rainfall,medium,1650,38,silty_clay,45
+2024-07-22,25.2592,91.7276,Meghalaya,East Khasi Hills,rainfall,small,1430,33,sandstone,52
+2024-08-05,27.2833,88.5333,Sikkim,Gangtok,rainfall,medium,1650,38,silty_clay,45
+2024-08-12,25.45,93.18,Assam,Dima Hasao,rainfall,large,680,41,sandstone_residue,42
+2024-09-01,27.586,91.88,Arunachal Pradesh,Tawang,rainfall,medium,3048,48,glacial_till,25
+2025-06-18,25.2838,91.7344,Meghalaya,East Khasi Hills,rainfall,large,1430,33,sandstone,52
+2025-07-05,23.7271,92.7176,Mizoram,Aizawl,rainfall,medium,1080,44,sandstone_weathered,38
+2025-08-10,25.6586,94.1086,Nagaland,Kohima,rainfall,small,1444,37,weathered_gneiss,44
+2025-09-15,22.9,92.75,Mizoram,Lunglei,rainfall,medium,720,38,laterite,48
+2026-06-20,27.5887,93.8492,Arunachal Pradesh,Lower Subansiri,rainfall,small,1688,30,forest_loam,78
+2026-07-10,24.817,93.9368,Manipur,Imphal East,rainfall,medium,786,36,loam,42
+2026-08-01,26.1445,91.7362,Assam,Kamrup,rainfall,small,550,28,alluvial,40

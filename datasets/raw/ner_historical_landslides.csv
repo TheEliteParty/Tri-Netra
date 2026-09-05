@@ -1,0 +1,45 @@
+date,lat,lng,state,district,trigger,size,deaths,injuries,road_block,description
+2011-06-18,27.3389,88.6065,Sikkim,Gangtok,rain,medium,0,5,True,Slope failure near Tadong after 3-day continuous rainfall
+2013-07-15,27.5124,88.5281,Sikkim,Mangan,rain,large,2,8,True,Major landslide on Mangan-Dzongri route after heavy monsoon
+2015-06-22,27.1684,88.551,Sikkim,Namchi,rain,small,0,1,False,Minor slope slip near Namchi town
+2017-08-12,27.3389,88.6065,Sikkim,Gangtok,rain,medium,1,3,True,Gangtok-Rangpo road blocked by landslide debris
+2020-07-28,27.5124,88.5281,Sikkim,Mangan,rain,large,3,12,True,"Catastrophic landslide in Mangan district, multiple villages affected"
+2023-06-15,27.3389,88.6065,Sikkim,Gangtok,earthquake,medium,0,4,True,Seismic-triggered slope failure during earthquake swarm
+2024-06-15,27.3389,88.6065,Sikkim,Gangtok,rain,medium,0,2,True,Rain-triggered slope failure near Tadong village
+2024-10-04,27.1684,88.551,Sikkim,Namchi,rain,large,40,50,True,"Flash flood triggered massive landslide in South Sikkim, Teesta river dammed"
+2011-07-05,25.2838,91.7344,Meghalaya,East Khasi Hills,rain,medium,0,2,True,Cherrapunji area slope failure after extreme rainfall
+2014-06-18,25.2592,91.7276,Meghalaya,East Khasi Hills,rain,small,0,0,False,Minor landslide near Mawlynnong village
+2016-07-22,25.5788,91.8933,Meghalaya,East Khasi Hills,rain,large,5,15,True,Shillong-Guwahati road blocked for 3 days
+2018-08-10,25.2838,91.7344,Meghalaya,East Khasi Hills,rain,large,12,20,True,"Multiple landslides in Cherrapunji region, villages cut off"
+2020-06-25,25.514,90.22,Meghalaya,West Garo Hills,rain,small,0,1,False,Slope slip near Tura town
+2022-07-18,25.5788,91.8933,Meghalaya,East Khasi Hills,rain,medium,1,3,True,Mawlynnong road blocked by debris flow
+2024-07-22,25.2592,91.7276,Meghalaya,East Khasi Hills,rain,small,0,0,False,Monsoon rains caused landslide in tourist village
+2013-07-28,24.817,93.9368,Manipur,Imphal East,rain,medium,0,3,True,Imphal-Jiribam highway blocked by landslide
+2015-06-30,24.3322,93.6825,Manipur,Churachandpur,rain,large,3,8,True,Hill slope failure near Churachandpur town
+2018-07-12,24.817,93.9368,Manipur,Imphal East,rain,medium,0,2,True,NH-37 blocked near Imphal after heavy rainfall
+2020-08-05,24.3322,93.6825,Manipur,Churachandpur,rain,medium,1,4,True,Multiple slope failures in Churachandpur hills
+2023-06-22,24.817,93.9368,Manipur,Imphal East,rain,small,0,0,False,Minor slip near Porompat
+2013-06-15,23.7271,92.7176,Mizoram,Aizawl,rain,medium,0,2,True,Aizawl-Lunglei road partially blocked
+2015-08-08,23.7271,92.7176,Mizoram,Aizawl,rain,large,2,6,True,"Major landslide in Aizawl city, houses damaged"
+2017-07-20,22.9,92.75,Mizoram,Lunglei,rain,medium,0,1,True,SH-1 blocked near Lunglei
+2020-06-18,23.7271,92.7176,Mizoram,Aizawl,rain,small,0,0,False,Minor slope slip on Aizawl hillside
+2023-07-15,23.7271,92.7176,Mizoram,Aizawl,rain,medium,1,3,True,Landslide triggered by continuous monsoon rain
+2014-07-10,25.6586,94.1086,Nagaland,Kohima,rain,medium,0,2,True,NH-2 blocked near Kohima after heavy rain
+2016-08-05,25.6586,94.1086,Nagaland,Kohima,rain,small,0,1,False,Minor slip near Kohima town
+2018-06-28,25.9,93.7266,Nagaland,Dimapur,flood,medium,0,0,True,Flooding caused slope failure near Dimapur
+2022-07-12,25.6586,94.1086,Nagaland,Kohima,rain,large,2,5,True,Multiple landslides on Kohima-Dimapur highway
+2012-06-20,26.1445,91.7362,Assam,Kamrup,rain,small,0,0,False,Minor slope failure in Guwahati foothills
+2014-07-18,25.45,93.18,Assam,Dima Hasao,rain,large,5,10,True,"Major landslide in Dima Hasao, train services disrupted"
+2017-07-25,25.45,93.18,Assam,Dima Hasao,rain,medium,1,3,True,Haflong-Jiribam road blocked
+2019-07-12,26.1,93.2,Assam,Karbi Anglong,rain,small,0,1,False,Slope slip near Diphu
+2022-06-28,25.45,93.18,Assam,Dima Hasao,rain,large,3,8,True,"Catastrophic landslide in Dima Hasao, multiple villages affected"
+2024-06-20,25.45,93.18,Assam,Dima Hasao,rain,medium,0,2,True,Monsoon-triggered landslide near Haflong
+2013-07-15,27.586,91.88,Arunachal Pradesh,Tawang,rain,large,2,6,True,Tawang road blocked by massive landslide
+2015-06-22,27.0844,93.692,Arunachal Pradesh,Papum Pare,rain,medium,0,2,True,Itanagar-Bomdila highway affected
+2017-08-08,27.5887,93.8492,Arunachal Pradesh,Lower Subansiri,rain,small,0,0,False,Minor slip near Ziro valley
+2020-07-15,27.586,91.88,Arunachal Pradesh,Tawang,rain,large,4,10,True,"Severe landslide near Tawang, army camp affected"
+2022-06-18,28.07,95.33,Arunachal Pradesh,East Siang,rain,medium,0,1,True,Pasighat road blocked by debris
+2023-07-20,27.586,91.88,Arunachal Pradesh,Tawang,earthquake,medium,0,2,True,Seismic-triggered slope failure in Tawang
+2014-06-25,23.8315,91.2868,Tripura,West Tripura,rain,small,0,0,False,Minor slip near Agartala
+2018-07-10,23.8315,91.2868,Tripura,West Tripura,flood,small,0,1,False,Flood-induced slope failure in Tripura hills
+2022-07-22,23.8315,91.2868,Tripura,West Tripura,rain,small,0,0,False,Monsoon-related minor landslide

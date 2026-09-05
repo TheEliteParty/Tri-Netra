@@ -1,0 +1,6 @@
+✅ TypeScript: 0 errors
+dist/assets/vendor-maps-DxlA91Jn.js    154.48 kB │ gzip:  45.10 kB
+dist/assets/index-BTwRej04.js          155.71 kB │ gzip:  36.91 kB
+dist/assets/vendor-router-CNV3KLz0.js  163.49 kB │ gzip:  53.35 kB
+dist/assets/vendor-charts-DwBDOfVo.js  445.73 kB │ gzip: 116.52 kB
+✓ built in 4.13s
