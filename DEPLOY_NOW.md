@@ -48,7 +48,7 @@ curl https://geoshield.up.railway.app/api/health
 3. Click **"New Web Service"**
 
 ### Step 2: Connect Repo
-1. Select `officialarghya29/GeoShield`
+1. Select `mohitsharmaa21/Tri-Netra`
 2. Click **"Connect"**
 
 ### Step 3: Configure

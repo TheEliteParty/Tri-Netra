@@ -12,16 +12,14 @@
 
 - **Problem ID:** 26001
 - **Theme:** Disaster Management
-- **Team Name:** GeoShield
+- **Team Name:** The Elite Party
+- **Made by:** Mohit Sharma, Nishchal kapadia, Himanshu Meena
 
-| Member | Roll No |
-|--------|---------|
-| Arghya Bose | 24155380 |
-| Arindam Tripathi | 24155614 |
-| Arnab Pal | 24155615 |
-| Aaditree Shreya | 24155371 |
-| Ankan Nag | 2405791 |
-| Akash Das | 24155155 |
+| Member | Role |
+|--------|------|
+| Mohit Sharma | Developer |
+| Nishchal kapadia | Developer |
+| Himanshu Meena | Developer |
 
 ---
 
@@ -324,19 +322,18 @@
 
 ## 🛡️ GeoShield — Protecting NER
 
-### Team GeoShield
+### Team The Elite Party
 
-| Name | Roll No |
-|------|---------|
-| Arghya Bose | 24155380 |
-| Arindam Tripathi | 24155614 |
-| Arnab Pal | 24155615 |
-| Aaditree Shreya | 24155371 |
-| Ankan Nag | 2405791 |
-| Akash Das | 24155155 |
+**Made by:** Mohit Sharma, Nishchal kapadia, Himanshu Meena
+
+| Member | Role |
+|--------|------|
+| Mohit Sharma | Developer |
+| Nishchal kapadia | Developer |
+| Himanshu Meena | Developer |
 
 ### Links
-- **GitHub:** https://github.com/officialarghya29/GeoShield
+- **GitHub:** https://github.com/mohitsharmaa21/Tri-Netra
 - **Live Demo:** http://localhost:8000
 
 ### Thank You!

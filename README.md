@@ -772,8 +772,8 @@ GeoShield integrates **flood-landslide correlation** data for all 19 NER distric
 
 ```bash
 # Clone
-git clone https://github.com/officialarghya29/GeoShield.git
-cd GeoShield
+git clone https://github.com/mohitsharmaa21/Tri-Netra.git
+cd Tri-Netra
 
 # Deploy (creates venv, installs deps, builds frontend, starts server)
 bash deploy.sh
@@ -1112,16 +1112,15 @@ cd geo-shield && npm install && npm run build:win
 
 ---
 
-## 👥 Team GeoShield
+## 👥 Team: The Elite Party
 
-| Name | Roll No |
-|------|----------|
-| **Arghya Bose** | 24155380 |
-| **Arindam Tripathi** | 24155614 |
-| **Arnab Pal** | 24155615 |
-| **Aaditree Shreya** | 24155371 |
-| **Ankan Nag** | 2405791 |
-| **Akash Das** | 24155155 |
+**Made by**: Mohit Sharma, Nishchal kapadia, Himanshu Meena
+
+| Member | Role |
+|--------|------|
+| **Mohit Sharma** | Developer |
+| **Nishchal kapadia** | Developer |
+| **Himanshu Meena** | Developer |
 
 ---
 
@@ -1129,8 +1128,8 @@ cd geo-shield && npm install && npm run build:win
 
 ### 🛡️ GeoShield — Protecting North Eastern India
 
-**Built with ❤️ for Smart India Hackathon 2026**
+**Built with ❤️ by The Elite Party for Smart India Hackathon 2026**
 
-[![GitHub](https://img.shields.io/badge/GitHub-Officialarghya29-181717?style=for-the-badge&logo=github)](https://github.com/officialarghya29/GeoShield)
+[![GitHub](https://img.shields.io/badge/GitHub-mohitsharmaa21-181717?style=for-the-badge&logo=github)](https://github.com/mohitsharmaa21/Tri-Netra)
 
 </div>

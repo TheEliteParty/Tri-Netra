@@ -21,16 +21,15 @@ Theme: Disaster Management
 
 ---
 
-## 👥 Slide 2: Team GeoShield
+## 👥 Slide 2: Team The Elite Party
 
-| Name | Roll No |
-|------|----------|
-| **Arghya Bose** | 24155380 |
-| **Arindam Tripathi** | 24155614 |
-| **Arnab Pal** | 24155615 |
-| **Aaditree Shreya** | 24155371 |
-| **Ankan Nag** | 2405791 |
-| **Akash Das** | 24155155 |
+**Made by**: Mohit Sharma, Nishchal kapadia, Himanshu Meena
+
+| Member | Role |
+|--------|------|
+| **Mohit Sharma** | Developer |
+| **Nishchal kapadia** | Developer |
+| **Himanshu Meena** | Developer |
 
 ---
 
@@ -263,15 +262,15 @@ Sensor Reading → AI Risk Assessment → Risk Score → Alert Generation
 
 ## 🙏 Slide 15: Thank You
 
-### Team GeoShield
+### Team The Elite Party
 
 **"Protecting Lives Through AI-Powered Early Warning"**
 
-🔗 **GitHub:** github.com/officialarghya29/GeoShield
+🔗 **GitHub:** github.com/mohitsharmaa21/Tri-Netra
 🌐 **Demo:** localhost:8000
 
 **SIH 2026 | Problem Statement SIH26001 | MDoNER | Disaster Management**
 
 ---
 
-*Built with ❤️ by Team GeoShield for Smart India Hackathon 2026*
+*Built with ❤️ by Team The Elite Party for Smart India Hackathon 2026*

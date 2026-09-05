@@ -5,7 +5,7 @@
 ### Steps:
 1. Go to https://railway.app and sign up with GitHub
 2. Click **"New Project"** → **"Deploy from GitHub repo"**
-3. Select `officialarghya29/GeoShield`
+3. Select `mohitsharmaa21/Tri-Netra`
 4. Railway will auto-detect the Dockerfile and build
 5. Set environment variable:
    - Key: `PORT` → Value: `8000`
@@ -24,7 +24,7 @@ https://your-app-name.up.railway.app/api/health
 ### Steps:
 1. Go to https://render.com and sign up with GitHub
 2. Click **"New"** → **"Web Service"**
-3. Connect `officialarghya29/GeoShield`
+3. Connect `mohitsharmaa21/Tri-Netra`
 4. Configure:
    - **Name:** geoshield
    - **Runtime:** Python 3
@@ -44,7 +44,7 @@ https://geoshield.onrender.com/api/health
 ## Option 3: Local Demo (Easiest)
 
 ```bash
-git clone https://github.com/officialarghya29/GeoShield.git
+git clone https://github.com/mohitsharmaa21/Tri-Netra.git
 cd GeoShield
 bash deploy.sh
 # Opens at http://localhost:8000
