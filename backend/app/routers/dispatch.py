@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from app.database import get_db
 from app.models import SensorStation, Alert
-from app.auth import get_current_user
+from app.auth import require_role
 
 router = APIRouter(prefix="/api/dispatch", tags=["emergency-dispatch"])
 
@@ -85,7 +85,11 @@ def get_dispatch_history():
     }
 
 @router.post("/send")
-def send_emergency_dispatch(payload: DispatchRequest, db: Session = Depends(get_db)):
+def send_emergency_dispatch(
+    payload: DispatchRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_role("admin", "district_admin")),
+):
     station = db.query(SensorStation).filter(SensorStation.station_id == payload.station_id).first()
     station_name = station.name if station else payload.station_id
     state = station.state if station else "National"

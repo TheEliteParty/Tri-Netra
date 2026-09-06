@@ -2,10 +2,11 @@
 Enhanced Prediction API — Risk Grid, Batch Predict, District Risk, Model Training
 Merged from winning reference repo (ArindamTripathi619/landslide-risk-monitoring)
 """
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List
 from app.ai_engine.enhanced_predictor import get_enhanced_predictor
+from app.auth import require_role
 
 router = APIRouter(prefix="/api/ml", tags=["ML Enhanced"])
 
@@ -81,10 +82,10 @@ async def ml_predict_batch(request: MLBatchRequest):
 
 
 @router.post("/train")
-async def train_model(csv_path: Optional[str] = None):
-    """Train or retrain the XGBoost prediction model."""
+async def train_model(user: dict = Depends(require_role("admin"))):
+    """Retrain from the server-configured training dataset (admin only)."""
     predictor = get_enhanced_predictor()
-    result = predictor.train(csv_path)
+    result = predictor.train()
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     return {"message": "Model trained successfully", "details": result}

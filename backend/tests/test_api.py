@@ -7,6 +7,8 @@ import pytest
 import sys
 import os
 
+os.environ["TRINETRA_TESTING"] = "1"
+
 # Add parent to path so we can import app
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -16,6 +18,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
+EXPECTED_STATION_COUNT = 28
+EXPECTED_STATE_COUNT = 15
 
 
 # ── Health & Auth ──────────────────────────────────────────────
@@ -39,7 +44,7 @@ class TestHealthAndAuth:
 
     def test_login_missing_fields(self):
         r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in"})
-        assert r.status_code == 422  # Validation error
+        assert r.status_code == 400
 
 
 # ── Dashboard ──────────────────────────────────────────────────
@@ -48,7 +53,7 @@ class TestDashboard:
         r = client.get("/api/dashboard/stats")
         assert r.status_code == 200
         data = r.json()
-        assert data["total_stations"] == 20
+        assert data["total_stations"] == EXPECTED_STATION_COUNT
         assert "active_alerts" in data
         assert "average_risk_score" in data
 
@@ -56,7 +61,7 @@ class TestDashboard:
         r = client.get("/api/dashboard/risk-heatmap")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
         assert all("lat" in p and "lng" in p and "risk_score" in p for p in data)
 
     def test_rainfall_trend(self):
@@ -70,13 +75,14 @@ class TestDashboard:
         r = client.get("/api/dashboard/risk-trend")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) >= 24
+        # Risk assessments are event-driven snapshots, not fabricated hourly data.
+        assert len(data) >= 1
 
     def test_state_summary(self):
         r = client.get("/api/dashboard/state-summary")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) == 8  # 8 NER states
+        assert len(data) == EXPECTED_STATE_COUNT
         assert all("state" in s and "avg_risk_score" in s for s in data)
 
 
@@ -86,7 +92,7 @@ class TestSensors:
         r = client.get("/api/sensors/stations")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
         assert all("station_id" in s and "risk" in s for s in data)
 
     def test_station_detail(self):
@@ -113,7 +119,7 @@ class TestSensors:
         r = client.get("/api/sensors/readings/latest")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
 
 
 # ── Alerts ─────────────────────────────────────────────────────
@@ -202,6 +208,29 @@ class TestSimulate:
         assert data["status"] == "success"
         assert data["risk_assessment"]["risk_score"] >= 75  # Critical should be high
         assert data["risk_assessment"]["risk_level"] == "critical"
+        assert data["simulation"]["ai_assessment"]["risk_level"] == "critical"
+        assert data["alert"] == data["simulation"]["alert_generated"]
+
+    def test_batch_uses_stations_count_and_admin_role(self):
+        token = self._get_token()
+        r = client.post(
+            "/api/simulate/batch?stations_count=2",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert data["stations_count"] == 2
+        assert data["simulated_events"] == 2
+        assert len(data["events"]) == 2
+
+    def test_citizen_cannot_simulate(self):
+        login = client.post("/api/auth/login", data={"email": "citizen@trinetra.gov.in", "password": "demo123"})
+        r = client.post(
+            "/api/simulate/landslide",
+            json={"station_id": "NER-001", "intensity": "high"},
+            headers={"Authorization": f"Bearer {login.json()['token']}"},
+        )
+        assert r.status_code == 403
 
 
 # ── Export ─────────────────────────────────────────────────────
@@ -211,7 +240,7 @@ class TestExport:
         assert r.status_code == 200
         data = r.json()
         assert data["type"] == "FeatureCollection"
-        assert len(data["features"]) == 20
+        assert len(data["features"]) == EXPECTED_STATION_COUNT
 
     def test_csv(self):
         r = client.get("/api/export/csv")
@@ -248,7 +277,7 @@ class TestSatellite:
         r = client.get("/api/satellite/data")
         assert r.status_code == 200
         data = r.json()
-        assert data["total_stations"] == 20
+        assert data["total_stations"] == EXPECTED_STATION_COUNT
 
     def test_satellite_summary(self):
         r = client.get("/api/satellite/summary")
@@ -260,7 +289,36 @@ class TestSatellite:
         r = client.get("/api/satellite/risk-zones")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
+
+
+class TestStabilizedContracts:
+    def test_ndma_briefing_is_explicit_prototype(self):
+        r = client.get("/api/ndma-briefing/NER-001")
+        assert r.status_code == 200
+        data = r.json()
+        assert data["data_mode"] == "prototype_simulation"
+        assert "not" in data["disclaimer"].lower()
+        assert data["geotechnical_metrics"]["provenance"] == "Deterministic synthetic prototype values"
+        assert all(item["status"] == "NOT_EXECUTED" for item in data["ndma_sop_action_checklist"])
+
+    def test_ndma_briefing_unknown_station_is_404(self):
+        assert client.get("/api/ndma-briefing/UNKNOWN").status_code == 404
+
+    def test_single_station_segmentation_contract(self):
+        r = client.get("/api/segmentation/station/NER-001")
+        assert r.status_code == 200
+        data = r.json()
+        assert data["station_id"] == "NER-001"
+        assert data["segmentation_results"]["risk_tier"] in {"low", "moderate", "high", "critical"}
+
+    def test_ml_training_requires_admin_and_exposes_no_client_path(self):
+        assert client.post("/api/ml/train").status_code == 401
+        login = client.post("/api/auth/login", data={"email": "citizen@trinetra.gov.in", "password": "demo123"})
+        headers = {"Authorization": f"Bearer {login.json()['token']}"}
+        assert client.post("/api/ml/train", headers=headers).status_code == 403
+        operation = client.get("/openapi.json").json()["paths"]["/api/ml/train"]["post"]
+        assert all(parameter["name"] != "csv_path" for parameter in operation.get("parameters", []))
 
 
 # ── Roads & Villages ───────────────────────────────────────────

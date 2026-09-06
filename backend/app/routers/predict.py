@@ -4,7 +4,7 @@ Allows users to click anywhere on the map and get AI risk prediction.
 Supports GeoJSON and CSV export of all risk data.
 """
 from fastapi import APIRouter, Depends, Query
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
 from pydantic import BaseModel, Field
@@ -164,7 +164,13 @@ def export_geojson(db: Session = Depends(get_db)):
         }
     }
 
-    return geojson
+    return JSONResponse(
+        content=geojson,
+        media_type="application/geo+json",
+        headers={
+            "Content-Disposition": f"attachment; filename=trinetra_export_{datetime.utcnow().strftime('%Y%m%d')}.geojson"
+        },
+    )
 
 
 @router.get("/export/csv")
@@ -243,8 +249,14 @@ def export_risk_zones_geojson(db: Session = Depends(get_db)):
                 }
             })
 
-    return {
+    return JSONResponse(
+        content={
         "type": "FeatureCollection",
         "name": "Tri-Netra_High_Risk_Zones",
         "features": features,
-    }
+        },
+        media_type="application/geo+json",
+        headers={
+            "Content-Disposition": f"attachment; filename=trinetra_risk_zones_{datetime.utcnow().strftime('%Y%m%d')}.geojson"
+        },
+    )

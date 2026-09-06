@@ -71,6 +71,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'stations' | 'alerts'>('overview');
+  const [dataWarning, setDataWarning] = useState<string | null>(null);
 
   // Interactive Graph Controls
   const [rainfallChartType, setRainfallChartType] = useState<'area' | 'bar'>('area');
@@ -93,6 +94,10 @@ export default function Dashboard() {
         settle(getStations()),
         settle(getAlerts({ status: 'active' })),
       ]);
+      const failedFeeds = [statsRes, rainRes, riskRes, stateRes, stationsRes, alertsRes].filter(item => item === null).length;
+      setDataWarning(failedFeeds > 0
+        ? `${failedFeeds} of 6 dashboard feeds are unavailable. Any placeholder values below are DEMO DATA, not live system health.`
+        : null);
       if (statsRes?.data) {
         setStats(statsRes.data);
       } else {
@@ -119,6 +124,7 @@ export default function Dashboard() {
       console.error('Dashboard fetch error:', e);
       setStats(prev => prev || FALLBACK_STATS);
       setStateData(prev => prev.length ? prev : FALLBACK_STATES);
+      setDataWarning('Dashboard API unavailable. Values shown are clearly marked DEMO DATA and must not be used as operational status.');
     } finally {
       setLoading(false);
       if (isManual) setRefreshing(false);
@@ -449,11 +455,11 @@ export default function Dashboard() {
               {t('dashboard')}
             </h1>
             <Badge variant="sky" size="md">
-              Pan-India Live Grid (15 States)
+              Pan-India Prototype Grid (15 States)
             </Badge>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1 truncate">
-            Real-time geospatial landslide forecasting & multi-hazard AI telemetry
+            Database-backed prototype dashboard; seeded and generated records may be present
           </p>
         </div>
 
@@ -485,6 +491,13 @@ export default function Dashboard() {
           </Button>
         </div>
       </div>
+
+      {dataWarning && (
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{dataWarning}</span>
+        </div>
+      )}
 
       {/* Primary KPI Metrics Grid - Adaptive 2 -> 3 -> 6 cols */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5 lg:gap-4">

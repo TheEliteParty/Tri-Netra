@@ -9,8 +9,19 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-# Secret key for JWT signing — in production, use a proper secret manager
-JWT_SECRET = os.getenv("JWT_SECRET", "trinetra-dev-secret-change-in-production")
+# Production must opt in explicitly and must never fall back to the public dev key.
+APP_ENV = os.getenv("TRINETRA_ENV", os.getenv("APP_ENV", "development")).strip().lower()
+IS_PRODUCTION = (
+    APP_ENV in {"production", "prod"}
+    or os.getenv("RENDER", "").lower() == "true"
+    or bool(os.getenv("RAILWAY_ENVIRONMENT"))
+)
+_DEV_JWT_SECRET = "trinetra-dev-secret-change-in-production"
+JWT_SECRET = os.getenv("JWT_SECRET", "").strip()
+if IS_PRODUCTION and (len(JWT_SECRET) < 32 or JWT_SECRET == _DEV_JWT_SECRET):
+    raise RuntimeError("JWT_SECRET must be set to a unique value of at least 32 characters in production")
+if not JWT_SECRET:
+    JWT_SECRET = _DEV_JWT_SECRET
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24
 
@@ -29,10 +40,10 @@ security = HTTPBearer(auto_error=False)
 # Demo user database (in production, use a real DB with hashed passwords)
 # Passwords are hashed with bcrypt
 DEMO_USERS = {
-    "admin@trinetra.gov.in": {"password_hash": _hash_password("admin123"), "name": "Admin", "role": "admin"},
-    "field@trinetra.gov.in": {"password_hash": _hash_password("field123"), "name": "Field Officer", "role": "field_officer"},
-    "district@trinetra.gov.in": {"password_hash": _hash_password("district123"), "name": "District Admin", "role": "district_admin"},
-    "citizen@trinetra.gov.in": {"password_hash": _hash_password("demo123"), "name": "Citizen", "role": "citizen"},
+    "admin@trinetra.gov.in": {"password_hash": _hash_password("admin123"), "name": "Admin", "role": "admin", "districts": ["*"]},
+    "field@trinetra.gov.in": {"password_hash": _hash_password("field123"), "name": "Field Officer", "role": "field_officer", "districts": ["Gangtok"]},
+    "district@trinetra.gov.in": {"password_hash": _hash_password("district123"), "name": "District Admin", "role": "district_admin", "districts": ["Gangtok"]},
+    "citizen@trinetra.gov.in": {"password_hash": _hash_password("demo123"), "name": "Citizen", "role": "citizen", "districts": ["Gangtok"]},
 }
 
 
@@ -42,9 +53,9 @@ def authenticate_user(email: str, password: str) -> dict | None:
     user = DEMO_USERS.get(normalized_email)
     if user:
         if _verify_password(password, user["password_hash"]):
-            return {"email": normalized_email, "name": user["name"], "role": user["role"]}
+            return {"email": normalized_email, "name": user["name"], "role": user["role"], "districts": user["districts"]}
         if normalized_email == "citizen@trinetra.gov.in" and password in ("citizen123", "demo123"):
-            return {"email": normalized_email, "name": user["name"], "role": user["role"]}
+            return {"email": normalized_email, "name": user["name"], "role": user["role"], "districts": user["districts"]}
     return None
 
 
@@ -54,6 +65,7 @@ def create_token(user_data: dict) -> str:
         "sub": user_data["email"],
         "name": user_data["name"],
         "role": user_data["role"],
+        "districts": user_data.get("districts", []),
         "iat": datetime.utcnow(),
         "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS),
     }

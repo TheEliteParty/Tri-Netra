@@ -1,16 +1,14 @@
-"""
-Landslide Simulator API - Physics-based stress testing & Attention-UNet validation.
-Uses real station geotechnical models and actual village demographics.
-"""
-from fastapi import APIRouter, Depends, HTTPException
+"""Prototype landslide stress-scenario API using seeded station records and heuristics."""
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional
+from typing import Literal, Optional
 import json
 import math
 
 from app.database import get_db
+from app.schemas import SimulateResponse
 from app.models import (
     SensorStation, SensorReading, RiskAssessment, Alert, WeatherData, Village
 )
@@ -18,24 +16,25 @@ from app.ai_engine.landslide_segmentation import get_segmentation_engine
 from app.ai_engine.risk_predictor import get_predictor
 from app.ai_engine.enhanced_predictor import get_enhanced_predictor
 from app.auth import require_role
+from app.websocket_manager import publish_alert_event
 
 router = APIRouter(prefix="/api/simulate", tags=["simulate"])
 
 
 class LandslideRequest(BaseModel):
     station_id: Optional[str] = None
-    intensity: str = "high"  # low, moderate, high, critical
+    intensity: Literal["low", "moderate", "high", "critical"] = "high"
     custom_rainfall: Optional[float] = None
     custom_moisture: Optional[float] = None
 
 
 # ── Core simulation logic ─────────────────
-def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
-                    custom_rainfall: Optional[float] = None,
-                    custom_moisture: Optional[float] = None) -> dict:
+async def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
+                          custom_rainfall: Optional[float] = None,
+                          custom_moisture: Optional[float] = None) -> dict:
     """
-    Core physics-based stress simulation driven by real geotechnical equations
-    and Attention-UNet deep learning evaluation.
+    Demonstration stress simulation using deterministic calculations and a
+    heuristic segmentation mask. It is not a validated forecast.
     """
     # Pick a station
     if station_id:
@@ -119,17 +118,17 @@ def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
             f"Precipitation Trigger: {rainfall} mm",
             f"Soil Saturation: {moisture}%",
             f"Pore Water Pressure: {pore_pressure} kPa",
-            f"Attention-UNet Scarp Area: {seg_res['segmentation_results']['hazard_area_m2']} m2"
+            f"Prototype Heuristic Mask Area: {seg_res['segmentation_results']['hazard_area_m2']} m2"
         ]),
         predicted_time_window=24,
         recommendation=(
             "CRITICAL: Deploy immediate slope stabilization and trigger community warning."
             if risk_tier == "critical" else (
                 "HIGH RISK: Monitor geotechnical sensors and inspect highway drainage channels."
-                if risk_tier == "high" else "NORMAL: Routine satellite telemetry and periodic patrol."
+                if risk_tier == "high" else "NORMAL: Continue routine monitoring and periodic patrol."
             )
         ),
-        model_version="Attention-UNet-RCAN-5x",
+        model_version="prototype-heuristic-mask-v1",
         timestamp=datetime.utcnow(),
     )
     db.add(assessment)
@@ -142,7 +141,7 @@ def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
         pop_affected = 12000 if risk_tier == "critical" else 3500
 
     # Create alert
-    alert_created = None
+    alert = None
     if risk_tier in ["moderate", "high", "critical"]:
         severity_map = {
             "moderate": "Moderate Landslide Warning",
@@ -159,7 +158,7 @@ def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
                 f"{station.name}, {station.village}, {station.district}. "
                 f"Rainfall: {rainfall:.0f}mm, Soil Moisture: {moisture:.0f}%, "
                 f"Ground Displacement: {disp_base:.1f}mm, "
-                f"Attention-UNet Hazard Area: {seg_res['segmentation_results']['hazard_area_m2']} m2. "
+                f"Prototype Heuristic Mask Area: {seg_res['segmentation_results']['hazard_area_m2']} m2. "
                 f"{assessment.recommendation}"
             ),
             status="active",
@@ -169,14 +168,42 @@ def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
             created_at=datetime.utcnow(),
         )
         db.add(alert)
-        alert_created = {
+    db.commit()
+
+    risk_assessment = {
+        "risk_score": assessment.risk_score,
+        "risk_level": assessment.risk_level,
+        "landslide_probability": assessment.landslide_probability,
+        "contributing_factors": json.loads(assessment.contributing_factors),
+        "time_window_hours": assessment.predicted_time_window,
+        "recommendation": assessment.recommendation,
+        "model_version": assessment.model_version,
+    }
+    alert_response = None
+    if alert is not None:
+        alert_response = {
+            "id": alert.id,
             "title": alert.title,
             "level": alert.risk_level,
             "message": alert.message,
-            "affected_population": pop_affected,
+            "affected_population": alert.affected_population,
         }
-
-    db.commit()
+        await publish_alert_event(
+            "alert.created",
+            {
+                "id": alert.id,
+                "station_id": alert.station_id,
+                "risk_level": alert.risk_level,
+                "title": alert.title,
+                "message": alert.message,
+                "status": alert.status,
+                "affected_population": alert.affected_population,
+                "latitude": alert.latitude,
+                "longitude": alert.longitude,
+                "created_at": alert.created_at.isoformat() if alert.created_at else None,
+            },
+            district=station.district,
+        )
 
     return {
         "status": "success",
@@ -191,6 +218,14 @@ def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
                 "slope_angle": station.slope_angle,
                 "elevation": station.elevation,
             },
+            "sensor_reading": {
+                "rainfall_mm": rainfall,
+                "soil_moisture": moisture,
+                "ground_displacement": round(disp_base, 2),
+                "pore_pressure": pore_pressure,
+                "vibration_level": vibration,
+            },
+            # Kept as an alias for existing API consumers.
             "sensor_spikes": {
                 "rainfall_mm": rainfall,
                 "soil_moisture": moisture,
@@ -205,21 +240,23 @@ def _run_simulation(db: Session, station_id: Optional[str], intensity: str,
                 "attention_unet_hazard_m2": seg_res["segmentation_results"]["hazard_area_m2"],
                 "coverage_percent": seg_res["segmentation_results"]["coverage_percent"],
                 "recommendation": assessment.recommendation,
-                "model": "Attention-UNet + RCAN 5x",
+                "model": "Prototype heuristic mask simulation",
             },
-            "alert_generated": alert_created,
+            "alert_generated": alert_response,
         },
+        "risk_assessment": risk_assessment,
+        "alert": alert_response,
     }
 
 
-@router.post("/landslide")
-def simulate_landslide(
+@router.post("/landslide", response_model=SimulateResponse)
+async def simulate_landslide(
     request: LandslideRequest,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_role("field_officer")),
+    user: dict = Depends(require_role("field_officer", "district_admin", "admin")),
 ):
     """Simulate a landslide event at a specific station or a high-risk station."""
-    return _run_simulation(
+    return await _run_simulation(
         db=db,
         station_id=request.station_id,
         intensity=request.intensity,
@@ -229,18 +266,18 @@ def simulate_landslide(
 
 
 @router.post("/batch")
-def simulate_batch(
-    stations_count: int = 3,
-    intensity: str = "high",
+async def simulate_batch(
+    stations_count: int = Query(3, ge=1, le=50),
+    intensity: Literal["low", "moderate", "high", "critical"] = "high",
     db: Session = Depends(get_db),
-    user: dict = Depends(require_role("district_admin")),
+    user: dict = Depends(require_role("district_admin", "admin")),
 ):
     """Simulate multi-station landslide events (e.g. monsoon wave)."""
     target_stations = db.query(SensorStation).order_by(SensorStation.slope_angle.desc()).limit(stations_count).all()
 
     results = []
     for station in target_stations:
-        result = _run_simulation(
+        result = await _run_simulation(
             db=db,
             station_id=station.station_id,
             intensity=intensity,
@@ -249,6 +286,7 @@ def simulate_batch(
 
     return {
         "status": "success",
+        "stations_count": len(results),
         "simulated_events": len(results),
         "events": results,
     }
@@ -259,7 +297,7 @@ def reset_simulation(
     db: Session = Depends(get_db),
     user: dict = Depends(require_role("admin")),
 ):
-    """Reset all simulation-created alerts and sensor spikes back to baseline satellite truth."""
+    """Reset simulation-created records to the seeded demonstration baseline."""
     from app.seed_data import seed_database
     seed_database(force=True)
-    return {"status": "success", "message": "Database reset to baseline satellite truth"}
+    return {"status": "success", "message": "Database reset to seeded demonstration baseline"}

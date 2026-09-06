@@ -299,14 +299,16 @@ class SentinelGeePipeline:
 
         return {
             "status": "success",
+            "data_mode": "prototype_simulation",
+            "disclaimer": "Synthetic imagery and demonstration inference; Google Earth Engine and live Sentinel acquisition are not connected.",
             "metadata": {
                 "location_name": location_name,
                 "center_coordinates": {"lat": round(lat, 5), "lng": round(lng, 5)},
-                "satellite_platform": "Sentinel-2A / 2B Multi-Spectral Instrument (MSI)",
-                "dem_source": "NASA SRTM 30m Global Elevation Model",
-                "spatial_resolution": "10m Native -> 2m (RCAN 5x Super-Resolved)",
-                "date_acquired": "2026-09-06 (Real-time Cloudless Composite)",
-                "cloud_cover_percent": 1.2
+                "satellite_platform": "Synthetic Sentinel-2-like multispectral demonstration",
+                "dem_source": "Caller-provided or prototype slope input",
+                "spatial_resolution": "Illustrative 10m grid -> bicubic 2m display grid",
+                "date_acquired": "Not acquired; generated on request",
+                "cloud_cover_percent": 0.0
             },
             "terrain_metrics": {
                 "slope_angle_deg": round(slope_angle, 1),

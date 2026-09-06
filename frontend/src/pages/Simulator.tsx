@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { simulateLandslide, simulateBatch, resetSimulation, SimulationResult, getStations, Station } from '../services/api';
+import { useAuth } from '../App';
 import { t } from '../i18n/translations';
 import {
   Zap, AlertTriangle, Radio, Mountain, Droplets, Activity,
@@ -22,12 +23,16 @@ interface ScenarioPreset {
 
 const SCENARIOS: ScenarioPreset[] = [
   { id: 'cloudburst', name: '🌧️ Monsoon Cloudburst', intensity: 'critical', desc: 'Sudden 260mm/24h extreme rainfall with rapid pore saturation', rain: 260, shift: 62 },
-  { id: 'insar_creep', name: '🌋 Subsurface InSAR Creep', intensity: 'high', desc: 'Accelerated 45mm shear displacement along joint plane', rain: 110, shift: 45 },
+  { id: 'displacement_creep', name: '🌋 Simulated Ground Creep', intensity: 'high', desc: 'Injected 45mm shear-displacement scenario (not InSAR)', rain: 110, shift: 45 },
   { id: 'soil_saturation', name: '💧 Talus Pore Pressure Surge', intensity: 'moderate', desc: 'Sustained monsoon rain exceeding Caine threshold', rain: 75, shift: 18 },
   { id: 'baseline', name: '🟢 Routine Environmental Stress', intensity: 'low', desc: 'Mild intermittent showers with stable slope equilibrium', rain: 25, shift: 4 },
 ];
 
 export default function Simulator() {
+  const { user } = useAuth();
+  const canRunSingle = !!user && ['field_officer', 'district_admin', 'admin'].includes(user.role);
+  const canRunBatch = !!user && ['district_admin', 'admin'].includes(user.role);
+  const canReset = user?.role === 'admin';
   const [stations, setStations] = useState<Station[]>([]);
   const [selectedStation, setSelectedStation] = useState('');
   const [intensity, setIntensity] = useState<'low' | 'moderate' | 'high' | 'critical'>('high');
@@ -35,6 +40,7 @@ export default function Simulator() {
   const [batchLoading, setBatchLoading] = useState(false);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [history, setHistory] = useState<SimulationResult[]>([]);
+  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     getStations().then(res => {
@@ -52,8 +58,10 @@ export default function Simulator() {
   }, [stations, selectedStation]);
 
   const handleSimulate = async () => {
+    if (!canRunSingle) return;
     setLoading(true);
     setResult(null);
+    setFeedback('');
     try {
       const res = await simulateLandslide({
         station_id: selectedStation || undefined,
@@ -61,37 +69,45 @@ export default function Simulator() {
       });
       setResult(res.data);
       setHistory(prev => [res.data, ...prev].slice(0, 8));
-    } catch (e) {
+    } catch (e: any) {
       console.error('Simulation error:', e);
+      setFeedback(e.response?.data?.detail || 'The simulation could not be run. Check the backend connection and try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleBatchSimulate = async () => {
+    if (!canRunBatch) return;
     setBatchLoading(true);
+    setFeedback('');
     try {
       const res = await simulateBatch(5);
-      const results = res.data?.results || [];
+      const events = res.data?.events || [];
+      const results = events.map(simulation => ({ status: 'success', simulation }));
       if (results.length > 0) {
         setResult(results[0]);
         setHistory(prev => [...results, ...prev].slice(0, 8));
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Batch simulation error:', e);
+      setFeedback(e.response?.data?.detail || 'The batch simulation could not be run. Check the backend connection and try again.');
     } finally {
       setBatchLoading(false);
     }
   };
 
   const handleReset = async () => {
-    if (!window.confirm('Reset all simulated sensor readings and return monitoring grid to nominal live baseline?')) return;
+    if (!canReset) return;
+    if (!window.confirm('Reset all simulated sensor readings and return the demo database to its seeded baseline?')) return;
+    setFeedback('');
     try {
       await resetSimulation();
       setHistory([]);
       setResult(null);
-    } catch (e) {
+    } catch (e: any) {
       console.error('Reset error:', e);
+      setFeedback(e.response?.data?.detail || 'The demo reset failed.');
     }
   };
 
@@ -118,11 +134,11 @@ export default function Simulator() {
                 </Badge>
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-zinc-900/90 border border-sky-200/80 dark:border-white/10 text-sky-700 dark:text-sky-300 text-[11px] font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                  <span>Physics & Sensor Injection Ready</span>
+                  <span>Deterministic demo injection ready</span>
                 </div>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-                Inject extreme weather, geotechnical pore-pressure spikes & ground deformation to test EWS trigger protocols
+                Inject predefined weather and sensor values to exercise the prototype alert workflow
               </p>
             </div>
           </div>
@@ -133,6 +149,7 @@ export default function Simulator() {
             variant="outline"
             size="sm"
             onClick={handleReset}
+            disabled={!canReset}
             className="text-xs h-9 px-3.5 gap-1.5 font-bold"
             title="Reset simulation data"
           >
@@ -288,7 +305,7 @@ export default function Simulator() {
           <div className="p-5 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card space-y-2.5">
             <Button
               onClick={handleSimulate}
-              disabled={loading || batchLoading}
+              disabled={loading || batchLoading || !canRunSingle}
               className="w-full h-12 bg-gradient-to-r from-rose-600 via-orange-600 to-amber-500 hover:opacity-95 text-white font-black text-sm rounded-xl shadow-lg shadow-rose-600/25 gap-2"
             >
               {loading ? (
@@ -296,14 +313,14 @@ export default function Simulator() {
               ) : (
                 <>
                   <Zap className="w-5 h-5" />
-                  <span>Trigger Live Stress Simulation</span>
+                  <span>Trigger Demo Stress Simulation</span>
                 </>
               )}
             </Button>
 
             <Button
               onClick={handleBatchSimulate}
-              disabled={loading || batchLoading}
+              disabled={loading || batchLoading || !canRunBatch}
               variant="outline"
               className="w-full h-10 border-slate-200/90 dark:border-white/15 text-xs font-bold rounded-xl gap-2"
             >
@@ -316,6 +333,14 @@ export default function Simulator() {
                 </>
               )}
             </Button>
+            <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-relaxed">
+              Single-station runs require Field Officer or above; batch runs require District Admin or Admin; reset requires Admin. Controls remain disabled when your role is not authorized.
+            </p>
+            {feedback && (
+              <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-300">
+                {feedback}
+              </div>
+            )}
           </div>
         </div>
 
@@ -337,8 +362,8 @@ export default function Simulator() {
                         <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
                           Simulation Impact: {result.simulation.station.name}
                         </h3>
-                        <Badge variant={result.risk_assessment.risk_level === 'critical' ? 'destructive' : 'warning'} className="font-extrabold text-[10px] uppercase">
-                          {result.risk_assessment.risk_level}
+                        <Badge variant={result.simulation.ai_assessment.risk_level === 'critical' ? 'destructive' : 'warning'} className="font-extrabold text-[10px] uppercase">
+                          {result.simulation.ai_assessment.risk_level}
                         </Badge>
                       </div>
                       <p className="text-xs text-slate-500 dark:text-zinc-400">
@@ -349,7 +374,7 @@ export default function Simulator() {
 
                   <div className="text-right">
                     <span className="text-2xl font-black text-rose-600 dark:text-rose-400">
-                      {result.risk_assessment.risk_score}
+                      {result.simulation.ai_assessment.risk_score}
                     </span>
                     <span className="text-xs text-slate-400 block -mt-1 font-bold">/ 100 Score</span>
                   </div>
@@ -363,47 +388,47 @@ export default function Simulator() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/70 dark:border-white/10">
                       <Droplets className="w-4 h-4 text-sky-500 mx-auto mb-1" />
-                      <div className="text-base font-black text-slate-900 dark:text-white">{result.simulation.sensor_reading.rainfall_mm} mm</div>
+                      <div className="text-base font-black text-slate-900 dark:text-white">{result.simulation.sensor_spikes.rainfall_mm} mm</div>
                       <div className="text-[10px] text-slate-400 font-medium">Rainfall 24h</div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/70 dark:border-white/10">
                       <Activity className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
-                      <div className="text-base font-black text-slate-900 dark:text-white">{result.simulation.sensor_reading.soil_moisture}%</div>
+                      <div className="text-base font-black text-slate-900 dark:text-white">{result.simulation.sensor_spikes.soil_moisture}%</div>
                       <div className="text-[10px] text-slate-400 font-medium">Soil Saturation</div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/70 dark:border-white/10">
                       <Mountain className="w-4 h-4 text-orange-500 mx-auto mb-1" />
-                      <div className="text-base font-black text-slate-900 dark:text-white">+{result.simulation.sensor_reading.ground_displacement} mm</div>
-                      <div className="text-[10px] text-slate-400 font-medium">InSAR Slip Rate</div>
+                      <div className="text-base font-black text-slate-900 dark:text-white">+{result.simulation.sensor_spikes.ground_displacement_mm} mm</div>
+                      <div className="text-[10px] text-slate-400 font-medium">Simulated displacement</div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/70 dark:border-white/10">
                       <TrendingUp className="w-4 h-4 text-purple-500 mx-auto mb-1" />
-                      <div className="text-base font-black text-slate-900 dark:text-white">{result.simulation.sensor_reading.pore_pressure} kPa</div>
+                      <div className="text-base font-black text-slate-900 dark:text-white">{result.simulation.sensor_spikes.pore_water_pressure_kpa} kPa</div>
                       <div className="text-[10px] text-slate-400 font-medium">Pore Pressure</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Generated Emergency Alert Notification Banner */}
-                {result.alert && (
+                {result.simulation.alert_generated && (
                   <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/90 dark:border-rose-500/40 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
                         <Zap className="w-4 h-4 text-rose-600 animate-pulse" />
-                        <span>Automated EWS Trigger: {result.alert.title}</span>
+                        <span>Prototype EWS record created: {result.simulation.alert_generated.title}</span>
                       </span>
                       <Badge variant="destructive" size="sm" className="font-mono text-[10px]">
-                        CAP v1.2 Broadcast
+                        Database alert only
                       </Badge>
                     </div>
-                    <p className="text-xs text-rose-900 dark:text-rose-200 font-medium">{result.alert.title} — Severe slope instability threshold reached.</p>
+                    <p className="text-xs text-rose-900 dark:text-rose-200 font-medium">{result.simulation.alert_generated.message}</p>
                     <div className="flex items-center gap-3 pt-1 text-[11px] text-rose-700 dark:text-rose-400 font-semibold">
                       <span className="flex items-center gap-1">
                         <Users className="w-3.5 h-3.5" />
-                        <span>{result.alert.affected_population.toLocaleString()} citizens in danger zone</span>
+                        <span>{result.simulation.alert_generated.affected_population.toLocaleString()} people in the seeded impact estimate</span>
                       </span>
                     </div>
                   </div>
@@ -415,7 +440,12 @@ export default function Simulator() {
                     Geotechnical Failure Contributing Factors
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                    {result.risk_assessment.contributing_factors.map((factor, idx) => (
+                    {[
+                      `Slope: ${result.simulation.station.slope_angle}°`,
+                      `Injected rainfall: ${result.simulation.sensor_spikes.rainfall_mm} mm`,
+                      `Injected soil moisture: ${result.simulation.sensor_spikes.soil_moisture}%`,
+                      `Heuristic mask coverage: ${result.simulation.ai_assessment.coverage_percent}%`,
+                    ].map((factor, idx) => (
                       <div key={idx} className="p-2 rounded-lg bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/60 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-zinc-200 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
                         <span className="truncate">{factor}</span>
@@ -428,7 +458,7 @@ export default function Simulator() {
                       SOP Emergency Action Recommendation
                     </span>
                     <p className="text-xs text-slate-800 dark:text-white font-medium leading-relaxed">
-                      {result.risk_assessment.recommendation}
+                      {result.simulation.ai_assessment.recommendation}
                     </p>
                   </div>
                 </div>
@@ -445,7 +475,7 @@ export default function Simulator() {
                   Simulation Standby • Awaiting Stress Trigger
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                  Select a station and an intensity preset on the left, then click <strong>"Trigger Live Stress Simulation"</strong> to witness instantaneous automated sensor reaction, Attention-UNet scarp evaluation, and CAP emergency broadcast.
+                  Select a station and an intensity preset to exercise a deterministic demo workflow. The mask, sensor spikes and alert record are simulated; no satellite model or public broadcast is run.
                 </p>
               </div>
 
@@ -501,19 +531,19 @@ export default function Simulator() {
                   <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-colors">
                     <td className="py-2.5 font-bold text-slate-900 dark:text-white">{h.simulation.station.name}</td>
                     <td className="py-2.5 uppercase font-bold text-[10px] text-slate-600 dark:text-zinc-300">{h.simulation.intensity}</td>
-                    <td className="py-2.5 font-mono font-bold text-slate-900 dark:text-white">{h.risk_assessment.risk_score}</td>
+                    <td className="py-2.5 font-mono font-bold text-slate-900 dark:text-white">{h.simulation.ai_assessment.risk_score}</td>
                     <td className="py-2.5">
                       <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${
-                        h.risk_assessment.risk_level === 'critical' ? 'bg-rose-500 text-white' :
-                        h.risk_assessment.risk_level === 'high' ? 'bg-orange-500 text-white' :
-                        h.risk_assessment.risk_level === 'moderate' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'
+                        h.simulation.ai_assessment.risk_level === 'critical' ? 'bg-rose-500 text-white' :
+                        h.simulation.ai_assessment.risk_level === 'high' ? 'bg-orange-500 text-white' :
+                        h.simulation.ai_assessment.risk_level === 'moderate' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'
                       }`}>
-                        {h.risk_assessment.risk_level}
+                        {h.simulation.ai_assessment.risk_level}
                       </span>
                     </td>
-                    <td className="py-2.5 font-mono text-slate-600 dark:text-zinc-300">{h.simulation.sensor_reading.rainfall_mm} mm</td>
+                    <td className="py-2.5 font-mono text-slate-600 dark:text-zinc-300">{h.simulation.sensor_spikes.rainfall_mm} mm</td>
                     <td className="py-2.5 font-medium text-slate-600 dark:text-zinc-300">
-                      {h.alert ? `${h.alert.affected_population.toLocaleString()} people` : 'None (Sub-threshold)'}
+                      {h.simulation.alert_generated ? `${h.simulation.alert_generated.affected_population.toLocaleString()} people` : 'None (Sub-threshold)'}
                     </td>
                   </tr>
                 ))}

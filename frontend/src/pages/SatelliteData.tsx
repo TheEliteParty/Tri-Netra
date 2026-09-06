@@ -32,7 +32,7 @@ const RISK_BADGES: Record<string, { variant: "success" | "warning" | "destructiv
   critical: { variant: "destructive", label: "CRITICAL", dot: "bg-rose-500 animate-pulse" },
 };
 
-// Resilient default baseline so UI never appears empty during hydration
+// Clearly labelled presentation placeholder; never treated as operational telemetry.
 const DEFAULT_SEGMENTATION_STATION: StationSegmentation = {
   station_id: "NER-001",
   station_name: "Gangtok North Slope",
@@ -56,9 +56,9 @@ const DEFAULT_SEGMENTATION_STATION: StationSegmentation = {
     dice_score: 0.816
   },
   super_resolution: {
-    model: "RCAN 5x",
-    native_resolution: "10m x 10m",
-    enhanced_resolution: "2m x 2m",
+    model: "Bicubic 5x demonstration",
+    native_resolution: "Synthetic 10m-like grid",
+    enhanced_resolution: "Upsampled display grid (not new source detail)",
     psnr_rgb: 22.07,
     ssim: 0.586
   },
@@ -82,6 +82,8 @@ export default function SatelliteData() {
   const [loading, setLoading] = useState(true);
   const [inferring, setInferring] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("segmentation");
+  const [dataWarning, setDataWarning] = useState<string | null>(null);
+  const [showingPlaceholder, setShowingPlaceholder] = useState(true);
 
   // Interactive slider controls for on-demand simulation
   const [customSlope, setCustomSlope] = useState<number>(38.0);
@@ -100,6 +102,11 @@ export default function SatelliteData() {
         getSegmentationModels().catch(() => ({ data: null }))
       ]);
 
+      const availableFeeds = [sumRes.data, stRes.data?.stations?.length, rzRes.data?.length, segRes.data, modRes.data].filter(Boolean).length;
+      setDataWarning(availableFeeds < 5
+        ? `${5 - availableFeeds} of 5 prototype feeds are unavailable. The segmentation panel may show a labelled demo placeholder; no live satellite inference is implied.`
+        : null);
+
       if (sumRes.data) setSummary(sumRes.data);
       if (stRes.data?.stations) setStations(stRes.data.stations);
       if (rzRes.data) setRiskZones(rzRes.data);
@@ -108,6 +115,7 @@ export default function SatelliteData() {
         const initial = segRes.data.stations[0];
         setSelectedStationId(initial.station_id);
         setActiveSegResult(initial);
+        setShowingPlaceholder(false);
         setCustomSlope(initial.terrain_input.slope_angle_deg);
         setCustomMoisture(initial.terrain_input.soil_moisture_pct);
         setCustomRain(initial.terrain_input.rainfall_24h_mm);
@@ -116,6 +124,7 @@ export default function SatelliteData() {
       if (modRes.data) setModelMeta(modRes.data);
     } catch (err) {
       console.error("Failed to load satellite telemetry:", err);
+      setDataWarning('Satellite prototype API unavailable. Any visible sample is DEMO PLACEHOLDER data.');
     } finally {
       setLoading(false);
     }
@@ -152,9 +161,11 @@ export default function SatelliteData() {
       });
       if (res.data) {
         setActiveSegResult(res.data);
+        setShowingPlaceholder(false);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Inference error:", e);
+      setDataWarning(e.response?.data?.detail || 'Heuristic inference failed; the displayed sample is not a live result.');
     } finally {
       setInferring(false);
     }
@@ -171,14 +182,14 @@ export default function SatelliteData() {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Satellite Remote Sensing & AI Segmentation
+                Synthetic Segmentation Prototype
               </h1>
               <Badge variant="sky" className="font-bold text-xs uppercase px-2.5 py-0.5">
-                Sentinel-2 L2A + RCAN 5×
+                SIMULATED PIPELINE
               </Badge>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
-              Multispectral Copernicus imagery, SRTM topography & Attention-UNet semantic hazard segmentation
+              Generated multispectral patches and deterministic image heuristics; no trained UNet/RCAN weights or Earth Engine retrieval
             </p>
           </div>
         </div>
@@ -186,7 +197,7 @@ export default function SatelliteData() {
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           <span className="px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-900 shadow-xs text-slate-800 text-xs font-bold flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            Open-Meteo & MSI Live
+            Snapshot / demo data
           </span>
           <Button
             size="sm"
@@ -201,6 +212,13 @@ export default function SatelliteData() {
         </div>
       </div>
 
+      {(dataWarning || showingPlaceholder) && (
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{dataWarning || 'DEMO PLACEHOLDER: values below are illustrative until the prototype API returns a result.'}</span>
+        </div>
+      )}
+
       {/* 2. TAB CONTROLS */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
         <TabsList className="bg-slate-100 p-1 border border-slate-900 shadow-xs rounded-xl flex-wrap h-auto gap-1">
@@ -209,21 +227,21 @@ export default function SatelliteData() {
             className="text-xs font-bold data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:border-slate-900 rounded-lg py-2 px-4 transition-all"
           >
             <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-            AI Landslide Segmentation (UNet + RCAN)
+            Heuristic Segmentation Demo
           </TabsTrigger>
           <TabsTrigger
             value="summary"
             className="text-xs font-bold data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:border-slate-900 rounded-lg py-2 px-4 transition-all"
           >
             <Activity className="w-3.5 h-3.5 mr-1.5" />
-            Regional Satellite Summary
+            Regional Data Snapshot
           </TabsTrigger>
           <TabsTrigger
             value="stations"
             className="text-xs font-bold data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:border-slate-900 rounded-lg py-2 px-4 transition-all"
           >
             <Mountain className="w-3.5 h-3.5 mr-1.5" />
-            Station Telemetry Cards ({stations.length || 20})
+            Station Snapshot Cards ({stations.length})
           </TabsTrigger>
         </TabsList>
 
@@ -239,7 +257,7 @@ export default function SatelliteData() {
                 </div>
               </div>
               <p className="text-2xl font-black text-slate-900 mt-2">
-                {segmentationData?.summary.total_stations_evaluated || stations.length || 20}
+                {segmentationData?.summary.total_stations_evaluated || stations.length || 0}
               </p>
               <p className="text-[11px] text-slate-500 mt-0.5 font-medium">8 North Eastern States</p>
             </Card>
@@ -252,16 +270,16 @@ export default function SatelliteData() {
                 </div>
               </div>
               <p className="text-2xl font-black text-rose-600 mt-2">
-                {segmentationData?.summary.total_hazard_area_ha || "4.12"} <span className="text-xs font-bold text-slate-500">ha</span>
+                {segmentationData?.summary.total_hazard_area_ha || "0"} <span className="text-xs font-bold text-slate-500">ha</span>
               </p>
               <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
-                {segmentationData?.summary.total_hazard_area_m2?.toLocaleString() || "41,200"} m² detected scar
+                {segmentationData?.summary.total_hazard_area_m2?.toLocaleString() || "0"} m² heuristic mask
               </p>
             </Card>
 
             <Card className="border border-slate-900 shadow-card bg-white p-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Attention-UNet IoU</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Illustrative IoU metadata</span>
                 <div className="p-2 rounded-xl bg-emerald-50 border border-slate-900 text-emerald-700">
                   <Cpu className="w-4 h-4" />
                 </div>
@@ -269,20 +287,20 @@ export default function SatelliteData() {
               <p className="text-2xl font-black text-emerald-600 mt-2">
                 74.2%
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Dice Harmonic F1: 0.816</p>
+              <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Static demo Dice metadata: 0.816</p>
             </Card>
 
             <Card className="border border-slate-900 shadow-card bg-white p-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">RCAN Super-Res</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Bicubic enhancement demo</span>
                 <div className="p-2 rounded-xl bg-sky-50 border border-slate-900 text-sky-700">
                   <Layers className="w-4 h-4" />
                 </div>
               </div>
               <p className="text-2xl font-black text-sky-700 mt-2">
-                5× <span className="text-xs font-bold text-slate-500">2m GSD</span>
+                5× <span className="text-xs font-bold text-slate-500">display scale</span>
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5 font-medium">PSNR 22.07 dB • SSIM 0.586</p>
+              <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Static demo metadata: PSNR 22.07 • SSIM 0.586</p>
             </Card>
           </div>
 
@@ -298,7 +316,7 @@ export default function SatelliteData() {
                       Station & Simulation Controls
                     </CardTitle>
                     <Badge variant="sky" className="text-[10px] font-bold uppercase">
-                      Attention-UNet
+                      Heuristic demo
                     </Badge>
                   </div>
                   <CardDescription className="text-xs text-slate-500 mt-0.5">
@@ -311,7 +329,7 @@ export default function SatelliteData() {
                   <div>
                     <label className="font-bold text-slate-800 block mb-1.5 flex items-center justify-between">
                       <span>Select Observation Site</span>
-                      <span className="text-[11px] text-slate-500 font-normal">20 NER Stations</span>
+                      <span className="text-[11px] text-slate-500 font-normal">Prototype sites</span>
                     </label>
                     <select
                       value={selectedStationId}
@@ -327,7 +345,7 @@ export default function SatelliteData() {
                       ) : (
                         NER_DEFAULT_OPTIONS.map((st) => (
                           <option key={st.id} value={st.id}>
-                            {st.id}: {st.name} — MODERATE
+                            {st.id}: {st.name} — DEMO OPTION
                           </option>
                         ))
                       )}
@@ -430,12 +448,12 @@ export default function SatelliteData() {
                     {inferring ? (
                       <span className="flex items-center gap-2">
                         <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Running PyTorch Attention-UNet Forward Pass...
+                        Running deterministic image heuristic...
                       </span>
                     ) : (
                       <span className="flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-                        Run Deep Learning Segmentation Inference
+                        Run Heuristic Segmentation Demo
                       </span>
                     )}
                   </Button>
@@ -447,20 +465,20 @@ export default function SatelliteData() {
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                   <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <Cpu className="w-3.5 h-3.5 text-sky-600" />
-                    Deep Learning Architecture Specifications
+                    Prototype Processing Specification
                   </span>
                   <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
-                    Eb3ls/landslides_segmentation
+                    No trained weights loaded
                   </span>
                 </div>
                 <div className="space-y-2 text-[11px]">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Super-Resolution:</span>
-                    <span className="font-bold text-slate-800">RCAN (5× Sub-Pixel Upsampling, 22.07 dB)</span>
+                    <span className="font-bold text-slate-800">Bicubic zoom + fixed sharpening</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Segmentation Net:</span>
-                    <span className="font-bold text-slate-800">Attention-UNet (Additive Skip Gates)</span>
+                    <span className="font-bold text-slate-800">Fixed sigmoid feature heuristic</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Feature Channels:</span>
@@ -474,7 +492,7 @@ export default function SatelliteData() {
               </Card>
             </div>
 
-            {/* Right Column: Multi-Spectral Visualizer & Live AI Detection */}
+            {/* Right Column: synthetic multi-spectral visualizer */}
             <div className="lg:col-span-7 space-y-4">
               <Card className="border border-slate-900 shadow-card bg-white">
                 <CardHeader className="pb-3 border-b border-slate-100">
@@ -504,10 +522,10 @@ export default function SatelliteData() {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
                         <Layers className="w-3.5 h-3.5 text-sky-600" />
-                        3-Stage Multi-Spectral Deep Learning Visualizer
+                        3-Stage Synthetic Processing Visualizer
                       </span>
                       <span className="text-[10px] text-slate-500 font-semibold">
-                        Native (10m) → 5× RCAN (2m) → Attention Gate Mask
+                        Generated patch → bicubic enhancement → heuristic mask
                       </span>
                     </div>
 
@@ -515,7 +533,7 @@ export default function SatelliteData() {
                       {/* Stage 1: Native Sentinel-2 */}
                       <div className="p-3 rounded-xl border border-slate-900 bg-slate-50 text-center space-y-2">
                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
-                          1. Native Sentinel-2 (10m)
+                          1. Generated spectral patch
                         </span>
                         <div className="w-full aspect-square rounded-lg border border-slate-300 bg-gradient-to-br from-emerald-800 via-emerald-700 to-amber-900/80 flex items-center justify-center p-2 relative overflow-hidden shadow-inner">
                           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:8px_8px]" />
@@ -532,17 +550,17 @@ export default function SatelliteData() {
                       {/* Stage 2: RCAN 5x Super-Resolved */}
                       <div className="p-3 rounded-xl border border-slate-900 bg-sky-50/60 text-center space-y-2">
                         <span className="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">
-                          2. RCAN 5× Super-Res (2m)
+                          2. Bicubic 5× display enhancement
                         </span>
                         <div className="w-full aspect-square rounded-lg border border-sky-300 bg-gradient-to-br from-emerald-600 via-emerald-500 to-amber-700 flex items-center justify-center p-2 relative overflow-hidden shadow-sm ring-1 ring-sky-300">
                           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:3px_3px]" />
                           <div className="relative z-10 text-white text-center p-2">
-                            <p className="font-bold text-xs drop-shadow-md">5× Super-Resolved</p>
-                            <p className="text-[9px] opacity-90">2m High Definition</p>
+                            <p className="font-bold text-xs drop-shadow-md">5× Upscaled</p>
+                            <p className="text-[9px] opacity-90">Not new spatial detail</p>
                           </div>
                         </div>
                         <span className="text-[10px] text-sky-800 font-bold block">
-                          PSNR 22.07 dB • SSIM 0.586
+                          Static demo metadata: PSNR 22.07 • SSIM 0.586
                         </span>
                       </div>
 
@@ -565,7 +583,7 @@ export default function SatelliteData() {
                           </div>
                         </div>
                         <span className="text-[10px] text-rose-800 font-bold block">
-                          Confidence IoU: {activeSegResult.segmentation_results.confidence_iou}
+                          Illustrative IoU metadata: {activeSegResult.segmentation_results.confidence_iou}
                         </span>
                       </div>
                     </div>
@@ -604,7 +622,7 @@ export default function SatelliteData() {
                       <span className="text-base font-black text-emerald-700">
                         {activeSegResult.segmentation_results.dice_score}
                       </span>
-                      <span className="text-[10px] text-slate-500 block font-medium">F1 Harmonic Validation</span>
+                      <span className="text-[10px] text-slate-500 block font-medium">Static demo metadata</span>
                     </div>
                   </div>
 
@@ -613,9 +631,9 @@ export default function SatelliteData() {
                     <span className="text-[11px] font-bold text-slate-800 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <BarChart3 className="w-3.5 h-3.5 text-sky-600" />
-                        Multispectral Channel Reflectance (Digital Numbers 0-10,000)
+                        Generated Channel Values (0-10,000)
                       </span>
-                      <span className="text-[10px] text-slate-500 font-normal">Level-2A BOA Calibrated</span>
+                      <span className="text-[10px] text-slate-500 font-normal">Synthetic, not calibrated imagery</span>
                     </span>
                     <div className="grid grid-cols-4 gap-2 text-center text-[10px]">
                       <div className="p-1.5 rounded-lg bg-white border border-slate-200">
@@ -641,9 +659,9 @@ export default function SatelliteData() {
                   <div className="p-3.5 rounded-xl bg-sky-50 border border-slate-900 text-slate-800 text-xs flex items-start gap-2.5">
                     <Zap className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
-                      <p className="font-bold text-slate-900">AI Inference Summary & Geomorphic Assessment:</p>
+                      <p className="font-bold text-slate-900">Heuristic demonstration summary:</p>
                       <p className="text-slate-600 leading-relaxed">
-                        Attention-UNet detects an active scar zone of <strong>{activeSegResult.segmentation_results.hazard_area_m2.toLocaleString()} m²</strong> under a <strong>{activeSegResult.terrain_input.slope_angle_deg}°</strong> slope and <strong>{activeSegResult.terrain_input.rainfall_24h_mm}mm</strong> precipitation trigger. Multispectral RCAN super-resolution confirmed scarp depletion in the NIR channel (B8).
+                        The deterministic mask estimates <strong>{activeSegResult.segmentation_results.hazard_area_m2.toLocaleString()} m²</strong> for the supplied <strong>{activeSegResult.terrain_input.slope_angle_deg}°</strong> slope and <strong>{activeSegResult.terrain_input.rainfall_24h_mm}mm</strong> rainfall input. This is synthetic prototype output, not a confirmed landslide scar.
                       </p>
                     </div>
                   </div>
@@ -695,7 +713,7 @@ export default function SatelliteData() {
         {/* TAB 3: STATIONS TELEMETRY GRID */}
         <TabsContent value="stations" className="space-y-6 focus:outline-none">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(stations.length > 0 ? stations : NER_FALLBACK_STATIONS).map((st: any) => {
+            {stations.map((st: any) => {
               const smRisk = Math.min(1, (st.real_soil_moisture_0_7cm || 0.4) / 0.6);
               const rainRisk = Math.min(1, (st.real_rainfall_24h || 10) / 50);
               const elevRisk = Math.min(1, (st.real_elevation || 1000) / 3000);

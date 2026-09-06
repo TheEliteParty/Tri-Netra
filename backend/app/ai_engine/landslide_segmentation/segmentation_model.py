@@ -182,6 +182,8 @@ class LandslideSegmentationEngine:
         polygons = self._extract_contour_polygons(binary_mask, lat, lng, delta_deg=0.015)
 
         return {
+            "data_mode": "prototype_simulation",
+            "disclaimer": "Synthetic multispectral patch and heuristic mask; no trained neural-network weights are loaded.",
             "station_id": station_id,
             "station_name": station_name,
             "coordinates": {"lat": lat, "lng": lng},

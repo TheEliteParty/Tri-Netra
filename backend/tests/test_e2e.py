@@ -6,6 +6,9 @@ Run: cd backend && python -m pytest tests/test_e2e.py -v
 import pytest
 import sys
 import os
+import asyncio
+
+os.environ["TRINETRA_TESTING"] = "1"
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -13,6 +16,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
+EXPECTED_STATION_COUNT = 28
+EXPECTED_STATE_COUNT = 15
 
 
 # ── Core Backend ───────────────────────────────────────────────
@@ -47,10 +53,10 @@ class TestDashboardFlow:
     def test_heatmap_has_coordinates(self):
         r = client.get("/api/dashboard/risk-heatmap")
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
         for point in data:
-            assert 21.0 <= point["lat"] <= 30.0  # NER latitude range
-            assert 88.0 <= point["lng"] <= 98.0  # NER longitude range
+            assert 8.0 <= point["lat"] <= 36.0  # Current Pan-India pilot extent
+            assert 68.0 <= point["lng"] <= 98.0
 
     def test_rainfall_trend_has_hourly_data(self):
         r = client.get("/api/dashboard/rainfall-trend")
@@ -61,10 +67,10 @@ class TestDashboardFlow:
             assert "avg_rainfall" in point
             assert point["avg_rainfall"] >= 0
 
-    def test_state_summary_has_8_states(self):
+    def test_state_summary_has_current_pilot_states(self):
         r = client.get("/api/dashboard/state-summary")
         data = r.json()
-        assert len(data) == 8
+        assert len(data) == EXPECTED_STATE_COUNT
         states = [s["state"] for s in data]
         assert "Sikkim" in states
         assert "Assam" in states
@@ -79,16 +85,17 @@ class TestDashboardFlow:
 
 # ── Sensor Stations Flow ───────────────────────────────────────
 class TestSensorFlow:
-    def test_all_20_stations_present(self):
+    def test_all_current_stations_present(self):
         r = client.get("/api/sensors/stations")
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
         ids = [s["station_id"] for s in data]
         assert "NER-001" in ids
-        assert "NER-020" in ids
+        assert "NWH-001" in ids
+        assert "WG-001" in ids
 
     def test_station_detail_has_readings(self):
-        r = client.get("/api/sensors/stations/NER-011")  # Cherrapunji
+        r = client.get("/api/sensors/stations/NER-007")  # Cherrapunji
         data = r.json()
         assert "Cherrapunji" in data["station"]["name"]
         assert len(data["readings"]) > 0
@@ -236,7 +243,7 @@ class TestSatelliteFlow:
     def test_satellite_data_has_all_stations(self):
         r = client.get("/api/satellite/data")
         data = r.json()
-        assert data["total_stations"] == 20
+        assert data["total_stations"] == EXPECTED_STATION_COUNT
         for station in data["stations"]:
             assert "real_elevation" in station
             assert "real_soil_moisture_0_7cm" in station
@@ -253,7 +260,7 @@ class TestSatelliteFlow:
     def test_satellite_risk_zones_scored(self):
         r = client.get("/api/satellite/risk-zones")
         data = r.json()
-        assert len(data) == 20
+        assert len(data) == EXPECTED_STATION_COUNT
         for zone in data:
             assert 0 <= zone["satellite_risk_score"] <= 100
             assert zone["risk_level"] in ["low", "moderate", "high", "critical"]
@@ -281,7 +288,7 @@ class TestExportFlow:
         r = client.get("/api/export/geojson")
         data = r.json()
         assert data["type"] == "FeatureCollection"
-        assert len(data["features"]) == 20
+        assert len(data["features"]) == EXPECTED_STATION_COUNT
         for feature in data["features"]:
             assert feature["type"] == "Feature"
             assert "geometry" in feature
@@ -376,6 +383,54 @@ class TestSecurity:
         r2 = client.put("/api/alerts/1/resolve",
                        headers={"Authorization": f"Bearer {token}"})
         assert r2.status_code == 403
+
+    def test_mutating_operational_endpoints_require_auth(self):
+        assert client.post("/api/ml/train").status_code == 401
+        assert client.post("/api/dispatch/send", json={
+            "station_id": "NER-001", "severity": "HIGH", "message": "Prototype test",
+            "channels": ["Demo channel"],
+        }).status_code == 401
+        assert client.post("/api/scout/reports", json={
+            "hazard_type": "Ground crack", "description": "A sufficiently detailed prototype report",
+            "latitude": 27.33, "longitude": 88.60,
+        }).status_code == 401
+
+
+class TestAlertWebSocketManager:
+    def test_district_authorization(self):
+        from app.websocket_manager import can_subscribe
+
+        assert can_subscribe({"districts": ["*"]}, "all")
+        assert can_subscribe({"districts": ["Gangtok"]}, "gangtok")
+        assert not can_subscribe({"districts": ["Gangtok"]}, "Mangan")
+
+    def test_broadcast_only_reaches_matching_subscribers(self):
+        from app.websocket_manager import AlertConnectionManager
+
+        class FakeWebSocket:
+            def __init__(self):
+                self.messages = []
+
+            async def accept(self):
+                return None
+
+            async def send_json(self, message):
+                self.messages.append(message)
+
+        async def scenario():
+            manager = AlertConnectionManager()
+            gangtok = FakeWebSocket()
+            mangan = FakeWebSocket()
+            admin = FakeWebSocket()
+            await manager.connect(gangtok, district="Gangtok", user={"sub": "field"})
+            await manager.connect(mangan, district="Mangan", user={"sub": "district"})
+            await manager.connect(admin, district="all", user={"sub": "admin"})
+            await manager.broadcast({"type": "alert.created"}, district="Gangtok")
+            assert len(gangtok.messages) == 1
+            assert len(mangan.messages) == 0
+            assert len(admin.messages) == 1
+
+        asyncio.run(scenario())
 
 
 

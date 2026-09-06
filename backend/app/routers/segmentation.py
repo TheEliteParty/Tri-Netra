@@ -47,18 +47,50 @@ def _load_stations_data():
     return []
 
 
+def _station_inference_payload(station: dict) -> dict:
+    """Normalize a satellite-data record into segmentation-engine inputs."""
+    station_id = station.get("id") or station.get("station_id", "ST00")
+    name = station.get("name") or station.get("station_name", "Monitoring Station")
+    lat = station.get("lat") if station.get("lat") is not None else station.get("latitude", 25.5)
+    lng = station.get("lng") if station.get("lng") is not None else station.get("longitude", 92.0)
+    slope = station.get("slope_angle") if station.get("slope_angle") is not None else 35.0
+    ndvi = station.get("estimated_ndvi")
+    if ndvi is None:
+        ndvi = station.get("ndvi", 0.55)
+    raw_sm = station.get("real_soil_moisture_0_7cm")
+    if raw_sm is None:
+        raw_sm = station.get("soil_moisture", 45.0)
+    soil_moisture = raw_sm * 100.0 if raw_sm <= 1.0 else raw_sm
+    rainfall = station.get("real_rainfall_24h")
+    if rainfall is None:
+        rainfall = station.get("rainfall_24h", 25.0)
+
+    return {
+        "station_id": station_id,
+        "station_name": name,
+        "lat": lat,
+        "lng": lng,
+        "slope_angle": slope,
+        "ndvi": ndvi,
+        "soil_moisture": soil_moisture,
+        "rainfall_24h": rainfall,
+    }
+
+
 @router.get("/models")
 def get_segmentation_models():
-    """Return benchmark metrics and architecture specifications from Eb3ls/landslides_segmentation."""
+    """Return reference metrics and specifications for the prototype simulation."""
     engine = get_segmentation_engine()
     return {
+        "data_mode": "prototype_simulation",
+        "disclaimer": "Reference architecture metadata only; this repository does not load trained UNet or RCAN weights.",
         "source_repository": "https://github.com/Eb3ls/landslides_segmentation",
         "architectures": engine.metrics,
         "feature_channels": [
-            {"index": 0, "band": "Red (B4)", "wavelength": "665 nm", "resolution": "10m -> 2m (RCAN)"},
-            {"index": 1, "band": "Green (B3)", "wavelength": "560 nm", "resolution": "10m -> 2m (RCAN)"},
-            {"index": 2, "band": "Blue (B2)", "wavelength": "490 nm", "resolution": "10m -> 2m (RCAN)"},
-            {"index": 3, "band": "Near-Infrared (B8)", "wavelength": "842 nm", "resolution": "10m -> 2m (RCAN)"},
+            {"index": 0, "band": "Synthetic Red-like channel", "wavelength": "665 nm reference", "resolution": "Bicubic 5x demo"},
+            {"index": 1, "band": "Synthetic Green-like channel", "wavelength": "560 nm reference", "resolution": "Bicubic 5x demo"},
+            {"index": 2, "band": "Synthetic Blue-like channel", "wavelength": "490 nm reference", "resolution": "Bicubic 5x demo"},
+            {"index": 3, "band": "Synthetic NIR-like channel", "wavelength": "842 nm reference", "resolution": "Bicubic 5x demo"},
             {"index": 4, "band": "NDVI", "type": "Vegetation Index (NIR - Red) / (NIR + Red)"},
             {"index": 5, "band": "DEM Slope", "type": "Topographic Incline Gradient (0 - 90 deg)"}
         ],
@@ -71,7 +103,7 @@ def get_segmentation_models():
 
 @router.get("/stations")
 def get_all_station_segmentation():
-    """Run and return deep learning segmentation for all Pan-India stations."""
+    """Run deterministic prototype segmentation for all seeded stations."""
     engine = get_segmentation_engine()
     stations = _load_stations_data()
     results = []
@@ -79,31 +111,14 @@ def get_all_station_segmentation():
     total_pixels_evaluated = 0
 
     for s in stations:
-        station_id = s.get("id") or s.get("station_id", "ST00")
-        name = s.get("name") or s.get("station_name", "Monitoring Station")
-        lat = s.get("lat") or s.get("latitude", 25.5)
-        lng = s.get("lng") or s.get("longitude", 92.0)
-        slope = s.get("slope_angle") or 35.0
-        ndvi = s.get("estimated_ndvi") or s.get("ndvi", 0.55)
-        raw_sm = s.get("real_soil_moisture_0_7cm") if "real_soil_moisture_0_7cm" in s else s.get("soil_moisture", 45.0)
-        sm = (raw_sm * 100.0) if raw_sm <= 1.0 else raw_sm
-        rain = s.get("real_rainfall_24h") or s.get("rainfall_24h", 25.0)
-
-        res = engine.run_inference_on_station(
-            station_id=station_id,
-            station_name=name,
-            lat=lat,
-            lng=lng,
-            slope_angle=slope,
-            ndvi=ndvi,
-            soil_moisture=sm,
-            rainfall_24h=rain
-        )
+        res = engine.run_inference_on_station(**_station_inference_payload(s))
         total_hazard_area_m2 += res["segmentation_results"]["hazard_area_m2"]
         total_pixels_evaluated += res["segmentation_results"]["total_pixels"]
         results.append(res)
 
     return {
+        "data_mode": "prototype_simulation",
+        "disclaimer": "Results use synthetic patches and deterministic heuristic masks.",
         "summary": {
             "total_stations_evaluated": len(results),
             "total_hazard_area_m2": total_hazard_area_m2,
@@ -117,11 +132,28 @@ def get_all_station_segmentation():
     }
 
 
+@router.get("/station/{station_id}")
+def get_station_segmentation(station_id: str):
+    """Return the same segmentation contract as the collection for one station."""
+    station = next(
+        (
+            item for item in _load_stations_data()
+            if (item.get("id") or item.get("station_id")) == station_id
+        ),
+        None,
+    )
+    if station is None:
+        raise HTTPException(status_code=404, detail="Station not found")
+    return get_segmentation_engine().run_inference_on_station(
+        **_station_inference_payload(station)
+    )
+
+
 @router.post("/scan-roi")
 def scan_region_of_interest(req: RoiScanRequest):
     """
-    On-Demand Sentinel-2 / Google Earth Engine Scan with Attention-UNet inference.
-    Takes arbitrary coordinates in India, extracts multi-spectral bands, and returns GeoJSON scarp polygons.
+    Demonstration scan using synthetic multispectral inputs and heuristic inference.
+    Takes arbitrary coordinates and returns illustrative GeoJSON scarp polygons.
     """
     pipeline = get_sentinel_gee_pipeline()
     result = pipeline.scan_region_of_interest(
@@ -176,7 +208,7 @@ def get_satellite_layer_templates():
 
 @router.post("/inference")
 def run_custom_segmentation_inference(req: SegmentationInferenceRequest):
-    """Run on-demand Attention-UNet segmentation on arbitrary coordinates & terrain conditions."""
+    """Run demonstration heuristic segmentation for supplied terrain inputs."""
     engine = get_segmentation_engine()
     return engine.run_inference_on_station(
         station_id="CUSTOM",

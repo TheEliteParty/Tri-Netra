@@ -151,7 +151,7 @@ export default function FloodData() {
             <span>Hydro-Meteorological & Flood Risk Hub</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 max-w-3xl mt-1 leading-relaxed">
-            Multi-hazard compound vulnerability matrix synthesizing real-time rainfall runoff, alluvial river dynamics, and geological slope destabilization across North-Eastern India.
+            Illustrative multi-hazard vulnerability matrix combining stored flood history, river context, and prototype geological slope indicators across North-Eastern India.
           </p>
         </div>
 
@@ -593,7 +593,7 @@ export default function FloodData() {
               <span>District Hydro-Vulnerability Telemetry ({filteredDistricts.length})</span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-              Real-time multi-hazard telemetry cross-referencing flood days, historical events, and river networks.
+              Prototype multi-hazard view cross-referencing stored flood days, historical events, and river networks.
             </p>
           </div>
 

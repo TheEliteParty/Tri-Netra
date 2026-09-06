@@ -3,6 +3,7 @@ Rate Limiter Middleware for Tri-Netra API
 Limits request frequency per IP to prevent abuse.
 """
 import time
+import os
 from collections import defaultdict
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -46,6 +47,9 @@ class RateLimiter(BaseHTTPMiddleware):
         return False
 
     async def dispatch(self, request: Request, call_next):
+        if os.getenv("TRINETRA_TESTING") == "1":
+            return await call_next(request)
+
         client_ip = self._get_client_ip(request)
 
         # Skip rate limiting for health check and static files

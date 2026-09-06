@@ -30,11 +30,12 @@ def _load_satellite_data():
 
 @router.get("/data")
 def get_all_satellite_data():
-    """Get real satellite data for all Pan-India stations."""
+    """Get the checked-in Open-Meteo-derived station snapshot."""
     data = _load_satellite_data()
     return {
         "stations": data,
-        "source": "Open-Meteo API + NASA SRTM DEM + Sentinel-2 NDVI",
+        "source": "Checked-in Open-Meteo-derived snapshot with estimated NDVI",
+        "data_mode": "stored_snapshot",
         "total_stations": len(data),
     }
 
@@ -72,7 +73,7 @@ def fetch_live_satellite_telemetry(lat: float, lng: float):
 
 @router.get("/live/{station_id}")
 def get_station_live_telemetry(station_id: str):
-    """Fetch live real-time satellite telemetry on the fly for any station."""
+    """Fetch live Open-Meteo weather and soil telemetry for any station."""
     data = _load_satellite_data()
     for station in data:
         if station["id"] == station_id:
@@ -164,14 +165,15 @@ def get_satellite_summary():
             "avg": round(sum(humidity) / len(humidity), 1),
             "unit": "%",
         },
-        "data_source": "Open-Meteo API (real-time satellite-derived)",
-        "last_updated": "Live from satellite APIs",
+        "data_source": "Checked-in Open-Meteo-derived snapshot with estimated NDVI",
+        "data_mode": "stored_snapshot",
+        "last_updated": "Use station records; this summary does not refresh automatically",
     }
 
 
 @router.get("/risk-zones")
 def get_satellite_risk_zones():
-    """Calculate risk zones based on real satellite data."""
+    """Calculate illustrative risk zones from the stored station snapshot."""
     data = _load_satellite_data()
     risk_zones = []
 

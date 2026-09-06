@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   getAlerts, acknowledgeAlert, resolveAlert, getAlertTimeline, getAlertHistory,
-  Alert as AlertType, TimelineEntry,
+  getAlertsWebSocketUrl, Alert as AlertType, TimelineEntry,
 } from '../services/api';
 import { t } from '../i18n/translations';
 import { useAuth } from '../App';
@@ -41,6 +41,8 @@ export default function Alerts() {
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [historyDays, setHistoryDays] = useState<number>(30);
   const [actionFeedback, setActionFeedback] = useState<{ id: number; type: 'success' | 'error'; message: string } | null>(null);
+  const [streamStatus, setStreamStatus] = useState<'connecting' | 'connected' | 'offline'>('connecting');
+  const [alertsError, setAlertsError] = useState(false);
 
   useEffect(() => {
     if (actionFeedback) {
@@ -60,8 +62,10 @@ export default function Alerts() {
         data = data.filter((a: AlertType) => a.risk_level === riskFilter);
       }
       setAlerts(data);
+      setAlertsError(false);
     } catch (e) {
       console.error('Alert fetch error:', e);
+      setAlertsError(true);
     } finally {
       setLoading(false);
       if (isManual) setRefreshing(false);
@@ -94,6 +98,50 @@ export default function Alerts() {
     const interval = setInterval(() => fetchAlerts(), 15000);
     return () => clearInterval(interval);
   }, [fetchAlerts, fetchTimeline, fetchHistory, view]);
+
+  useEffect(() => {
+    let socket: WebSocket | null = null;
+    let reconnectTimer: number | undefined;
+    let pingTimer: number | undefined;
+    let stopped = false;
+
+    const connect = () => {
+      setStreamStatus('connecting');
+      socket = new WebSocket(getAlertsWebSocketUrl());
+      socket.onopen = () => {
+        setStreamStatus('connected');
+        pingTimer = window.setInterval(() => {
+          if (socket?.readyState === WebSocket.OPEN) socket.send('ping');
+        }, 25000);
+      };
+      socket.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (!['connected', 'subscribed', 'pong'].includes(message.type)) {
+            fetchAlerts();
+            if (view === 'timeline') fetchTimeline();
+            if (view === 'history') fetchHistory(historyDays);
+          }
+        } catch {
+          fetchAlerts();
+        }
+      };
+      socket.onerror = () => setStreamStatus('offline');
+      socket.onclose = () => {
+        setStreamStatus('offline');
+        if (pingTimer) window.clearInterval(pingTimer);
+        if (!stopped) reconnectTimer = window.setTimeout(connect, 5000);
+      };
+    };
+
+    connect();
+    return () => {
+      stopped = true;
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
+      if (pingTimer) window.clearInterval(pingTimer);
+      socket?.close();
+    };
+  }, [fetchAlerts, fetchTimeline, fetchHistory, historyDays, view]);
 
   const handleAcknowledge = async (id: number) => {
     try {
@@ -167,8 +215,12 @@ export default function Alerts() {
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 tracking-tight truncate">
                 {t('alerts')}
               </h1>
-              <Badge variant={stats.active > 0 ? 'destructive' : 'success'} size="md">
-                {stats.active > 0 ? `${stats.active} Active Early Warnings` : 'All Clear'}
+              <Badge variant={stats.active > 0 ? 'destructive' : alertsError ? 'warning' : 'success'} size="md">
+                {alertsError ? 'Alert data unavailable' : stats.active > 0 ? `${stats.active} Active Early Warnings` : 'No active alerts recorded'}
+              </Badge>
+              <Badge variant="outline" size="sm" className="gap-1">
+                <span className={`h-1.5 w-1.5 rounded-full ${streamStatus === 'connected' ? 'bg-emerald-500' : streamStatus === 'connecting' ? 'bg-amber-500' : 'bg-slate-400'}`} />
+                Alert stream {streamStatus}
               </Badge>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-1 truncate">

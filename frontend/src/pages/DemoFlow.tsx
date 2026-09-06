@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { simulateLandslide, simulateBatch, resetSimulation, SimulationResult } from '../services/api';
-import { t } from '../i18n/translations';
+import { simulateLandslide, resetSimulation, SimulationResult } from '../services/api';
+import { useAuth } from '../App';
 import {
   Play, RotateCcw, Zap, AlertTriangle, CheckCircle, ChevronRight,
   Shield, Map, Bell, Radio, Activity, Target, Rocket, Eye,
@@ -13,36 +13,40 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 
 export default function DemoFlow() {
+  const { user } = useAuth();
+  const canRunDemo = !!user && ['field_officer', 'district_admin', 'admin'].includes(user.role);
+  const canResetDemo = user?.role === 'admin';
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState<number | null>(null);
   const [simResult, setSimResult] = useState<SimulationResult | null>(null);
   const [simLoading, setSimLoading] = useState(false);
   const [activeStationId, setActiveStationId] = useState('NER-011');
+  const [feedback, setFeedback] = useState('');
 
   const DEMO_STEPS = [
     {
       id: 1,
       title: 'Command Dashboard & Telemetry Overview',
-      subtitle: 'Real-time multi-state KPI aggregation & highway risk monitoring',
+      subtitle: 'Database-backed multi-state KPI aggregation and prototype monitoring',
       icon: Activity,
       route: '/',
       badge: 'Step 1 • Executive',
       color: 'from-sky-500 to-blue-600',
       tag: 'System Telemetry',
-      tip: 'Highlights high-level risk distribution across 15 states, live rainfall trends, and critical road status updates in real-time.',
-      highlights: ['28 Active Stations', 'Real-time IMD Rainfall Spikes', 'Road Vulnerability Indices']
+      tip: 'Highlights risk distribution, seeded rainfall trends, and road status records. Data freshness is shown separately in the dashboard.',
+      highlights: ['28 Seeded Stations', 'Generated Rainfall History', 'Road Status Records']
     },
     {
       id: 2,
       title: 'Pan-India GIS Risk Map & Multi-Layer Deck',
-      subtitle: '11 live GIS geospatial vector & satellite raster layers with Esri imagery',
+      subtitle: 'GIS prototype layers with online Esri basemap imagery',
       icon: Map,
       route: '/map',
       badge: 'Step 2 • Spatial',
       color: 'from-emerald-500 to-teal-600',
       tag: 'Geospatial Intelligence',
-      tip: 'Demonstrates 11 toggleable GIS layers including InSAR ground subsidence, geological fault lines, landslide scars, and evacuation shelters.',
-      highlights: ['InSAR Deformation Velocity', 'Village Demographics', 'Safe Shelter Buffers']
+      tip: 'Demonstrates toggleable GIS layers. Deformation, faults, scarps and shelters are illustrative prototype data, not live authoritative feeds.',
+      highlights: ['Illustrative Deformation', 'Seeded Village Data', 'Static Shelter Buffers']
     },
     {
       id: 3,
@@ -54,31 +58,31 @@ export default function DemoFlow() {
       color: 'from-purple-500 to-indigo-600',
       tag: 'IoT Telemetry',
       tip: 'Search and filter all 28 monitored stations by state, risk tier, or telemetry health (pore pressure, soil moisture, tilt).',
-      highlights: ['State Selector across 15 States', 'Bishop Factor of Safety', 'Live Sensor Anomaly Feeds']
+      highlights: ['State Selector across 15 States', 'Prototype Stability Indicators', 'Seeded Sensor Records']
     },
     {
       id: 4,
-      title: 'Physics-Informed Geotechnical Simulator',
-      subtitle: 'Dual-panel Bishop limit equilibrium & AI stress testing laboratory',
+      title: 'Geotechnical Workflow Simulator',
+      subtitle: 'Deterministic sensor-injection and alert workflow laboratory',
       icon: Zap,
       route: '/simulator',
       badge: 'Step 4 • Physics + AI',
       color: 'from-rose-500 to-orange-600',
       tag: 'Simulation Engine',
-      tip: 'Inject extreme cloudburst (280mm) or InSAR creep scenarios to witness instantaneous AI recalculation, scarp evaluation, and CAP broadcast.',
-      highlights: ['Bishop Limit Equilibrium', 'Custom Sensor Injection', 'Attention-UNet Scarp Area']
+      tip: 'Inject predefined cloudburst or displacement scenarios to exercise heuristic risk recalculation and database alert creation.',
+      highlights: ['Rule-Based Risk Score', 'Demo Sensor Injection', 'Heuristic Scarp Estimate']
     },
     {
       id: 5,
-      title: 'Satellite Super-Resolution & Segmentation Lab',
-      subtitle: 'Attention-UNet scar boundary segmentation with RCAN 5x spatial refinement',
+      title: 'Synthetic Segmentation Prototype Lab',
+      subtitle: 'Heuristic scar-mask demonstration on generated multispectral patches',
       icon: Eye,
       route: '/satellite',
       badge: 'Step 5 • Computer Vision',
       color: 'from-cyan-500 to-blue-600',
       tag: 'Satellite AI Lab',
-      tip: 'Evaluates optical and multispectral imagery to delineate landslide scar boundaries with pixel-level precision and DICE/IoU metrics.',
-      highlights: ['RCAN 5x Super-Resolution', 'Attention-UNet Architecture', 'Sub-meter Scar Boundary Detection']
+      tip: 'Demonstrates the intended processing interface. It does not load trained RCAN/UNet weights or retrieve imagery from Earth Engine.',
+      highlights: ['Bicubic Enhancement Demo', 'Heuristic Probability Mask', 'Illustrative Boundary Output']
     },
     {
       id: 6,
@@ -119,23 +123,29 @@ export default function DemoFlow() {
   ];
 
   const handleRunDemo = async () => {
+    if (!canRunDemo) return;
     setSimLoading(true);
+    setFeedback('');
     try {
       const res = await simulateLandslide({ station_id: activeStationId, intensity: 'critical' });
       setSimResult(res.data);
-    } catch (e) {
+    } catch (e: any) {
       console.error('Demo simulation error:', e);
+      setFeedback(e.response?.data?.detail || 'The demo simulation could not be run.');
     } finally {
       setSimLoading(false);
     }
   };
 
   const handleReset = async () => {
+    if (!canResetDemo) return;
+    setFeedback('');
     try {
       await resetSimulation();
       setSimResult(null);
-    } catch (e) {
+    } catch (e: any) {
       console.error('Reset error:', e);
+      setFeedback(e.response?.data?.detail || 'The demo reset failed.');
     }
   };
 
@@ -149,11 +159,11 @@ export default function DemoFlow() {
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-          Tri-Netra AI Landslide EWS <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-sky-400">Live Demonstration</span>
+          Tri-Netra Landslide EWS <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-sky-400">Prototype Demonstration</span>
         </h1>
 
         <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-          Comprehensive step-by-step evaluation workflow for grand jury evaluation. Walk through all 8 interconnected operational subsystems verifying real-time sensor fusion, satellite segmentation, and emergency dispatch.
+          Step-by-step evaluation workflow for the prototype. Seeded records, synthetic segmentation and simulated dispatch are labeled so they are not mistaken for live operational feeds.
         </p>
 
         {/* Action Controls */}
@@ -161,7 +171,7 @@ export default function DemoFlow() {
           <Button
             size="md"
             onClick={handleRunDemo}
-            disabled={simLoading}
+            disabled={simLoading || !canRunDemo}
             className="bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-rose-600/25 px-5 py-2.5 gap-2 whitespace-nowrap shrink-0 border border-rose-400/30"
           >
             {simLoading ? (
@@ -176,12 +186,16 @@ export default function DemoFlow() {
             variant="outline"
             size="md"
             onClick={handleReset}
+            disabled={!canResetDemo}
             className="border-slate-200 dark:border-white/15 dark:bg-zinc-900/90 text-slate-800 dark:text-zinc-200 text-xs sm:text-sm font-semibold hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white px-4 py-2.5 gap-2 whitespace-nowrap shrink-0"
           >
             <RotateCcw className="w-4 h-4 text-slate-400 dark:text-zinc-400" />
             <span>Reset System Baseline</span>
           </Button>
         </div>
+        <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+          Trigger requires Field Officer or above; reset requires Admin. {feedback && <span className="text-rose-600 dark:text-rose-400">{feedback}</span>}
+        </p>
       </div>
 
       {/* ── 2. Live Simulation Impact Matrix (If Triggered) ─────── */}
@@ -194,7 +208,7 @@ export default function DemoFlow() {
               </div>
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <span>Live Stress Simulation Active • Critical Risk Injected</span>
+                  <span>Demo Stress Simulation Active • Critical Risk Injected</span>
                 </h3>
                 <p className="text-xs text-rose-300 font-medium">
                   {simResult.simulation.station.name} ({simResult.simulation.station.district}, {simResult.simulation.station.state})
@@ -203,7 +217,7 @@ export default function DemoFlow() {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="destructive" className="font-mono text-[10px] tracking-wider uppercase">
-                CRITICAL 94/100
+                {simResult.simulation.ai_assessment.risk_level.toUpperCase()} {simResult.simulation.ai_assessment.risk_score}/100
               </Badge>
               <Button
                 size="sm"
@@ -221,14 +235,14 @@ export default function DemoFlow() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/10 text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Risk Score</span>
-              <span className="text-2xl font-black text-rose-400 font-mono">{simResult.risk_assessment.risk_score}</span>
+              <span className="text-2xl font-black text-rose-400 font-mono">{simResult.simulation.ai_assessment.risk_score}</span>
               <span className="text-[10px] text-rose-500 font-bold block">/ 100 Maximum</span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/10 text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Failure Probability</span>
               <span className="text-2xl font-black text-orange-400 font-mono">
-                {(simResult.risk_assessment.landslide_probability * 100).toFixed(0)}%
+                {(simResult.simulation.ai_assessment.landslide_probability * 100).toFixed(0)}%
               </span>
               <span className="text-[10px] text-orange-500 font-bold block">Severe Instability</span>
             </div>
@@ -236,7 +250,7 @@ export default function DemoFlow() {
             <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/10 text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Injected Rainfall</span>
               <span className="text-2xl font-black text-cyan-400 font-mono">
-                {simResult.simulation.sensor_reading.rainfall_mm} mm
+                {simResult.simulation.sensor_spikes.rainfall_mm} mm
               </span>
               <span className="text-[10px] text-cyan-500 font-bold block">24-Hour Peak</span>
             </div>
@@ -244,27 +258,27 @@ export default function DemoFlow() {
             <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/10 text-center">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Time Window</span>
               <span className="text-2xl font-black text-white font-mono">
-                {simResult.risk_assessment.time_window_hours}h
+                24h
               </span>
               <span className="text-[10px] text-amber-400 font-bold block">Evacuation Window</span>
             </div>
           </div>
 
           {/* CAP Alert Notification */}
-          {simResult.alert && (
+          {simResult.simulation.alert_generated && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Bell className="w-4 h-4 text-rose-400 animate-bounce" />
-                <span><strong>CAP Alert Broadcast:</strong> {simResult.alert.title}</span>
+                <span><strong>Prototype alert record:</strong> {simResult.simulation.alert_generated.title}</span>
               </div>
               <span className="font-semibold text-rose-300">
-                👥 {simResult.alert.affected_population.toLocaleString()} citizens notified
+                👥 {simResult.simulation.alert_generated.affected_population.toLocaleString()} people in seeded estimate
               </span>
             </div>
           )}
 
           <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-3 rounded-xl border border-white/10">
-            <strong>SOP Recommended Action:</strong> {simResult.risk_assessment.recommendation}
+            <strong>Prototype recommendation:</strong> {simResult.simulation.ai_assessment.recommendation}
           </p>
         </div>
       )}
@@ -379,7 +393,7 @@ export default function DemoFlow() {
             { label: 'Historical Slide Events', value: '44', sub: '2011–2024 Documented', color: 'text-amber-500 dark:text-amber-400' },
             { label: 'Regional Languages', value: '4', sub: 'English, Hindi, Bengali, Assamese', color: 'text-pink-500 dark:text-pink-400' },
             { label: 'REST API Endpoints', value: '22', sub: 'FastAPI with Sub-50ms Latency', color: 'text-cyan-500 dark:text-cyan-400' },
-            { label: 'GIS Geospatial Layers', value: '11', sub: 'InSAR, DEM, Scars, Villages', color: 'text-teal-500 dark:text-teal-400' },
+            { label: 'GIS Prototype Layers', value: '11', sub: 'Illustrative deformation, DEM, scars, villages', color: 'text-teal-500 dark:text-teal-400' },
             { label: 'P95 API Response Time', value: '<35ms', sub: 'Production Caching Engine', color: 'text-rose-500 dark:text-rose-400' },
           ].map((stat, i) => (
             <div key={i} className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/70 dark:border-white/10 text-center">
@@ -401,10 +415,10 @@ export default function DemoFlow() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           {[
             { layer: 'Backend Architecture', tech: 'FastAPI + SQLite + SQLAlchemy 2.0', icon: '⚡' },
-            { layer: 'Machine Learning Models', tech: 'Attention-UNet + Random Forest + GB', icon: '🧠' },
+            { layer: 'Risk Models', tech: 'XGBoost + Random Forest + GB; synthetic labels', icon: '🧠' },
             { layer: 'Frontend Framework', tech: 'React 19 + TypeScript + Tailwind v4', icon: '⚛️' },
             { layer: 'GIS Geospatial Mapping', tech: 'Leaflet.js + Esri Satellite + GeoJSON', icon: '🗺️' },
-            { layer: 'Satellite Imagery Pipeline', tech: 'Sentinel-2 + Open-Meteo + RCAN 5x', icon: '🛰️' },
+            { layer: 'Imagery Prototype', tech: 'Generated pixels + bicubic enhancement', icon: '🛰️' },
             { layer: 'Multi-Hazard Hydro Models', tech: 'Asia Flood Atlas + CWC Doppler', icon: '🌊' },
             { layer: 'Authentication & Security', tech: 'JWT Tokens + bcrypt + RBAC Roles', icon: '🛡️' },
             { layer: 'Standard Compliance', tech: 'Common Alerting Protocol (CAP v1.2)', icon: '📡' },

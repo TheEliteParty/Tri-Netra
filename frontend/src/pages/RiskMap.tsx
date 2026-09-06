@@ -175,7 +175,7 @@ export default function RiskMap() {
   const [prediction, setPrediction] = useState<PredictResult | null>(null);
   const [predictLoading, setPredictLoading] = useState(false);
 
-  // 🛰️ Sentinel-2 / GEE Attention-UNet On-Demand AI Scanner State
+  // Synthetic ROI segmentation demonstration state
   const [aiScanActive, setAiScanActive] = useState(false);
   const [isScanningRoi, setIsScanningRoi] = useState(false);
   const [scanProgressStep, setScanProgressStep] = useState<string>('');
@@ -282,17 +282,17 @@ export default function RiskMap() {
     }
   }, []);
 
-  // ⚡ Run On-Demand Attention-UNet Scan on Selected Coordinate / Mountain Slope
+  // Run the backend's deterministic synthetic ROI mask demonstration.
   const handleRunAiScan = async (lat: number, lng: number, locName?: string) => {
     setIsScanningRoi(true);
-    setScanProgressStep('Connecting to Sentinel-2 & GEE Multispectral Hub...');
+    setScanProgressStep('Preparing a generated multispectral patch...');
     try {
       await new Promise(r => setTimeout(r, 400));
-      setScanProgressStep('Downloading 10m Multi-spectral Bands (B2, B3, B4, B8, B11) & SRTM DEM...');
+      setScanProgressStep('Generating illustrative spectral channels and terrain inputs...');
       await new Promise(r => setTimeout(r, 500));
-      setScanProgressStep('Executing RCAN 5x Super-Resolution (10m -> 2m)...');
+      setScanProgressStep('Applying bicubic 5x display enhancement...');
       await new Promise(r => setTimeout(r, 450));
-      setScanProgressStep('Running Attention-UNet Gated Semantic Segmentation...');
+      setScanProgressStep('Applying the deterministic segmentation heuristic...');
 
       const response = await scanRoiWithAttentionUnet({
         lat,
@@ -305,7 +305,7 @@ export default function RiskMap() {
       });
 
       setScannedRoiResult(response.data);
-      setScanProgressStep('Complete! GeoJSON Landslide Mask Generated.');
+      setScanProgressStep('Complete: illustrative GeoJSON mask generated.');
       setLayerVisibility(prev => ({ ...prev, aiScanScarp: true }));
     } catch (err) {
       console.error('Failed to run AI scan on ROI:', err);
@@ -790,7 +790,7 @@ export default function RiskMap() {
                 <Popup>
                   <div className="p-2 min-w-[220px]">
                     <div className="text-xs font-black text-slate-900 uppercase flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-sky-600" /> Attention-UNet Hazard Scarp
+                      <Sparkles className="w-3.5 h-3.5 text-sky-600" /> Heuristic Scarp Estimate
                     </div>
                     <div className="text-sm font-bold text-slate-900 mt-0.5">{seg.station_name}</div>
                     <div className="mt-2 grid grid-cols-2 gap-1 text-xs bg-slate-100 p-2 rounded">
@@ -967,7 +967,7 @@ export default function RiskMap() {
                 { key: 'reports', label: `📄 ${t('gisCitizenReports')}`, count: verifiedReportCount },
                 { key: 'roads', label: `🛣️ ${t('gisRoadsCorridors')}`, count: roads.length },
                 { key: 'villages', label: `🏘️ ${t('gisVillagesSettlements')}`, count: villages.length },
-                { key: 'segmentationScarp', label: `🎯 UNet ${t('gisAiScarps')} (m²)`, count: segmentations.length },
+                { key: 'segmentationScarp', label: `🎯 Heuristic ${t('gisAiScarps')} (m²)`, count: segmentations.length },
                 { key: 'historicalLandslides', label: `⚡ ${t('gisHistoricalEvents')}`, count: historicalEvents.length },
                 { key: 'evacuationShelters', label: `🛡️ ${t('gisEvacuationShelters')}`, count: shelters.length },
                 { key: 'macroBelts', label: `🏔️ ${t('gisMacroBelts')}`, count: GSI_MACRO_BELTS.length },
@@ -1020,7 +1020,7 @@ export default function RiskMap() {
               <div className="flex items-center gap-2 min-w-0">
                 <Scan className="w-4 h-4 text-rose-400 animate-pulse shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-sky-300">Sentinel-2 / GEE AI Scanner</div>
+                  <div className="text-[10px] font-black uppercase tracking-wider text-sky-300">Synthetic ROI Mask Prototype</div>
                   <div className="text-xs font-black truncate">{scannedRoiResult.metadata.location_name}</div>
                 </div>
               </div>
@@ -1065,7 +1065,7 @@ export default function RiskMap() {
                   </span>
                   <div className="flex gap-1 text-[9px] overflow-x-auto">
                     {[
-                      { key: 'rcan', label: 'RCAN 5x' },
+                      { key: 'rcan', label: 'Bicubic 5x demo' },
                       { key: 'rgb', label: 'True RGB' },
                       { key: 'nir', label: 'False NIR' },
                       { key: 'ndvi', label: 'NDVI' },
@@ -1099,11 +1099,11 @@ export default function RiskMap() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-1.5 left-1.5 bg-slate-900/80 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[9px] font-bold">
-                    {selectedBandPreview === 'rcan' && 'RCAN 5x Super-Resolution (2m GSD)'}
-                    {selectedBandPreview === 'rgb' && 'Sentinel-2 True Color (B4-B3-B2)'}
-                    {selectedBandPreview === 'nir' && 'False Color Infrared (B8-B4-B3)'}
+                    {selectedBandPreview === 'rcan' && 'Bicubic 5x display enhancement (not 2m source data)'}
+                    {selectedBandPreview === 'rgb' && 'Generated RGB-like channels (B4-B3-B2)'}
+                    {selectedBandPreview === 'nir' && 'Generated false-color channels (B8-B4-B3)'}
                     {selectedBandPreview === 'ndvi' && 'NDVI Canopy Vegetation Index'}
-                    {selectedBandPreview === 'mask' && 'Attention-UNet Scarp Heatmap'}
+                    {selectedBandPreview === 'mask' && 'Heuristic scarp heatmap'}
                   </div>
                 </div>
               </div>

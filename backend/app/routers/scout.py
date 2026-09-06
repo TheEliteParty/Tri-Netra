@@ -8,6 +8,7 @@ import math
 
 from app.database import get_db
 from app.models import SensorStation
+from app.auth import require_role
 
 router = APIRouter(prefix="/api/scout", tags=["ground-scout"])
 
@@ -140,7 +141,11 @@ def get_scout_stats():
     }
 
 @router.post("/reports")
-def create_scout_report(payload: ReportSubmission, db: Session = Depends(get_db)):
+def create_scout_report(
+    payload: ReportSubmission,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_role("admin", "district_admin", "field_officer", "citizen")),
+):
     # Calculate proximity to nearest station
     stations = db.query(SensorStation).all()
     nearest_station_str = "Regional Tri-Netra Node"
@@ -207,9 +212,17 @@ def create_scout_report(payload: ReportSubmission, db: Session = Depends(get_db)
     }
 
 @router.put("/reports/{report_id}/status")
-def update_report_status(report_id: str, new_status: str):
+def update_report_status(
+    report_id: str,
+    new_status: str,
+    user: dict = Depends(require_role("admin", "district_admin", "field_officer")),
+):
+    normalized_status = new_status.strip().upper()
+    allowed_statuses = {"REPORTED", "INVESTIGATING", "VERIFIED", "TEAM_DISPATCHED", "RESOLVED", "DISMISSED"}
+    if normalized_status not in allowed_statuses:
+        raise HTTPException(status_code=422, detail="Invalid report status")
     for r in SCOUT_REPORTS:
         if r["id"] == report_id:
-            r["status"] = new_status.upper()
+            r["status"] = normalized_status
             return {"status": "success", "report": r}
     raise HTTPException(status_code=404, detail="Report not found")

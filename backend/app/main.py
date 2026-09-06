@@ -11,8 +11,6 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from datetime import datetime
-from typing import List
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -22,38 +20,8 @@ from app.middleware.rate_limiter import RateLimiter
 
 from app.database import engine, Base, SessionLocal
 from app.routers import sensors, dashboard, alerts, reports, weather, simulator, satellite, predict, alerts_timeline, flood, ml_enhanced, segmentation, dispatch, scout
-from app.auth import authenticate_user, create_token
-
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-
-    async def broadcast(self, message: dict):
-        disconnected = []
-        for connection in self.active_connections:
-            try:
-                await connection.send_json(message)
-            except WebSocketDisconnect:
-                disconnected.append(connection)
-            except RuntimeError as e:
-                # Connection closed or other runtime error
-                disconnected.append(connection)
-        
-        # Remove disconnected connections after iteration
-        for conn in disconnected:
-            self.disconnect(conn)
-
-
-manager = ConnectionManager()
+from app.auth import authenticate_user, create_token, verify_token
+from app.websocket_manager import can_subscribe, manager, normalize_district
 
 
 def init_database():
@@ -125,12 +93,22 @@ app = FastAPI(
     version="1.0.0",
 )
 
+_cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost,http://localhost:3000,http://localhost:5173,http://localhost:4173,"
+        "capacitor://localhost,null,"
+        "http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:4173",
+    ).split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 app.add_middleware(RateLimiter)
 
@@ -189,39 +167,64 @@ async def login(request: Request):
             "email": user["email"],
             "name": user["name"],
             "role": user["role"],
+            "districts": user.get("districts", []),
         },
     }
 
 
-@app.websocket("/ws/alerts/{district}")
-async def websocket_alerts(websocket: WebSocket, district: str = "all"):
-    """District-scoped WebSocket for real-time alert broadcasting."""
-    await manager.connect(websocket)
+def _websocket_user(websocket: WebSocket) -> dict:
+    """Authenticate browser query tokens or non-browser Authorization headers."""
+    token = websocket.query_params.get("token")
+    authorization = websocket.headers.get("authorization", "")
+    if not token and authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    return verify_token(token)
+
+
+async def _serve_alert_socket(websocket: WebSocket, requested_district: str) -> None:
     try:
-        await websocket.send_json({"type": "connected", "district": district, "message": f"Connected to {district} alert stream"})
+        user = _websocket_user(websocket)
+        district = normalize_district(requested_district)
+        if not can_subscribe(user, district):
+            await websocket.close(code=4403, reason="District subscription not authorized")
+            return
+    except (HTTPException, ValueError) as exc:
+        reason = exc.detail if isinstance(exc, HTTPException) else str(exc)
+        await websocket.close(code=4401, reason=reason)
+        return
+
+    await manager.connect(websocket, district=district, user=user)
+    try:
+        await websocket.send_json({"type": "connected", "district": district})
         while True:
             data = await websocket.receive_text()
             if data == "ping":
                 await websocket.send_json({"type": "pong"})
             elif data.startswith("subscribe:"):
-                new_district = data.split(":", 1)[1]
+                new_district = normalize_district(data.split(":", 1)[1])
+                if not can_subscribe(user, new_district):
+                    await websocket.send_json({"type": "error", "message": "District subscription not authorized"})
+                    continue
+                manager.subscribe(websocket, new_district)
                 await websocket.send_json({"type": "subscribed", "district": new_district})
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, ValueError):
+        pass
+    finally:
         manager.disconnect(websocket)
+
+
+@app.websocket("/ws/alerts/{district}")
+async def websocket_alerts(websocket: WebSocket, district: str = "all"):
+    """District-scoped WebSocket for real-time alert broadcasting."""
+    await _serve_alert_socket(websocket, district)
 
 
 @app.websocket("/ws/alerts")
 async def websocket_alerts_all(websocket: WebSocket):
     """Legacy endpoint - connects to all districts."""
-    await manager.connect(websocket)
-    try:
-        await websocket.send_json({"type": "connected", "district": "all"})
-        while True:
-            data = await websocket.receive_text()
-            if data == "ping":
-                await websocket.send_json({"type": "pong"})
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+    await _serve_alert_socket(websocket, "all")
 
 
 # Serve frontend static files

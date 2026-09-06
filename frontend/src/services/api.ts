@@ -82,6 +82,29 @@ export function clearStoredToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+export function getAlertsWebSocketUrl(requestedDistrict?: string): string {
+  const token = getStoredToken();
+  let district = requestedDistrict || 'all';
+  if (!requestedDistrict && token) {
+    try {
+      const rawPayload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const encodedPayload = rawPayload.padEnd(Math.ceil(rawPayload.length / 4) * 4, '=');
+      const payload = JSON.parse(atob(encodedPayload));
+      const allowedDistricts: string[] = Array.isArray(payload.districts) ? payload.districts : [];
+      district = allowedDistricts.includes('*') ? 'all' : (allowedDistricts[0] || 'all');
+    } catch {
+      district = 'all';
+    }
+  }
+  const apiBase = getApiBase();
+  const absoluteApiUrl = new URL(apiBase, window.location.href);
+  absoluteApiUrl.protocol = absoluteApiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+  absoluteApiUrl.pathname = `${absoluteApiUrl.pathname.replace(/\/?api\/?$/, '')}/ws/alerts/${encodeURIComponent(district)}`;
+  absoluteApiUrl.search = '';
+  if (token) absoluteApiUrl.searchParams.set('token', token);
+  return absoluteApiUrl.toString();
+}
+
 // Attach JWT token to every request automatically
 api.interceptors.request.use((config) => {
   const token = getStoredToken();
@@ -298,26 +321,35 @@ export const getWeatherForecast = (stationId: string, hours = 48) =>
   api.get<{ timestamp: string; temperature: number; rainfall_1h: number; forecast_rainfall_24h: number; humidity: number }[]>(`/weather/${stationId}/forecast?hours=${hours}`);
 
 // --- Simulator ---
-export interface SimulationResult {
-  status: string;
-  simulation: {
-    station: { id: string; name: string; state: string; district: string };
-    intensity: string;
-    sensor_reading: { rainfall_mm: number; soil_moisture: number; ground_displacement: number; pore_pressure: number };
+export interface SimulationEvent {
+  station: {
+    id: string; name: string; state: string; district: string; village: string;
+    slope_angle: number; elevation: number;
   };
-  risk_assessment: {
+  intensity: string;
+  sensor_spikes: {
+    rainfall_mm: number; soil_moisture: number; ground_displacement_mm: number;
+    pore_water_pressure_kpa: number; vibration_level: number;
+  };
+  ai_assessment: {
     risk_score: number;
     risk_level: string;
     landslide_probability: number;
-    contributing_factors: string[];
-    time_window_hours: number;
     recommendation: string;
+    attention_unet_hazard_m2: number;
+    coverage_percent: number;
+    model: string;
   };
-  alert: { id: number; title: string; affected_population: number } | null;
+  alert_generated: { title: string; level: string; message: string; affected_population: number } | null;
+}
+export interface SimulationResult {
+  status: string;
+  simulation: SimulationEvent;
 }
 export const simulateLandslide = (data: { station_id?: string; intensity?: string }) =>
   api.post<SimulationResult>('/simulate/landslide', data);
-export const simulateBatch = (count: number = 5) => api.post(`/simulate/batch?count=${count}`);
+export const simulateBatch = (count: number = 5) =>
+  api.post<{ status: string; simulated_events: number; events: SimulationEvent[] }>(`/simulate/batch?stations_count=${count}`);
 export const resetSimulation = () => api.post('/simulate/reset');
 
 // --- Predict (Click-to-Predict on Map) ---
@@ -554,9 +586,6 @@ export const getSegmentationModels = () =>
 
 export const getStationSegmentationData = () =>
   api.get<{ summary: SegmentationSummary; stations: StationSegmentation[] }>('/segmentation/stations');
-
-export const getSingleStationSegmentation = (stationId: string) =>
-  api.get<StationSegmentation>(`/segmentation/station/${stationId}`);
 
 export const runSegmentationInference = (data: {
   station_name?: string;

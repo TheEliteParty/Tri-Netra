@@ -158,7 +158,7 @@ def seed_database(force: bool = True):
     seg_engine = get_segmentation_engine()
 
     try:
-        print("[Seed] Refreshing database with PAN-INDIA Real Satellite Telemetry & Attention-UNet...")
+        print("[Seed] Refreshing database with seeded station telemetry and prototype heuristic assessments...")
         db.query(Alert).delete()
         db.query(RiskAssessment).delete()
         db.query(SensorReading).delete()
@@ -269,7 +269,7 @@ def seed_database(force: bool = True):
                 db.add(weather)
         db.commit()
 
-        print("[Seed] 🧠 Seeding Attention-UNet + RCAN Landslide Risk Assessments (Eb3ls/landslides_segmentation)...")
+        print("[Seed] 🧠 Seeding prototype heuristic landslide risk assessments...")
         for s in PAN_INDIA_STATIONS:
             sat_info = sat_map.get(s["station_id"], {})
             slope = s["slope_angle"]
@@ -311,7 +311,7 @@ def seed_database(force: bool = True):
                     f"24h Precipitation: {rain} mm (Open-Meteo)",
                     f"Soil Moisture: {round(sm, 1)}%",
                     f"Canopy NDVI: {round(ndvi, 2)}",
-                    f"Attention-UNet Scarp Area: {seg_res['segmentation_results']['hazard_area_m2']} m2"
+                    f"Prototype heuristic hazard area: {seg_res['segmentation_results']['hazard_area_m2']} m2"
                 ]),
                 recommendation=(
                     "CRITICAL: Immediate slope stabilization and district emergency mobilization required."
@@ -321,7 +321,7 @@ def seed_database(force: bool = True):
                     )
                 ),
                 predicted_time_window=24,
-                model_version="Attention-UNet-RCAN-5x",
+                model_version="prototype-heuristic-mask-v1",
                 timestamp=datetime.now(),
             )
             db.add(assessment)
@@ -335,7 +335,7 @@ def seed_database(force: bool = True):
                     station_id=s["station_id"],
                     risk_level=tier,
                     title=f"{tier.upper()} Landslide Hazard Alert - {s['name']}",
-                    message=f"Attention-UNet detected {seg_res['segmentation_results']['hazard_area_m2']} m² hazard scar with {score}/100 composite risk index (Slope: {slope}°, Rain: {rain}mm/24h).",
+                    message=f"Prototype heuristic estimated {seg_res['segmentation_results']['hazard_area_m2']} m² illustrative hazard area with {score}/100 composite risk index (Slope: {slope}°, Rain: {rain}mm/24h).",
                     status="active",
                     affected_population=pop,
                     latitude=s["lat"],
@@ -369,7 +369,7 @@ def seed_database(force: bool = True):
             db.add(report)
 
         db.commit()
-        print(f"[Seed] ✅ Successfully populated database with 100% real Pan-India satellite records ({len(PAN_INDIA_STATIONS)} stations) & Attention-UNet assessments!")
+        print(f"[Seed] ✅ Populated the prototype database with {len(PAN_INDIA_STATIONS)} stations and stored/generated demonstration records.")
 
     except Exception as e:
         db.rollback()

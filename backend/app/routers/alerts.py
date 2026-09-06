@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from datetime import datetime
 from app.database import get_db
-from app.models import Alert
+from app.models import Alert, SensorStation
 from app.auth import get_current_user, require_role
+from app.websocket_manager import publish_alert_event
 
 router = APIRouter(prefix="/api/alerts", tags=["alerts"])
 
@@ -61,25 +62,51 @@ def get_active_alerts(lang: str = "en", db: Session = Depends(get_db)):
     } for a in alerts]
 
 
+def _alert_event_payload(alert: Alert) -> dict:
+    return {
+        "id": alert.id,
+        "station_id": alert.station_id,
+        "risk_level": alert.risk_level,
+        "title": alert.title,
+        "message": alert.message,
+        "status": alert.status,
+        "affected_population": alert.affected_population,
+        "latitude": alert.latitude,
+        "longitude": alert.longitude,
+        "created_at": alert.created_at.isoformat() if alert.created_at else None,
+        "acknowledged_at": alert.acknowledged_at.isoformat() if alert.acknowledged_at else None,
+        "resolved_at": alert.resolved_at.isoformat() if alert.resolved_at else None,
+    }
+
+
+def _station_district(db: Session, station_id: str) -> str:
+    station = db.query(SensorStation).filter(SensorStation.station_id == station_id).first()
+    return station.district if station and station.district else "all"
+
+
 @router.put("/{alert_id}/acknowledge")
-def acknowledge_alert(alert_id: int, db: Session = Depends(get_db), user: dict = Depends(require_role("admin", "field_officer", "district_admin"))):
+async def acknowledge_alert(alert_id: int, db: Session = Depends(get_db), user: dict = Depends(require_role("admin", "field_officer", "district_admin"))):
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
     alert.status = "acknowledged"
     alert.acknowledged_at = datetime.utcnow()
     db.commit()
+    db.refresh(alert)
+    await publish_alert_event("alert.updated", _alert_event_payload(alert), district=_station_district(db, alert.station_id))
     return {"message": "Alert acknowledged", "id": alert_id}
 
 
 @router.put("/{alert_id}/resolve")
-def resolve_alert(alert_id: int, db: Session = Depends(get_db), user: dict = Depends(require_role("admin"))):
+async def resolve_alert(alert_id: int, db: Session = Depends(get_db), user: dict = Depends(require_role("admin"))):
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
     alert.status = "resolved"
     alert.resolved_at = datetime.utcnow()
     db.commit()
+    db.refresh(alert)
+    await publish_alert_event("alert.updated", _alert_event_payload(alert), district=_station_district(db, alert.station_id))
     return {"message": "Alert resolved", "id": alert_id}
 
 
