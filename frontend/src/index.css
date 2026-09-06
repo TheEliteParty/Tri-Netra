@@ -353,3 +353,38 @@ body.dark {
 .dark .text-emerald-700 {
   color: #34d399 !important;
 }
+
+/* Dark mode catch-all overrides for opacity utility classes */
+.dark [class*="bg-slate-50"],
+.dark [class*="bg-slate-100"] {
+  background-color: rgba(14, 14, 20, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.dark [class*="bg-slate-50"]:hover,
+.dark [class*="bg-slate-100"]:hover {
+  background-color: rgba(24, 24, 32, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark [class*="bg-rose-50"],
+.dark [class*="bg-rose-50/"] {
+  background-color: rgba(35, 10, 15, 0.85) !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+  color: #fecdd3 !important;
+}
+
+.dark [class*="bg-amber-50"],
+.dark [class*="bg-amber-50/"] {
+  background-color: rgba(35, 25, 10, 0.85) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fef08a !important;
+}
+
+.dark [class*="bg-emerald-50"],
+.dark [class*="bg-emerald-50/"] {
+  background-color: rgba(10, 30, 20, 0.85) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #a7f3d0 !important;
+}

@@ -924,9 +924,9 @@ export default function Dashboard() {
                     { label: t('partiallyBlocked'), count: activeStats.road_status.partially_blocked, pct: roadMetrics.partialPct, color: 'bg-amber-500', text: 'text-amber-700' },
                     { label: t('blocked'), count: activeStats.road_status.blocked, pct: roadMetrics.blockedPct, color: 'bg-rose-500', text: 'text-rose-700' },
                   ].map((item, i) => (
-                    <div key={i} className="p-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition-all">
+                    <div key={i} className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all">
                       <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
-                        <span className="flex items-center gap-1.5 text-slate-700 truncate">
+                        <span className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-200 truncate">
                           <span className={`w-2 h-2 rounded-full shrink-0 ${item.color}`} />
                           <span className="truncate">{item.label}</span>
                         </span>
@@ -943,8 +943,8 @@ export default function Dashboard() {
                 {/* Bottom Transit Banner */}
                 <div className={`p-2 rounded-xl border flex items-center justify-between text-xs font-semibold ${
                   activeStats.road_status.blocked > 0
-                    ? 'bg-rose-50/80 border-rose-200/80 text-rose-800'
-                    : 'bg-emerald-50/80 border-emerald-200/80 text-emerald-800'
+                    ? 'bg-rose-50/80 dark:bg-zinc-900/90 border-rose-200/80 dark:border-rose-500/40 text-rose-800 dark:text-rose-300 shadow-xs'
+                    : 'bg-emerald-50/80 dark:bg-zinc-900/90 border-emerald-200/80 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 shadow-xs'
                 }`}>
                   <div className="flex items-center gap-1.5 truncate">
                     <Zap className={`w-3.5 h-3.5 shrink-0 ${activeStats.road_status.blocked > 0 ? 'text-rose-600' : 'text-emerald-600'}`} />
@@ -996,12 +996,12 @@ export default function Dashboard() {
                     return (
                       <div
                         key={i}
-                        className="flex items-center justify-between p-2 rounded-xl bg-slate-50/80 border border-slate-100 hover:bg-sky-50/60 hover:border-sky-200/80 transition-all min-w-0"
+                        className="flex items-center justify-between p-2 rounded-xl bg-slate-50/80 dark:bg-zinc-900/80 border border-slate-100 dark:border-white/10 hover:bg-sky-50/60 dark:hover:bg-zinc-800 hover:border-sky-200/80 dark:hover:border-white/20 transition-all min-w-0"
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <span className={`w-2 h-2 rounded-full shrink-0 ${statusColor}`} />
                           <div className="truncate">
-                            <p className="text-xs font-semibold text-slate-800 truncate">{state.state}</p>
+                            <p className="text-xs font-semibold text-slate-800 dark:text-white truncate">{state.state}</p>
                             <p className="text-[10px] text-slate-400 font-medium">{state.stations} stations</p>
                           </div>
                         </div>
@@ -1060,7 +1060,7 @@ export default function Dashboard() {
 
               <CardContent className="pt-1 pb-4 flex flex-col justify-between flex-1">
                 {/* Metric Summary Strip */}
-                <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] mb-1 font-medium">
+                <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-100 dark:border-white/10 text-[11px] mb-1 font-medium text-slate-500 dark:text-zinc-300">
                   <span className="text-slate-500 truncate">
                     Peak State: <strong className="text-rose-600 font-bold">{topRadarState?.state || 'N/A'} ({topRadarState?.avg_risk_score || 0})</strong>
                   </span>
@@ -1106,8 +1106,8 @@ export default function Dashboard() {
                 {/* Bottom Top States Quick Pill Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2 border-t border-slate-100">
                   {stateData.slice(0, 4).map((s, idx) => (
-                    <div key={idx} className="p-1.5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between text-[10px]">
-                      <span className="font-semibold text-slate-700 truncate">{s.state.split(' ')[0]}</span>
+                    <div key={idx} className="p-1.5 rounded-lg bg-slate-50 dark:bg-zinc-900/80 border border-slate-100 dark:border-white/10 flex items-center justify-between text-[10px]">
+                      <span className="font-semibold text-slate-700 dark:text-zinc-200 truncate">{s.state.split(' ')[0]}</span>
                       <span className={`font-bold ml-1 ${s.avg_risk_score >= 50 ? 'text-rose-600' : s.avg_risk_score >= 25 ? 'text-amber-600' : 'text-emerald-600'}`}>
                         {s.avg_risk_score}
                       </span>
@@ -1149,10 +1149,10 @@ export default function Dashboard() {
                     
                     const rankStyle =
                       i === 0
-                        ? 'bg-rose-50 text-rose-700 border-rose-200/80 font-bold'
+                        ? 'bg-rose-50 dark:bg-zinc-900 text-rose-700 dark:text-rose-400 border-rose-200/80 dark:border-rose-500/40 font-bold'
                         : i === 1
-                        ? 'bg-amber-50 text-amber-700 border-amber-200/80 font-bold'
-                        : 'bg-slate-100 text-slate-700 border-slate-200 font-semibold';
+                        ? 'bg-amber-50 dark:bg-zinc-900 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-500/40 font-bold'
+                        : 'bg-slate-100 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-white/15 font-semibold';
 
                     const scoreColor =
                       riskLevel === 'critical'
@@ -1176,7 +1176,7 @@ export default function Dashboard() {
                       <div
                         key={i}
                         onClick={() => (window.location.href = `#/station/${station.station_id}`)}
-                        className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/80 hover:border-sky-300 hover:bg-sky-50/50 hover:shadow-xs transition-all cursor-pointer group gap-2.5 min-w-0"
+                        className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/90 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-white/10 hover:border-sky-300 dark:hover:border-white/25 hover:bg-sky-50/50 dark:hover:bg-zinc-800 hover:shadow-xs transition-all cursor-pointer group gap-2.5 min-w-0"
                       >
                         {/* Rank Badge */}
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 border ${rankStyle}`}>
@@ -1186,7 +1186,7 @@ export default function Dashboard() {
                         {/* Station Name & Subtitle */}
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <p className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-sky-700 transition-colors truncate">
+                            <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white group-hover:text-sky-700 dark:group-hover:text-sky-300 transition-colors truncate">
                               {station.name}
                             </p>
                             {riskLevel === 'critical' && (
@@ -1197,7 +1197,7 @@ export default function Dashboard() {
                             <p className="text-[10px] text-slate-400 font-medium truncate">
                               {station.state} • {station.district}
                             </p>
-                            <div className="hidden sm:block w-20 h-1 rounded-full bg-slate-200/80 overflow-hidden">
+                            <div className="hidden sm:block w-20 h-1 rounded-full bg-slate-200/80 dark:bg-zinc-800 overflow-hidden">
                               <div
                                 className={`h-full rounded-full ${progressColor}`}
                                 style={{ width: `${Math.min(100, riskScore)}%` }}
@@ -1228,7 +1228,7 @@ export default function Dashboard() {
                               {riskLevel}
                             </Badge>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-sky-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                          <ChevronRight className="w-4 h-4 text-slate-300 dark:text-zinc-500 group-hover:text-sky-600 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
                         </div>
                       </div>
                     );
