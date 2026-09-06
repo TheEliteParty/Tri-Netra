@@ -195,7 +195,7 @@ export default function Dashboard() {
         value: low,
         color: '#10b981',
         pct: Math.round((low / total) * 100),
-        badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+        badgeClass: 'bg-emerald-50 dark:bg-zinc-900/90 text-emerald-700 dark:text-emerald-400 border-emerald-200/80 dark:border-emerald-500/30',
         barColor: 'bg-emerald-500',
         sub: 'Safe baseline telemetry',
       },
@@ -205,7 +205,7 @@ export default function Dashboard() {
         value: mod,
         color: '#f59e0b',
         pct: Math.round((mod / total) * 100),
-        badgeClass: 'bg-amber-50 text-amber-700 border-amber-200/80',
+        badgeClass: 'bg-amber-50 dark:bg-zinc-900/90 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-500/30',
         barColor: 'bg-amber-500',
         sub: 'Watch status, increased rain',
       },
@@ -215,7 +215,7 @@ export default function Dashboard() {
         value: high,
         color: '#f97316',
         pct: Math.round((high / total) * 100),
-        badgeClass: 'bg-orange-50 text-orange-700 border-orange-200/80',
+        badgeClass: 'bg-orange-50 dark:bg-zinc-900/90 text-orange-700 dark:text-orange-400 border-orange-200/80 dark:border-orange-500/30',
         barColor: 'bg-orange-500',
         sub: 'Slope stress detected',
       },
@@ -225,7 +225,7 @@ export default function Dashboard() {
         value: crit,
         color: '#f43f5e',
         pct: Math.round((crit / total) * 100),
-        badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
+        badgeClass: 'bg-rose-50 dark:bg-zinc-900/90 text-rose-700 dark:text-rose-400 border-rose-200/80 dark:border-rose-500/30',
         barColor: 'bg-rose-500',
         sub: 'Immediate action required',
       },
@@ -290,7 +290,7 @@ export default function Dashboard() {
     },
     {
       label: t('peopleAtRisk'),
-      value: activeStats.affected_population.toLocaleString(),
+      value: activeStats.affected_population > 99999 ? `${Math.round(activeStats.affected_population / 1000)}K` : activeStats.affected_population.toLocaleString(),
       icon: Users,
       badge: 'NER Zone',
       badgeVariant: 'secondary' as const,
@@ -336,12 +336,12 @@ export default function Dashboard() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/95 backdrop-blur-md border border-slate-900 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5 max-w-[200px]">
+        <div className="bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border border-slate-200/90 dark:border-white/15 rounded-xl px-3 py-2 shadow-xl shadow-black/40 max-w-[200px]">
           <p className="text-[10px] font-medium text-slate-400 mb-1">{formatTime(label)}</p>
           {payload.map((p: any, i: number) => (
             <div key={i} className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color || p.stroke || p.fill }} />
-              <span className="text-xs font-semibold text-slate-800 truncate">
+              <span className="text-xs font-semibold text-slate-800 dark:text-white truncate">
                 {p.name}: {typeof p.value === 'number' ? p.value.toFixed(1) : p.value} {p.unit || 'mm'}
               </span>
             </div>
@@ -357,7 +357,7 @@ export default function Dashboard() {
       const d = payload[0];
       const stateObj = activeStateData.find(s => s.state.includes(d.payload.state) || d.payload.state.includes(s.state));
       return (
-        <div className="bg-white/95 backdrop-blur-md border border-slate-900 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
+        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 dark:border-white/10 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
           <p className="text-xs font-bold text-slate-900">{d.payload.state}</p>
           <div className="flex items-center gap-2 mt-1 text-xs">
             <span className="text-slate-500 font-medium">Risk Score:</span>
@@ -378,7 +378,7 @@ export default function Dashboard() {
     if (active && payload && payload.length) {
       const d = payload[0];
       return (
-        <div className="bg-white/95 backdrop-blur-md border border-slate-900 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
+        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 dark:border-white/10 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.payload.color }} />
             <span className="text-xs font-bold text-slate-900">{d.name}</span>
@@ -422,7 +422,7 @@ export default function Dashboard() {
   if (loading && !stats) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center p-8 max-w-sm rounded-3xl bg-white border border-slate-900 shadow-xl shadow-sky-950/5">
+        <div className="text-center p-8 max-w-sm rounded-3xl bg-white border border-slate-200/90 dark:border-white/10 shadow-xl shadow-sky-950/5">
           <div className="relative w-16 h-16 mx-auto mb-4">
             <div className="absolute inset-0 rounded-full border-4 border-sky-100" />
             <div className="absolute inset-0 rounded-full border-4 border-sky-600 border-t-transparent animate-spin" />
@@ -440,7 +440,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto animate-fade-in min-w-0">
       {/* Top Banner & Tab Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white border border-slate-900 rounded-2xl p-4 sm:p-5 shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white border border-slate-200/90 dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-card">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 tracking-tight truncate">
@@ -497,14 +497,14 @@ export default function Dashboard() {
                   {card.badge}
                 </Badge>
               </div>
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight truncate">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
                 {card.value}
               </div>
-              <div className="text-xs font-semibold text-slate-700 mt-1 truncate">
+              <div className="text-xs font-semibold text-slate-700 dark:text-zinc-300 mt-1 truncate">
                 {card.label}
               </div>
             </div>
-            <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-2 pt-2 border-t border-slate-100 truncate">
+            <div className="text-[10px] sm:text-[11px] text-slate-400 dark:text-zinc-500 font-medium mt-2 pt-2 border-t border-slate-100 dark:border-white/10 truncate">
               {card.sub}
             </div>
           </Card>
@@ -540,20 +540,20 @@ export default function Dashboard() {
                 {/* Graph Controls & Switchers */}
                 <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                   {/* Summary Metric Chips */}
-                  <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] font-medium text-slate-600">
+                  <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-white/10 text-[11px] font-medium text-slate-600 dark:text-zinc-300">
                     <span>Peak: <strong className="text-sky-700">{rainfallMetrics.max}mm</strong></span>
                     <span className="text-slate-300">•</span>
                     <span>Avg: <strong className="text-slate-800">{rainfallMetrics.avg}mm</strong></span>
                   </div>
 
                   {/* 24h vs 48h Filter */}
-                  <div className="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200/80 text-xs">
+                  <div className="inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-white/10 text-xs">
                     <button
                       onClick={() => setRainfallTimeframe(24)}
                       className={`px-2 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
                         rainfallTimeframe === 24
-                          ? 'bg-white text-sky-700 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-white dark:bg-white text-sky-700 dark:text-black font-semibold shadow-xs'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white'
                       }`}
                     >
                       24h
@@ -562,8 +562,8 @@ export default function Dashboard() {
                       onClick={() => setRainfallTimeframe(48)}
                       className={`px-2 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
                         rainfallTimeframe === 48
-                          ? 'bg-white text-sky-700 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-white dark:bg-white text-sky-700 dark:text-black font-semibold shadow-xs'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white'
                       }`}
                     >
                       48h
@@ -571,13 +571,13 @@ export default function Dashboard() {
                   </div>
 
                   {/* Line vs Bar Graph Type Switcher */}
-                  <div className="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200/80 text-xs">
+                  <div className="inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-white/10 text-xs">
                     <button
                       onClick={() => setRainfallChartType('area')}
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
                         rainfallChartType === 'area'
-                          ? 'bg-white text-sky-700 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-white dark:bg-white text-sky-700 dark:text-black font-semibold shadow-xs'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white'
                       }`}
                       title="Switch to Smooth Area/Line Chart"
                     >
@@ -588,8 +588,8 @@ export default function Dashboard() {
                       onClick={() => setRainfallChartType('bar')}
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
                         rainfallChartType === 'bar'
-                          ? 'bg-white text-sky-700 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-white dark:bg-white text-sky-700 dark:text-black font-semibold shadow-xs'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white'
                       }`}
                       title="Switch to Column/Bar Chart"
                     >
@@ -1414,7 +1414,7 @@ export default function Dashboard() {
       )}
 
       {/* Minimal Footer Info */}
-      <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 bg-white border border-slate-900 rounded-2xl px-4 sm:px-5 py-3 gap-2 shadow-card">
+      <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 bg-white border border-slate-200/90 dark:border-white/10 rounded-2xl px-4 sm:px-5 py-3 gap-2 shadow-card">
         <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <span className="flex items-center gap-1.5 font-medium text-slate-600">
             <Radio className="w-3.5 h-3.5 text-sky-600" />

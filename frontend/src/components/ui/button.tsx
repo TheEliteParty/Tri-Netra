@@ -14,12 +14,12 @@ export function Button({ className = '', variant = 'default', size = 'md', disab
     icon: 'h-9 w-9 p-0 ',
   };
   const variants = {
-    default: 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm hover:shadow ',
-    sky: 'bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100 ',
-    secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200 ',
-    outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm ',
-    ghost: 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 ',
-    destructive: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm ',
+    default: 'bg-sky-600 dark:bg-white text-white dark:text-black hover:bg-sky-700 dark:hover:bg-zinc-200 shadow-sm hover:shadow ',
+    sky: 'bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100 dark:bg-zinc-900/90 dark:text-sky-300 dark:border-white/10 dark:hover:bg-zinc-800 ',
+    secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-zinc-900/90 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:border dark:border-white/10 ',
+    outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm dark:border-white/15 dark:bg-zinc-950/80 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:border-white/30 ',
+    ghost: 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-900/80 ',
+    destructive: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm dark:bg-rose-600 dark:text-white ',
   };
   return <button className={base + sizes[size] + variants[variant] + className} disabled={disabled} {...props} />;
 }

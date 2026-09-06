@@ -24,7 +24,7 @@ export function Tabs({ value, onValueChange, children, className = '' }: TabsPro
 
 export function TabsList({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={'inline-flex items-center p-1 bg-slate-100/90 border border-slate-200/60 rounded-xl gap-1 ' + className}>
+    <div className={'inline-flex items-center p-1 bg-slate-100/90 dark:bg-zinc-900/90 border border-slate-200/60 dark:border-white/10 rounded-xl gap-1 ' + className}>
       {children}
     </div>
   );
@@ -40,8 +40,8 @@ export function TabsTrigger({ value, children, className = '' }: { value: string
       onClick={() => ctx.onValueChange(value)}
       className={'inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all select-none ' + (
         isActive
-          ? 'bg-white text-sky-700 font-semibold shadow-sm border border-slate-200/80'
-          : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+          ? 'bg-white dark:bg-white text-slate-900 dark:text-black font-semibold shadow-sm border border-slate-200/80 dark:border-white'
+          : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
       ) + ' ' + className}
     >
       {children}

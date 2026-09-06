@@ -348,7 +348,7 @@ function MainLayout() {
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50/80 text-slate-900 font-sans">
+    <div className="flex h-screen overflow-hidden bg-slate-50/80 dark:bg-black text-slate-900 dark:text-white font-sans">
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
         <div
@@ -363,10 +363,10 @@ function MainLayout() {
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0 fixed inset-y-0 left-0 z-50 md:relative md:z-auto transition-all duration-300 ${
           sidebarOpen ? 'w-64' : 'w-[72px]'
-        } bg-white border-r border-slate-200/80 flex flex-col flex-shrink-0 shadow-sm`}
+        } bg-white dark:bg-zinc-950/95 dark:backdrop-blur-2xl border-r border-slate-200/80 dark:border-white/10 flex flex-col flex-shrink-0 shadow-sm`}
       >
         {/* Brand / Logo */}
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
               <Shield className="w-5 h-5" />
@@ -374,7 +374,7 @@ function MainLayout() {
             {sidebarOpen && (
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-base font-bold text-slate-900 truncate">Tri-Netra</h1>
+                  <h1 className="text-base font-bold text-slate-900 dark:text-white truncate">Tri-Netra</h1>
                   <Badge variant="sky" size="sm" className="text-[9px] px-1.5 py-0 font-bold uppercase tracking-wider">
                     AI
                   </Badge>
@@ -386,7 +386,7 @@ function MainLayout() {
         </div>
 
         {/* Live Status Pill */}
-        <div className={`px-3.5 py-2.5 border-b border-slate-100 ${!sidebarOpen ? 'px-2' : ''}`}>
+        <div className={`px-3.5 py-2.5 border-b border-slate-100 dark:border-white/10 ${!sidebarOpen ? 'px-2' : ''}`}>
           <div className={`flex items-center gap-2 ${sidebarOpen ? '' : 'justify-center'}`}>
             <span className="relative flex h-2.5 w-2.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
@@ -394,7 +394,7 @@ function MainLayout() {
             </span>
             {sidebarOpen && (
               <div className="flex items-center justify-between flex-1 min-w-0">
-                <span className="text-[11px] text-sky-700 font-semibold tracking-wide uppercase truncate">
+                <span className="text-[11px] text-sky-700 dark:text-sky-300 font-semibold tracking-wide uppercase truncate">
                   {t('liveMonitoring')}
                 </span>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Healthy telemetry" />
@@ -414,8 +414,8 @@ function MainLayout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 group relative select-none ${
                   isActive
-                    ? 'bg-sky-50 text-sky-700 font-semibold border-r-2 border-sky-600 shadow-sm shadow-sky-100/60'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-r-2 border-transparent'
+                    ? 'bg-sky-50 dark:bg-white/10 text-sky-700 dark:text-white font-semibold border-r-2 border-sky-600 dark:border-white shadow-sm dark:shadow-black/50'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 border-r-2 border-transparent'
                 } ${!sidebarOpen ? 'justify-center px-0' : ''}`
               }
               title={!sidebarOpen ? item.label : undefined}
@@ -440,7 +440,7 @@ function MainLayout() {
 
         {/* Quick Station Status in Sidebar */}
         {sidebarOpen && (
-          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50/50">
+          <div className="px-3 py-2.5 border-t border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-zinc-950/40">
             <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mb-1.5 px-1">
               {t('quickStations')}
             </p>
@@ -454,7 +454,7 @@ function MainLayout() {
                   key={s.id}
                   to={`/station/${s.id}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-2 py-1.5 rounded-lg text-xs text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs transition-all"
+                  className="flex items-center justify-between px-2 py-1.5 rounded-lg text-xs text-slate-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white hover:shadow-xs transition-all"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
@@ -470,7 +470,7 @@ function MainLayout() {
         )}
 
         {/* Language & Settings */}
-        <div className={`p-3 border-t border-slate-100 bg-white ${!sidebarOpen ? 'p-2' : ''}`}>
+        <div className={`p-3 border-t border-slate-100 dark:border-white/10 bg-white dark:bg-zinc-950/40 ${!sidebarOpen ? 'p-2' : ''}`}>
           {sidebarOpen ? (
             <div className="space-y-2">
               <div className="flex items-center gap-1.5 text-slate-500">
@@ -487,8 +487,8 @@ function MainLayout() {
                       onClick={() => handleLangChange(code)}
                       className={`text-[11px] px-2 py-1 rounded-lg transition-all text-left truncate flex items-center gap-1.5 ${
                         lang === code
-                          ? 'bg-sky-50 text-sky-700 font-semibold border border-sky-200/80 shadow-xs'
-                          : 'text-slate-600 hover:bg-slate-50 border border-transparent'
+                          ? 'bg-sky-50 dark:bg-white/15 text-sky-700 dark:text-white font-semibold border border-sky-200/80 dark:border-white/20 shadow-xs'
+                          : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent'
                       }`}
                     >
                       <span className="shrink-0">{flag}</span>
@@ -510,14 +510,14 @@ function MainLayout() {
         </div>
 
         {/* User Profile & Collapse */}
-        <div className="border-t border-slate-100 p-2 bg-slate-50/50">
+        <div className="border-t border-slate-100 dark:border-white/10 p-2 bg-slate-50/50 dark:bg-zinc-950/60">
           {sidebarOpen && user && (
-            <div className="p-2 rounded-xl bg-white border border-slate-200/70 flex items-center gap-2.5 mb-2 shadow-xs">
+            <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/80 border border-slate-200/70 dark:border-white/10 flex items-center gap-2.5 mb-2 shadow-xs">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-sky-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-xs">
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-slate-800 truncate">{user.name}</p>
+                <p className="text-xs font-semibold text-slate-800 dark:text-white truncate">{user.name}</p>
                 <p className="text-[10px] text-slate-400 capitalize truncate font-medium">{user.role.replace('_', ' ')}</p>
               </div>
               <button
@@ -540,9 +540,9 @@ function MainLayout() {
       </aside>
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/60 min-w-0">
+      <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/60 dark:bg-black min-w-0">
         {/* Top Header Bar */}
-        <header className="h-14 border-b border-slate-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between px-3 sm:px-6 flex-shrink-0 z-10 gap-2">
+        <header className="h-14 border-b border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-950/80 backdrop-blur-xl flex items-center justify-between px-3 sm:px-6 flex-shrink-0 z-10 gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -552,7 +552,7 @@ function MainLayout() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 border border-sky-200/80 text-sky-700 text-xs font-semibold shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 dark:bg-zinc-900/90 border border-sky-200/80 dark:border-white/15 text-sky-700 dark:text-white text-xs font-semibold shrink-0 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
               <span>LIVE TELEMETRY</span>
             </div>
@@ -565,9 +565,9 @@ function MainLayout() {
             {/* Alert Counter */}
             <NavLink
               to="/alerts"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100/80 hover:bg-slate-200/70 text-slate-700 text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100/80 dark:bg-zinc-900/90 hover:bg-slate-200/70 dark:hover:bg-zinc-800 border border-transparent dark:border-white/10 text-slate-700 dark:text-zinc-200 text-xs font-medium transition-colors shadow-xs"
             >
-              <Bell className="w-3.5 h-3.5 text-slate-600" />
+              <Bell className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-300" />
               {activeAlerts > 0 ? (
                 <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-bold">
                   {activeAlerts}
@@ -578,8 +578,8 @@ function MainLayout() {
             </NavLink>
 
             {/* Time Clock */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200/70 text-slate-700 text-xs font-mono font-medium shadow-xs">
-              <Clock className="w-3.5 h-3.5 text-sky-600" />
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-zinc-900/90 border border-slate-200/70 dark:border-white/10 text-slate-700 dark:text-zinc-200 text-xs font-mono font-medium shadow-xs">
+              <Clock className="w-3.5 h-3.5 text-sky-600 dark:text-white" />
               <span className="hidden sm:inline">
                 {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
               </span>
@@ -600,7 +600,7 @@ function MainLayout() {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 min-w-0 ${location.pathname === '/map' ? 'p-0 overflow-hidden flex flex-col' : 'overflow-y-auto bg-slate-50/50 p-3.5 sm:p-5 lg:p-6'}`}>
+        <main className={`flex-1 min-w-0 ${location.pathname === '/map' ? 'p-0 overflow-hidden flex flex-col' : 'overflow-y-auto bg-slate-50/50 dark:bg-black p-3.5 sm:p-5 lg:p-6'}`}>
           <Routes key={lang}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/map" element={<RiskMap />} />
