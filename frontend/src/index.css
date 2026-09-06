@@ -300,3 +300,56 @@ body.dark {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* Glossy Dark Icon Squircles & Specular Highlights */
+.dark .rounded-xl.border,
+.dark .rounded-2xl.border,
+.dark .w-8.h-8.rounded-xl,
+.dark .w-9.h-9.rounded-xl,
+.dark .w-10.h-10.rounded-xl {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.dark .bg-sky-50,
+.dark .bg-blue-50,
+.dark .bg-indigo-50,
+.dark .bg-violet-50,
+.dark .bg-amber-50,
+.dark .bg-orange-50,
+.dark .bg-rose-50,
+.dark .bg-pink-50,
+.dark .bg-emerald-50,
+.dark .bg-green-50,
+.dark .from-sky-50,
+.dark .from-blue-50,
+.dark .from-rose-50,
+.dark .from-amber-50,
+.dark .from-indigo-50 {
+  background-color: rgba(18, 18, 24, 0.95) !important;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+.dark .text-sky-600,
+.dark .text-sky-700,
+.dark .text-blue-600,
+.dark .text-indigo-600,
+.dark .text-violet-600 {
+  color: #ffffff !important;
+}
+
+.dark .text-rose-600,
+.dark .text-rose-700 {
+  color: #fb7185 !important;
+}
+
+.dark .text-amber-600,
+.dark .text-amber-700,
+.dark .text-orange-600 {
+  color: #fbbf24 !important;
+}
+
+.dark .text-emerald-600,
+.dark .text-emerald-700 {
+  color: #34d399 !important;
+}

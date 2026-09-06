@@ -276,7 +276,7 @@ export default function Dashboard() {
       badge: `${activeStats.active_stations} Online`,
       badgeVariant: 'sky' as const,
       sub: 'NER IoT Station Grid',
-      iconColor: 'bg-sky-50 text-sky-600 border-sky-200/80',
+      iconColor: 'bg-sky-50 dark:bg-zinc-900/90 text-sky-600 dark:text-white border-sky-200/80 dark:border-white/20 shadow-xs dark:shadow-black/60',
     },
     {
       label: t('activeAlerts'),
@@ -285,7 +285,7 @@ export default function Dashboard() {
       badge: activeStats.active_alerts > 0 ? `${activeStats.active_alerts} Urgent` : 'Nominal',
       badgeVariant: (activeStats.active_alerts > 0 ? 'destructive' : 'success') as any,
       sub: activeStats.active_alerts > 0 ? 'Urgent notifications' : 'No critical alerts',
-      iconColor: activeStats.active_alerts > 0 ? 'bg-rose-50 text-rose-600 border-rose-200/80' : 'bg-emerald-50 text-emerald-600 border-emerald-200/80',
+      iconColor: activeStats.active_alerts > 0 ? 'bg-rose-50 dark:bg-zinc-900/90 text-rose-600 dark:text-rose-400 border-rose-200/80 dark:border-rose-500/40 shadow-xs dark:shadow-black/60' : 'bg-emerald-50 dark:bg-zinc-900/90 text-emerald-600 dark:text-emerald-400 border-emerald-200/80 dark:border-emerald-500/40 shadow-xs dark:shadow-black/60',
       pulse: activeStats.active_alerts > 0,
     },
     {
@@ -295,7 +295,7 @@ export default function Dashboard() {
       badge: 'NER Zone',
       badgeVariant: 'secondary' as const,
       sub: t('acrossNER'),
-      iconColor: 'bg-indigo-50 text-indigo-600 border-indigo-200/80',
+      iconColor: 'bg-indigo-50 dark:bg-zinc-900/90 text-indigo-600 dark:text-zinc-100 border-indigo-200/80 dark:border-white/20 shadow-xs dark:shadow-black/60',
     },
     {
       label: t('pendingReports'),
@@ -304,7 +304,7 @@ export default function Dashboard() {
       badge: `+${activeStats.recent_reports_24h} (24h)`,
       badgeVariant: 'warning' as const,
       sub: 'Citizen ground reports',
-      iconColor: 'bg-amber-50 text-amber-600 border-amber-200/80',
+      iconColor: 'bg-amber-50 dark:bg-zinc-900/90 text-amber-600 dark:text-amber-300 border-amber-200/80 dark:border-amber-500/40 shadow-xs dark:shadow-black/60',
     },
     {
       label: t('avgRiskScore'),
@@ -313,7 +313,7 @@ export default function Dashboard() {
       badge: activeStats.average_risk_score > 50 ? 'High' : 'Moderate',
       badgeVariant: (activeStats.average_risk_score > 50 ? 'destructive' : 'sky') as any,
       sub: 'Scale of 0 to 100',
-      iconColor: 'bg-blue-50 text-blue-600 border-blue-200/80',
+      iconColor: 'bg-blue-50 dark:bg-zinc-900/90 text-blue-600 dark:text-sky-300 border-blue-200/80 dark:border-sky-500/40 shadow-xs dark:shadow-black/60',
     },
     {
       label: t('highRiskVillages'),
@@ -322,7 +322,7 @@ export default function Dashboard() {
       badge: `${activeStats.high_risk_villages}/${activeStats.total_villages}`,
       badgeVariant: 'secondary' as const,
       sub: 'Priority safety zones',
-      iconColor: 'bg-violet-50 text-violet-600 border-violet-200/80',
+      iconColor: 'bg-violet-50 dark:bg-zinc-900/90 text-violet-600 dark:text-purple-300 border-violet-200/80 dark:border-purple-500/40 shadow-xs dark:shadow-black/60',
     },
   ], [activeStats]);
 
@@ -519,7 +519,7 @@ export default function Dashboard() {
             <Card className="lg:col-span-2 min-w-0">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-sky-50 border border-sky-200/80 flex items-center justify-center text-sky-600 shrink-0 shadow-xs">
+                  <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-zinc-900/90 border border-sky-200/80 dark:border-white/20 flex items-center justify-center text-sky-600 dark:text-white shrink-0 shadow-xs dark:shadow-black/60">
                     <Droplets className="w-4.5 h-4.5" />
                   </div>
                   <div className="min-w-0">
@@ -680,7 +680,7 @@ export default function Dashboard() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-50 to-blue-50 border border-sky-200/80 flex items-center justify-center text-sky-700 shrink-0 shadow-xs">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-50 to-blue-50 dark:from-zinc-900 dark:to-zinc-950 border border-sky-200/80 dark:border-white/20 flex items-center justify-center text-sky-700 dark:text-white shrink-0 shadow-xs dark:shadow-black/60">
                       <ShieldAlert className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
@@ -765,7 +765,7 @@ export default function Dashboard() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-50 to-pink-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0 shadow-xs">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-50 to-pink-50 dark:from-zinc-900 dark:to-zinc-950 border border-rose-200/80 dark:border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-xs dark:shadow-black/60">
                       <TrendingUp className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
@@ -1122,7 +1122,7 @@ export default function Dashboard() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-50 to-pink-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0 shadow-xs">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-50 to-pink-50 dark:from-zinc-900 dark:to-zinc-950 border border-rose-200/80 dark:border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-xs dark:shadow-black/60">
                       <AlertCircle className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
