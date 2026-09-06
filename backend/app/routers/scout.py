@@ -7,7 +7,7 @@ import random
 import math
 
 from app.database import get_db
-from app.models import Station
+from app.models import SensorStation
 
 router = APIRouter(prefix="/api/scout", tags=["ground-scout"])
 
@@ -142,7 +142,7 @@ def get_scout_stats():
 @router.post("/reports")
 def create_scout_report(payload: ReportSubmission, db: Session = Depends(get_db)):
     # Calculate proximity to nearest station
-    stations = db.query(Station).all()
+    stations = db.query(SensorStation).all()
     nearest_station_str = "Regional Tri-Netra Node"
     min_dist = 999.0
     
@@ -150,7 +150,7 @@ def create_scout_report(payload: ReportSubmission, db: Session = Depends(get_db)
         d = math.sqrt((s.latitude - payload.latitude)**2 + (s.longitude - payload.longitude)**2) * 111.0
         if d < min_dist:
             min_dist = d
-            nearest_station_str = f"{s.id} ({s.name})"
+            nearest_station_str = f"{s.station_id} ({s.name})"
     
     # AI Computer Vision Triage Engine Simulation
     desc_lower = payload.description.lower()

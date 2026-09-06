@@ -145,15 +145,15 @@ def get_villages(
 
 @router.get("/ndma-briefing/{station_id}")
 def get_ndma_briefing(station_id: str, db: Session = Depends(get_db)):
-    from app.models import Station, SensorData, WeatherData, Alert
+    from app.models import SensorStation, WeatherData, Alert
     from app.ai_engine.risk_predictor import calculate_factor_of_safety, evaluate_rainfall_threshold
     from datetime import datetime, timezone
     import random
     
-    station = db.query(Station).filter(Station.id == station_id).first()
+    station = db.query(SensorStation).filter(SensorStation.station_id == station_id).first()
     if not station:
         # Fallback station if ID not found
-        station = db.query(Station).first()
+        station = db.query(SensorStation).first()
     
     station_name = station.name if station else "Regional Monitoring Station"
     state = station.state if station else "Uttarakhand"
