@@ -56,22 +56,14 @@ function LoginPage() {
   const [needsServer, setNeedsServer] = useState(false);
 
   useEffect(() => {
-    const isLoadedFromServer = window.location.port === '8000' || window.location.port === '';
-    const defaultUrl = isLoadedFromServer ? '/api' : '/api';
+    const isLoadedFromServer = window.location.port === '8000' || window.location.port === '5173' || window.location.port === '';
+    const defaultUrl = '/api';
     const saved = getServerUrl();
     const currentUrl = saved && !isLoadedFromServer ? `${saved}/api` : defaultUrl;
     setApiUrl(currentUrl);
     setServerInput(saved || '');
-    if (isLoadedFromServer && !saved) {
-      setNeedsServer(false);
-      setShowServerSettings(false);
-    } else {
-      const needsConfig = !saved || saved.length < 5;
-      setNeedsServer(needsConfig);
-      if (needsConfig) {
-        setShowServerSettings(true);
-      }
-    }
+    setNeedsServer(false);
+    setShowServerSettings(false);
   }, []);
 
   const saveServerUrl = () => {
@@ -259,8 +251,8 @@ function LoginPage() {
 
             <Button
               type="submit"
-              disabled={loading || needsServer}
-              className="w-full h-11 bg-sky-600 hover:bg-sky-700 text-white font-medium text-sm shadow-md shadow-sky-600/20"
+              disabled={loading}
+              className="w-full h-11 bg-sky-600 hover:bg-sky-700 text-white font-medium text-sm shadow-md shadow-sky-600/20 cursor-pointer"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
