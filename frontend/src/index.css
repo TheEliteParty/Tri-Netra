@@ -75,8 +75,9 @@ body.dark {
 }
 
 /* Invert tile layers cleanly in dark mode for high-contrast glossy map look */
+/* Clean natural satellite & map tiles in dark mode */
 .dark .leaflet-tile-pane {
-  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.2) brightness(0.7);
+  filter: none;
 }
 
 .leaflet-popup-content-wrapper {
@@ -387,4 +388,43 @@ body.dark {
   background-color: rgba(10, 30, 20, 0.85) !important;
   border-color: rgba(16, 185, 129, 0.3) !important;
   color: #a7f3d0 !important;
+}
+
+/* Leaflet UI Controls in Dark Mode */
+.dark .leaflet-control-zoom {
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+.dark .leaflet-control-zoom a {
+  background: rgba(12, 12, 18, 0.92) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .leaflet-control-zoom a:hover {
+  background: rgba(28, 28, 38, 0.98) !important;
+  color: #38bdf8 !important;
+}
+
+.dark .leaflet-control-attribution {
+  background: rgba(8, 8, 12, 0.85) !important;
+  color: #71717a !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  margin: 4px !important;
+  padding: 2px 8px !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.dark .leaflet-control-attribution a {
+  color: #a1a1aa !important;
+}
+
+.dark .leaflet-control-attribution a:hover {
+  color: #ffffff !important;
 }

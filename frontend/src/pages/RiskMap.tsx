@@ -337,10 +337,10 @@ export default function RiskMap() {
   return (
     <div className="flex flex-col h-full w-full bg-slate-50 relative overflow-hidden font-sans select-none">
       {/* ── Top Extended 2-Tier Multi-Hazard GIS Command Deck ──────────────── */}
-      <div className="bg-white border-b border-slate-900 shadow-sm z-20 shrink-0 divide-y divide-slate-200">
+      <div className="bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-white/10 shadow-sm z-20 shrink-0 divide-y divide-slate-200 dark:divide-white/10">
         
         {/* Tier 1: Title, Telemetry Indicators & Quick Actions */}
-        <div className="px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-white">
+        <div className="px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-zinc-950">
           {/* Title & Live Status */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -348,7 +348,7 @@ export default function RiskMap() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-600"></span>
               </span>
-              <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+              <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 whitespace-nowrap">
                 <Globe2 className="w-5 h-5 text-sky-600 shrink-0" />
                 <span>Pan-India GIS Risk Map</span>
               </h1>
@@ -392,7 +392,7 @@ export default function RiskMap() {
         </div>
 
         {/* Tier 2: Interactive Regional Selector & Geospatial Tools */}
-        <div className="px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-3 bg-slate-50/90">
+        <div className="px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-3 bg-slate-50/90 dark:bg-zinc-900/90">
           
           {/* Regional Jump Selector */}
           <div className="flex items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
@@ -405,8 +405,8 @@ export default function RiskMap() {
                 onClick={() => handleRegionChange(reg.id)}
                 className={`px-3 py-1.5 text-xs font-black rounded-lg whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 ${
                   selectedRegion === reg.id
-                    ? 'bg-sky-600 text-white shadow-sm border border-slate-900 ring-2 ring-sky-200'
-                    : 'bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-100 border border-slate-300 shadow-2xs'
+                    ? 'bg-sky-600 dark:bg-white text-white dark:text-black shadow-sm border border-slate-900 dark:border-white font-bold'
+                    : 'bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-white/15'
                 }`}
               >
                 {reg.label}
@@ -437,7 +437,7 @@ export default function RiskMap() {
             </Button>
 
             {/* Basemap Switcher */}
-            <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-300 shadow-2xs text-xs font-bold text-slate-700">
+            <div className="flex items-center bg-white dark:bg-zinc-900 p-0.5 rounded-lg border border-slate-300 dark:border-white/15 shadow-2xs text-xs font-bold text-slate-700 dark:text-zinc-200">
               <span className="px-2 text-slate-400 text-[11px] hidden lg:inline font-bold">Basemap:</span>
               {(['streets', 'satellite', 'topo'] as const).map((bm) => (
                 <button
@@ -445,8 +445,8 @@ export default function RiskMap() {
                   onClick={() => setActiveBasemap(bm)}
                   className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
                     activeBasemap === bm
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'hover:bg-slate-100 text-slate-700'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-black shadow-xs'
+                      : 'hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300'
                   }`}
                 >
                   {BASEMAP_TILES[bm].name}
@@ -459,8 +459,10 @@ export default function RiskMap() {
               size="sm"
               variant="outline"
               onClick={() => setLayersDrawerOpen(!layersDrawerOpen)}
-              className={`border-slate-900 font-black text-xs h-8 px-3.5 gap-1.5 shadow-sm transition-all ${
-                layersDrawerOpen ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-slate-900 hover:bg-sky-50'
+              className={`font-black text-xs h-8 px-3.5 gap-1.5 shadow-sm transition-all ${
+                layersDrawerOpen
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-black'
+                  : 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-200 border-slate-900 dark:border-white/15 hover:bg-sky-50 dark:hover:bg-zinc-800'
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-sky-400" />
@@ -474,11 +476,11 @@ export default function RiskMap() {
       {/* ── Main Map Viewport & Overlays ─────────────────────── */}
       <div className="flex-1 relative w-full h-full min-h-0">
         {loading && (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-xs z-[1000] flex items-center justify-center">
-            <div className="bg-white p-4 rounded-xl border border-slate-900 shadow-xl flex items-center gap-3">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs z-[1000] flex items-center justify-center">
+            <div className="bg-white dark:bg-zinc-950 p-4 rounded-2xl border border-slate-900 dark:border-white/15 shadow-2xl flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin text-sky-600" />
               <div>
-                <div className="text-sm font-bold text-slate-900">Synchronizing Pan-India GIS Layers...</div>
+                <div className="text-sm font-bold text-slate-900 dark:text-white">Synchronizing Pan-India GIS Layers...</div>
                 <div className="text-xs text-slate-500">Sentinel-2 • SRTM DEM • Open-Meteo • UNet Polygons</div>
               </div>
             </div>
