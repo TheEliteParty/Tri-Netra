@@ -13,7 +13,7 @@ if hasattr(sys.stderr, "reconfigure"):
 from datetime import datetime
 from typing import List
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Form
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
@@ -157,7 +157,28 @@ def health_check():
 
 
 @app.post("/api/auth/login")
-def login(email: str = Form(...), password: str = Form(...)):
+async def login(request: Request):
+    content_type = request.headers.get("content-type", "")
+    email = ""
+    password = ""
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            email = body.get("email", "")
+            password = body.get("password", "")
+        except Exception:
+            pass
+    if not email or not password:
+        try:
+            form = await request.form()
+            email = form.get("email", "")
+            password = form.get("password", "")
+        except Exception:
+            pass
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Email and password are required")
+
     user = authenticate_user(email, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
