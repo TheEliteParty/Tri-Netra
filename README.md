@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="branding/team_logo.png" alt="Tri-Netra Logo" width="200" />
-
 # 🛡️ Tri-Netra
 
 ### Pan-India AI-Based Early Warning & Multi-Hazard Landslide Risk Monitoring System
@@ -833,10 +831,6 @@ Tri-Netra/
 │   ├── main.js                            # Electron main process + backend auto-start
 │   └── preload.js                         # Secure IPC bridge
 ├── android/                               # 📱 Capacitor Android wrapper
-├── branding/
-│   ├── team_logo.png                      # Team logo
-│   └── team_logo.ico                      # Windows icon
-│
 ├── backend/                               # ⚙️ Python FastAPI
 │   ├── app/
 │   │   ├── main.py                        # App entry + static files

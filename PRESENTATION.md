@@ -1,9 +1,5 @@
 # 🏆 Tri-Netra — SIH 2026 Presentation Deck
 
-<p align="center">
-  <img src="branding/team_logo.png" width="150" alt="Team Tri-Netra Logo">
-</p>
-
 ## Team Tri-Netra | Problem Statement SIH26001 | MDoNER
 
 ---
