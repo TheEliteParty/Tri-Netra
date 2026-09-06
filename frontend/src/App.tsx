@@ -534,7 +534,7 @@ function MainLayout() {
             className="w-full py-1.5 px-2 text-slate-400 hover:text-slate-700 hover:bg-white rounded-lg transition-all flex items-center justify-center text-xs gap-1 font-medium"
           >
             <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${sidebarOpen ? '' : 'rotate-180'}`} />
-            {sidebarOpen && <span className="text-[11px] truncate">Collapse Sidebar</span>}
+            {sidebarOpen && <span className="text-[11px] truncate">{t('collapseSidebar')}</span>}
           </button>
         </div>
       </aside>
@@ -554,10 +554,10 @@ function MainLayout() {
             </button>
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 dark:bg-zinc-900/90 border border-sky-200/80 dark:border-white/15 text-sky-700 dark:text-white text-xs font-semibold shrink-0 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
-              <span>LIVE TELEMETRY</span>
+              <span>{t('liveTelemetry')}</span>
             </div>
-            <span className="text-xs text-slate-400 font-medium hidden lg:inline truncate">
-              Pan-India Disaster Monitoring • 15 States & UTs • 28 Satellite-IoT Nodes
+            <span className="text-xs text-slate-400 dark:text-slate-500 font-medium hidden lg:inline truncate">
+              {t('panIndiaSubtitle')}
             </span>
           </div>
 

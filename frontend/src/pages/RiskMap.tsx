@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, Polygon, useMapEvents, useMap } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
+import { t } from '../i18n/translations';
 import {
   getStations, getRiskHeatmap, getRoads, getVillages, predictAtLocation, getStationSegmentationData,
   getHistoricalLandslideEvents, getEvacuationShelters, getSatelliteData, getAlerts, getReports, getFloodData,
@@ -50,16 +51,19 @@ const VILLAGE_COLORS: Record<string, string> = {
 
 const BASEMAP_TILES = {
   streets: {
+    key: 'street',
     name: 'Street',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; OpenStreetMap contributors'
   },
   satellite: {
+    key: 'satelliteAerial',
     name: 'Satellite Aerial',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: '&copy; Esri & Earthstar Geographics'
   },
   topo: {
+    key: 'topographicRelief',
     name: 'Topographic Relief',
     url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     attribution: '&copy; OpenTopoMap contributors'
@@ -67,10 +71,10 @@ const BASEMAP_TILES = {
 };
 
 const PAN_INDIA_REGIONS = [
-  { id: 'all', label: '🇮🇳 Pan-India', center: [22.8, 82.5] as [number, number], zoom: 5 },
-  { id: 'wghats', label: '🌴 Western Ghats', center: [13.2, 75.8] as [number, number], zoom: 7 },
-  { id: 'himalayas', label: '⛰️ NW Himalayas', center: [31.5, 77.4] as [number, number], zoom: 7 },
-  { id: 'ner', label: '🏞️ North East', center: [25.8, 92.8] as [number, number], zoom: 7 },
+  { id: 'all', key: 'panIndia', label: '🇮🇳 Pan-India', center: [22.8, 82.5] as [number, number], zoom: 5 },
+  { id: 'wghats', key: 'westernGhats', label: '🌴 Western Ghats', center: [13.2, 75.8] as [number, number], zoom: 7 },
+  { id: 'himalayas', key: 'nwHimalayas', label: '⛰️ NW Himalayas', center: [31.5, 77.4] as [number, number], zoom: 7 },
+  { id: 'ner', key: 'northEast', label: '🏞️ North East', center: [25.8, 92.8] as [number, number], zoom: 7 },
 ];
 
 const GSI_MACRO_BELTS = [
@@ -159,7 +163,7 @@ export default function RiskMap() {
   const [loading, setLoading] = useState(true);
 
   // Map Controls & Drawer Visibility
-  const [activeBasemap, setActiveBasemap] = useState<'streets' | 'satellite' | 'topo'>('satellite');
+  const [activeBasemap, setActiveBasemap] = useState<'streets' | 'satellite' | 'topo'>('streets');
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [mapCenter, setMapCenter] = useState<[number, number]>([22.8, 82.5]);
   const [mapZoom, setMapZoom] = useState(5);
@@ -350,23 +354,23 @@ export default function RiskMap() {
               </span>
               <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 whitespace-nowrap">
                 <Globe2 className="w-5 h-5 text-sky-600 shrink-0" />
-                <span>Pan-India GIS Risk Map</span>
+                <span>{t('panIndiaGisRiskMap')}</span>
               </h1>
             </div>
 
             <div className="hidden sm:flex items-center gap-2">
               <Badge variant="outline" className="border-slate-900 bg-sky-50 text-sky-800 font-bold text-xs py-0.5 px-2.5">
-                28 Real Stations (15 States/UTs)
+                {t('realStationsLabel')}
               </Badge>
               {activeAlertCount > 0 && (
                 <Badge variant="destructive" className="font-bold text-xs py-0.5 px-2.5 animate-pulse flex items-center gap-1">
                   <AlertTriangle className="w-3 h-3" />
-                  {activeAlertCount} Active Alerts
+                  {activeAlertCount} {t('activeAlertsBadge')}
                 </Badge>
               )}
               {verifiedReportCount > 0 && (
                 <Badge variant="outline" className="border-cyan-700 bg-cyan-50 text-cyan-900 font-bold text-xs py-0.5 px-2.5">
-                  {verifiedReportCount} Field Verified
+                  {verifiedReportCount} {t('fieldVerifiedBadge')}
                 </Badge>
               )}
             </div>
@@ -376,7 +380,7 @@ export default function RiskMap() {
           <div className="flex items-center gap-2.5">
             <div className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
               <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-              <span>Sentinel-2 L2A + RCAN 5× Super-Resolution</span>
+              <span>{t('superResolutionTag')}</span>
             </div>
 
             <Button
@@ -386,7 +390,7 @@ export default function RiskMap() {
               className="border-slate-900 bg-white hover:bg-sky-50 text-slate-900 font-bold text-xs shadow-xs h-8 px-3 gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-sky-600' : ''}`} />
-              <span>Sync Satellite</span>
+              <span>{t('syncSatellite')}</span>
             </Button>
           </div>
         </div>
@@ -397,7 +401,7 @@ export default function RiskMap() {
           {/* Regional Jump Selector */}
           <div className="flex items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
             <span className="text-xs font-black uppercase text-slate-500 flex items-center gap-1 shrink-0 mr-1">
-              <Compass className="w-3.5 h-3.5 text-sky-600" /> Jump To Region:
+              <Compass className="w-3.5 h-3.5 text-sky-600" /> {t('jumpToRegion')}
             </span>
             {PAN_INDIA_REGIONS.map((reg) => (
               <button
@@ -409,7 +413,7 @@ export default function RiskMap() {
                     : 'bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-white/15'
                 }`}
               >
-                {reg.label}
+                {t(reg.key as any) || reg.label}
               </button>
             ))}
           </div>
@@ -433,12 +437,17 @@ export default function RiskMap() {
               }`}
             >
               <Scan className="w-4 h-4" />
-              <span>{aiScanActive ? '🎯 Click Any Mountain Slope' : '🛰️ Scan Mountain Slope (UNet AI)'}</span>
+              <span>{aiScanActive ? `🎯 ${t('clickMountainSlope')}` : `🛰️ ${t('scanMountainSlope')}`}</span>
             </Button>
 
             {/* Basemap Switcher */}
+<<<<<<< HEAD
             <div className="flex items-center bg-white dark:bg-zinc-900 p-0.5 rounded-lg border border-slate-300 dark:border-white/15 shadow-2xs text-xs font-bold text-slate-700 dark:text-zinc-200">
               <span className="px-2 text-slate-400 text-[11px] hidden lg:inline font-bold">Basemap:</span>
+=======
+            <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-300 shadow-2xs text-xs font-bold text-slate-700">
+              <span className="px-2 text-slate-400 text-[11px] hidden lg:inline font-bold">{t('basemap')}</span>
+>>>>>>> e3e561f (fix: default RiskMap to street mode and complete full multilingual translations across GIS deck)
               {(['streets', 'satellite', 'topo'] as const).map((bm) => (
                 <button
                   key={bm}
@@ -449,7 +458,7 @@ export default function RiskMap() {
                       : 'hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300'
                   }`}
                 >
-                  {BASEMAP_TILES[bm].name}
+                  {t(BASEMAP_TILES[bm].key as any)}
                 </button>
               ))}
             </div>
@@ -466,7 +475,7 @@ export default function RiskMap() {
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-sky-400" />
-              <span>GIS Layers ({activeLayersCount}/{totalLayersCount})</span>
+              <span>{t('gisLayers')} ({activeLayersCount}/{totalLayersCount})</span>
             </Button>
           </div>
 
@@ -480,7 +489,11 @@ export default function RiskMap() {
             <div className="bg-white dark:bg-zinc-950 p-4 rounded-2xl border border-slate-900 dark:border-white/15 shadow-2xl flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin text-sky-600" />
               <div>
+<<<<<<< HEAD
                 <div className="text-sm font-bold text-slate-900 dark:text-white">Synchronizing Pan-India GIS Layers...</div>
+=======
+                <div className="text-sm font-bold text-slate-900">{t('synchronizingLayers')}</div>
+>>>>>>> e3e561f (fix: default RiskMap to street mode and complete full multilingual translations across GIS deck)
                 <div className="text-xs text-slate-500">Sentinel-2 • SRTM DEM • Open-Meteo • UNet Polygons</div>
               </div>
             </div>
@@ -934,7 +947,7 @@ export default function RiskMap() {
             <div className="bg-slate-900 dark:bg-zinc-900 text-white px-4 py-3 flex items-center justify-between border-b border-white/10">
               <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider">
                 <Layers className="w-4 h-4 text-sky-400" />
-                <span>GIS Layers ({activeLayersCount}/{totalLayersCount})</span>
+                <span>{t('gisLayers')} ({activeLayersCount}/{totalLayersCount})</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <button
@@ -942,7 +955,7 @@ export default function RiskMap() {
                   className="text-[11px] bg-slate-800 dark:bg-zinc-800 hover:bg-slate-700 dark:hover:bg-zinc-700 text-sky-300 dark:text-zinc-200 font-semibold px-2.5 py-1 rounded-lg border border-white/10 transition-all"
                   title="Toggle all layers"
                 >
-                  {activeLayersCount < totalLayersCount ? 'Select All' : 'Reset'}
+                  {activeLayersCount < totalLayersCount ? t('enableAll') : t('disableAll')}
                 </button>
                 <button
                   onClick={() => setLayersDrawerOpen(false)}
@@ -957,17 +970,17 @@ export default function RiskMap() {
             {/* Layer Item Rows */}
             <div className="p-2.5 max-h-[calc(100vh-280px)] overflow-y-auto space-y-1.5 text-xs bg-white dark:bg-zinc-950">
               {[
-                { key: 'stations', label: '📡 28 Stations', count: stations.length },
-                { key: 'aiScanScarp', label: '🛰️ Sentinel-2 / UNet AI Scarp', count: scannedRoiResult ? 1 : 0 },
-                { key: 'alerts', label: '🚨 Active Emergency Alerts', count: activeAlertCount },
-                { key: 'reports', label: '📄 Verified Field Reports', count: verifiedReportCount },
-                { key: 'roads', label: '🛣️ Highway Corridors', count: roads.length },
-                { key: 'villages', label: '🏘️ Settlement Villages', count: villages.length },
-                { key: 'segmentationScarp', label: '🎯 UNet Scarp Footprints (m²)', count: segmentations.length },
-                { key: 'historicalLandslides', label: '⚡ GSI Historical Events', count: historicalEvents.length },
-                { key: 'evacuationShelters', label: '🛡️ Safe Relief Shelters', count: shelters.length },
-                { key: 'macroBelts', label: '🏔️ GSI Macro Landslide Belts', count: GSI_MACRO_BELTS.length },
-                { key: 'riverBasins', label: '🌊 Flood Catchment Basins', count: RIVER_BASINS.length },
+                { key: 'stations', label: `📡 28 ${t('stations')}`, count: stations.length },
+                { key: 'aiScanScarp', label: `🛰️ ${t('gisAiScarps')}`, count: scannedRoiResult ? 1 : 0 },
+                { key: 'alerts', label: `🚨 ${t('gisActiveAlerts')}`, count: activeAlertCount },
+                { key: 'reports', label: `📄 ${t('gisCitizenReports')}`, count: verifiedReportCount },
+                { key: 'roads', label: `🛣️ ${t('gisRoadsCorridors')}`, count: roads.length },
+                { key: 'villages', label: `🏘️ ${t('gisVillagesSettlements')}`, count: villages.length },
+                { key: 'segmentationScarp', label: `🎯 UNet ${t('gisAiScarps')} (m²)`, count: segmentations.length },
+                { key: 'historicalLandslides', label: `⚡ ${t('gisHistoricalEvents')}`, count: historicalEvents.length },
+                { key: 'evacuationShelters', label: `🛡️ ${t('gisEvacuationShelters')}`, count: shelters.length },
+                { key: 'macroBelts', label: `🏔️ ${t('gisMacroBelts')}`, count: GSI_MACRO_BELTS.length },
+                { key: 'riverBasins', label: `🌊 ${t('gisRiverBasins')}`, count: RIVER_BASINS.length },
               ].map(({ key, label, count }) => {
                 const isActive = layerVisibility[key as keyof typeof layerVisibility];
                 return (
@@ -1004,7 +1017,7 @@ export default function RiskMap() {
             className="absolute top-3 left-3 z-[1000] bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border border-slate-200/90 dark:border-white/15 rounded-xl shadow-lg px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white hover:bg-sky-50 dark:hover:bg-zinc-900 flex items-center gap-2 transition-all"
           >
             <Layers className="w-4 h-4 text-sky-600 dark:text-white" />
-            <span>GIS Layers ({activeLayersCount}/{totalLayersCount})</span>
+            <span>{t('gisLayers')} ({activeLayersCount}/{totalLayersCount})</span>
           </button>
         )}
 
