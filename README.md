@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="branding/trinetra_logo.png" alt="Tri-Netra Logo" width="220" style="border-radius: 20px; margin-bottom: 12px;" />
+
 # 🛡️ Tri-Netra
 
 ### Pan-India AI-Based Early Warning & Multi-Hazard Landslide Risk Monitoring System

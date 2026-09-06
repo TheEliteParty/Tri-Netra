@@ -178,8 +178,8 @@ function LoginPage() {
         <Card className="bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl shadow-sky-950/5 rounded-3xl p-6 sm:p-8">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-600 to-sky-400 text-white shadow-lg shadow-sky-500/25 mb-3">
-              <Shield className="w-7 h-7" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-md border border-slate-200/90 overflow-hidden mb-3">
+              <img src="/trinetra_logo.png" alt="Tri-Netra" className="w-full h-full object-contain p-1" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tri-Netra</h1>
             <p className="text-xs text-slate-500 font-medium mt-1">AI-Powered Landslide Early Warning System</p>
@@ -368,18 +368,18 @@ function MainLayout() {
         {/* Brand / Logo */}
         <div className="p-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
-              <Shield className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 overflow-hidden flex items-center justify-center shadow-xs flex-shrink-0">
+              <img src="/trinetra_logo.png" alt="Tri-Netra" className="w-full h-full object-contain" />
             </div>
             {sidebarOpen && (
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <h1 className="text-base font-bold text-slate-900 dark:text-white truncate">Tri-Netra</h1>
                   <Badge variant="sky" size="sm" className="text-[9px] px-1.5 py-0 font-bold uppercase tracking-wider">
-                    AI
+                    {t('aiBadge')}
                   </Badge>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate font-medium">Pan-India Disaster Monitoring</p>
+                <p className="text-[11px] text-slate-400 truncate font-medium">{t('panIndiaSubtitle')}</p>
               </div>
             )}
           </div>

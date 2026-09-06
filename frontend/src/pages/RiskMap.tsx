@@ -441,13 +441,8 @@ export default function RiskMap() {
             </Button>
 
             {/* Basemap Switcher */}
-<<<<<<< HEAD
             <div className="flex items-center bg-white dark:bg-zinc-900 p-0.5 rounded-lg border border-slate-300 dark:border-white/15 shadow-2xs text-xs font-bold text-slate-700 dark:text-zinc-200">
-              <span className="px-2 text-slate-400 text-[11px] hidden lg:inline font-bold">Basemap:</span>
-=======
-            <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-300 shadow-2xs text-xs font-bold text-slate-700">
               <span className="px-2 text-slate-400 text-[11px] hidden lg:inline font-bold">{t('basemap')}</span>
->>>>>>> e3e561f (fix: default RiskMap to street mode and complete full multilingual translations across GIS deck)
               {(['streets', 'satellite', 'topo'] as const).map((bm) => (
                 <button
                   key={bm}
@@ -489,11 +484,7 @@ export default function RiskMap() {
             <div className="bg-white dark:bg-zinc-950 p-4 rounded-2xl border border-slate-900 dark:border-white/15 shadow-2xl flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin text-sky-600" />
               <div>
-<<<<<<< HEAD
-                <div className="text-sm font-bold text-slate-900 dark:text-white">Synchronizing Pan-India GIS Layers...</div>
-=======
-                <div className="text-sm font-bold text-slate-900">{t('synchronizingLayers')}</div>
->>>>>>> e3e561f (fix: default RiskMap to street mode and complete full multilingual translations across GIS deck)
+                <div className="text-sm font-bold text-slate-900 dark:text-white">{t('synchronizingLayers')}</div>
                 <div className="text-xs text-slate-500">Sentinel-2 • SRTM DEM • Open-Meteo • UNet Polygons</div>
               </div>
             </div>

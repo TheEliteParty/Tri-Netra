@@ -7,6 +7,10 @@
 
 # Slide 1: Title Slide
 
+<div align="center">
+  <img src="branding/trinetra_logo.png" alt="Tri-Netra Logo" width="180" />
+</div>
+
 **🛡️ Tri-Netra**
 **AI-Based Early Warning & Landslide Risk Monitoring System for NER**
 
