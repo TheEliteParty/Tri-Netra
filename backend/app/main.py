@@ -21,7 +21,7 @@ from starlette.responses import FileResponse
 from app.middleware.rate_limiter import RateLimiter
 
 from app.database import engine, Base, SessionLocal
-from app.routers import sensors, dashboard, alerts, reports, weather, simulator, satellite, predict, alerts_timeline, flood, ml_enhanced, segmentation
+from app.routers import sensors, dashboard, alerts, reports, weather, simulator, satellite, predict, alerts_timeline, flood, ml_enhanced, segmentation, dispatch, scout
 from app.auth import authenticate_user, create_token
 
 
@@ -146,6 +146,8 @@ app.include_router(alerts_timeline.router)
 app.include_router(flood.router)
 app.include_router(ml_enhanced.router)
 app.include_router(segmentation.router)
+app.include_router(dispatch.router)
+app.include_router(scout.router)
 
 
 @app.get("/health", response_class=JSONResponse)

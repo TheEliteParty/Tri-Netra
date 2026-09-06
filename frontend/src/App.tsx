@@ -14,6 +14,8 @@ import FloodData from './pages/FloodData';
 import Stations from './pages/Stations';
 import ErrorBoundary from './components/ErrorBoundary';
 import MobileFAB from './components/MobileFAB';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import ThemeToggle from './components/ThemeToggle';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Badge } from './components/ui/badge';
@@ -586,9 +588,12 @@ function MainLayout() {
               </span>
             </div>
 
+            {/* Glossy Theme Toggle Button */}
+            <ThemeToggle />
+
             {/* Hackathon Event Badge */}
-            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200/80 text-sky-700 text-xs font-semibold shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 dark:from-zinc-900 dark:to-zinc-950 border border-sky-200/80 dark:border-white/10 text-sky-700 dark:text-zinc-200 text-xs font-semibold shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-white" />
               <span>SIH 2026</span>
             </div>
           </div>
@@ -651,11 +656,13 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
-        <Router>
-          {isLoggedIn ? <MainLayout /> : <LoginPage />}
-        </Router>
-      </AuthContext.Provider>
+      <ThemeProvider>
+        <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
+          <Router>
+            {isLoggedIn ? <MainLayout /> : <LoginPage />}
+          </Router>
+        </AuthContext.Provider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
