@@ -157,11 +157,11 @@ site/
 # pyright
 pyrightconfig.json
 *.pkl
-geoshield.db
+trinetra.db
 
 # Build artifacts (too large for GitHub)
-GeoShield-Android.apk
-GeoShield-Linux.AppImage
+Tri-Netra-Android.apk
+Tri-Netra-Linux.AppImage
 dist-electron/
 frontend/android/
 branding/team_logo.ico
