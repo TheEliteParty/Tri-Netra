@@ -15,11 +15,11 @@ import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 
 const REPORT_TYPE_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string }> = {
-  crack: { label: 'Tension Cracks', icon: '🔍', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-  slope_movement: { label: 'Slope Movement / Slip', icon: '⛰️', color: 'text-rose-700', bg: 'bg-rose-50 border-rose-200' },
-  blocked_road: { label: 'Highway / Road Blocked', icon: '🛣️', color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
-  flooding: { label: 'Waterlogging & Runoff', icon: '🌊', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  other: { label: 'General Hazard Observation', icon: '📌', color: 'text-slate-700', bg: 'bg-slate-50 border-slate-200' },
+  crack: { label: 'Tension Cracks', icon: '🔍', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20' },
+  slope_movement: { label: 'Slope Movement / Slip', icon: '⛰️', color: 'text-rose-700 dark:text-rose-300', bg: 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20' },
+  blocked_road: { label: 'Highway / Road Blocked', icon: '🛣️', color: 'text-orange-700 dark:text-orange-300', bg: 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/20' },
+  flooding: { label: 'Waterlogging & Runoff', icon: '🌊', color: 'text-blue-700 dark:text-blue-300', bg: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20' },
+  other: { label: 'General Hazard Observation', icon: '📌', color: 'text-slate-700 dark:text-zinc-300', bg: 'bg-slate-50 dark:bg-zinc-900/60 border-slate-200/80 dark:border-white/10' },
 };
 
 const REPORTER_ROLES = [
@@ -193,14 +193,14 @@ export default function Reports() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-fade-in min-w-0">
       {/* 1. Header Banner */}
-      <div className="bg-white border border-slate-900 rounded-2xl p-5 sm:p-6 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-50 to-emerald-50 border border-sky-200/80 flex items-center justify-center text-sky-700 shrink-0 shadow-xs">
+          <div className="w-11 h-11 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/80 dark:border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400 shrink-0 shadow-xs">
             <FileText className="w-6 h-6" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 Field & Citizen Incident Reports
               </h1>
               <Badge variant="sky" size="md">
@@ -212,7 +212,7 @@ export default function Reports() {
                 </Badge>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 font-medium mt-1">
               Ground-truth hazard verifications, road blockage reports & citizen slope anomaly alerts across NER districts
             </p>
           </div>
@@ -221,7 +221,7 @@ export default function Reports() {
         <div className="flex items-center gap-2.5 shrink-0">
           <button
             onClick={() => fetchReports()}
-            className="p-2.5 rounded-xl border border-slate-300 hover:border-slate-900 bg-white text-slate-700 hover:text-slate-900 transition-all shadow-xs"
+            className="p-2.5 rounded-xl border border-slate-300 hover:border-slate-900 bg-white text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:text-white transition-all shadow-xs"
             title="Refresh Reports"
           >
             <RefreshCw className="w-4 h-4" />
@@ -232,7 +232,7 @@ export default function Reports() {
               setError('');
               setSuccess(false);
             }}
-            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm transition-all shadow-card hover:shadow-card-hover flex items-center gap-2 border border-slate-900"
+            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm transition-all shadow-card hover:shadow-card-hover flex items-center gap-2 border border-slate-200/80 dark:border-white/10/90 dark:border-white/10"
           >
             <Plus className="w-4 h-4" />
             <span>Submit Incident Report</span>
@@ -243,29 +243,29 @@ export default function Reports() {
       {/* 2. Top 4 KPI Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Reports */}
-        <div className="bg-white border border-slate-900 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
+        <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400">
               <FileText className="w-5 h-5" />
             </div>
             <Badge variant="outline" size="sm">
               All Time
             </Badge>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-slate-900">{stats.total}</p>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">{stats.total}</p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mt-1">
             Total Filed Incidents
           </p>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
             <span>Verified Ground Truth:</span>
-            <strong className="text-slate-800">{stats.verified} reports</strong>
+            <strong className="text-slate-800 dark:text-zinc-200">{stats.verified} reports</strong>
           </div>
         </div>
 
         {/* Pending Verification */}
-        <div className="bg-white border border-slate-900 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
+        <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
               <Clock className="w-5 h-5" />
             </div>
             <Badge variant="warning" size="sm">
@@ -273,19 +273,19 @@ export default function Reports() {
             </Badge>
           </div>
           <p className="text-2xl sm:text-3xl font-black text-amber-600">{stats.pending}</p>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mt-1">
             Pending Verification
           </p>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
             <span>Requires Field Check:</span>
             <strong className="text-amber-700 font-bold">{stats.pending} active</strong>
           </div>
         </div>
 
         {/* Verified Ground Truth */}
-        <div className="bg-white border border-slate-900 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
+        <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <Badge variant="success" size="sm">
@@ -293,44 +293,44 @@ export default function Reports() {
             </Badge>
           </div>
           <p className="text-2xl sm:text-3xl font-black text-emerald-600">{stats.verified}</p>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mt-1">
             Verified Hazard Incidents
           </p>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
             <span>Model Integration:</span>
             <strong className="text-emerald-700 font-bold">100% Ingested</strong>
           </div>
         </div>
 
         {/* Verification Rate */}
-        <div className="bg-white border border-slate-900 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
+        <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 flex items-center justify-center text-purple-700 dark:text-purple-400">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <Badge variant="sky" size="sm">
               Resolution
             </Badge>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-slate-900">{stats.rate}%</p>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">{stats.rate}%</p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mt-1">
             Verification Resolution Rate
           </p>
-          <div className="mt-3 pt-3 border-t border-slate-100">
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/10">
             <Progress value={stats.rate} className="h-2" />
           </div>
         </div>
       </div>
 
       {/* 3. Filters & Search Toolbar */}
-      <div className="bg-white border border-slate-900 rounded-2xl p-4 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-4 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
           {[
             { key: 'all', label: 'All Incidents', count: stats.total },
             { key: 'pending', label: 'Pending Review', count: stats.pending, color: 'text-amber-700 bg-amber-50' },
             { key: 'verified', label: 'Verified Ground Truth', count: stats.verified, color: 'text-emerald-700 bg-emerald-50' },
-            { key: 'dismissed', label: 'Dismissed', count: stats.dismissed, color: 'text-slate-600 bg-slate-100' },
+            { key: 'dismissed', label: 'Dismissed', count: stats.dismissed, color: 'text-slate-600 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-900' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -338,11 +338,11 @@ export default function Reports() {
               className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shrink-0 select-none border ${
                 statusFilter === tab.key
                   ? 'bg-sky-50 text-sky-800 border-slate-900 shadow-xs ring-1 ring-sky-200'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:text-slate-900'
+                  : 'bg-white text-slate-600 dark:text-zinc-400 border-slate-200/80 dark:border-white/10 hover:border-slate-400 hover:text-slate-900 dark:text-white'
               }`}
             >
               <span>{tab.label}</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${tab.color || 'bg-slate-100 text-slate-700'}`}>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${tab.color || 'bg-slate-100 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'}`}>
                 {tab.count}
               </span>
             </button>
@@ -358,14 +358,14 @@ export default function Reports() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search description, place, reporter..."
-              className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-sky-200 transition-all bg-slate-50/50"
+              className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-sky-200 transition-all bg-slate-50 dark:bg-zinc-900/60/50"
             />
           </div>
 
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:border-slate-900"
+            className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 dark:text-zinc-300 bg-white focus:outline-none focus:border-slate-900"
           >
             <option value="all">All Hazard Types</option>
             <option value="crack">🔍 Tension Cracks</option>
@@ -394,7 +394,7 @@ export default function Reports() {
             )}
             <span>{actionFeedback.message}</span>
           </div>
-          <button onClick={() => setActionFeedback(null)} className="text-slate-400 hover:text-slate-800">
+          <button onClick={() => setActionFeedback(null)} className="text-slate-400 hover:text-slate-800 dark:text-zinc-200">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -402,15 +402,15 @@ export default function Reports() {
 
       {/* 5. Incident Reports Grid */}
       {loading ? (
-        <div className="bg-white border border-slate-900 rounded-2xl p-12 text-center shadow-card flex flex-col items-center justify-center space-y-3">
+        <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-12 text-center shadow-card flex flex-col items-center justify-center space-y-3">
           <div className="w-10 h-10 border-3 border-sky-200 border-t-sky-600 rounded-full animate-spin" />
-          <p className="text-xs font-bold text-slate-700">Loading ground-truth incident records...</p>
+          <p className="text-xs font-bold text-slate-700 dark:text-zinc-300">Loading ground-truth incident records...</p>
         </div>
       ) : filteredReports.length === 0 ? (
-        <div className="bg-white border border-slate-900 rounded-2xl p-12 text-center shadow-card space-y-3">
+        <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-12 text-center shadow-card space-y-3">
           <FileText className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="text-base font-bold text-slate-900">No Incident Reports Found</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">No Incident Reports Found</h3>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-md mx-auto">
             No reports match the current filter selection. Try changing the status tab or hazard category.
           </p>
           <button
@@ -431,7 +431,7 @@ export default function Reports() {
             return (
               <div
                 key={report.id}
-                className="bg-white border border-slate-900 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between"
+                className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between"
               >
                 <div>
                   {/* Card Header */}
@@ -441,10 +441,10 @@ export default function Reports() {
                         <span>{typeConfig.icon}</span>
                       </div>
                       <div className="min-w-0">
-                        <h4 className="font-bold text-slate-900 text-sm truncate">
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate">
                           {typeConfig.label}
                         </h4>
-                        <p className="text-xs text-slate-500 flex items-center gap-1 font-medium mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-zinc-400 flex items-center gap-1 font-medium mt-0.5">
                           <User className="w-3 h-3 text-slate-400" />
                           <span className="truncate">{report.reporter_name || 'Anonymous Citizen'}</span>
                         </p>
@@ -458,7 +458,7 @@ export default function Reports() {
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                           : isPending
                           ? 'bg-amber-50 text-amber-700 border-amber-300'
-                          : 'bg-slate-100 text-slate-600 border-slate-300'
+                          : 'bg-slate-100 dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-300'
                       }`}
                     >
                       {isVerified && <CheckCircle2 className="w-3 h-3" />}
@@ -469,18 +469,18 @@ export default function Reports() {
                   </div>
 
                   {/* Incident Description */}
-                  <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed mb-4 bg-slate-50/70 p-3 rounded-xl border border-slate-100">
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-zinc-300 font-medium leading-relaxed mb-4 bg-slate-50 dark:bg-zinc-900/60/70 p-3 rounded-xl border border-slate-100 dark:border-white/10">
                     "{report.description}"
                   </p>
 
                   {/* Metadata Chips */}
-                  <div className="flex items-center gap-2 flex-wrap text-xs text-slate-600 mb-4">
-                    <div className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 flex items-center gap-1.5 font-mono text-[11px]">
+                  <div className="flex items-center gap-2 flex-wrap text-xs text-slate-600 dark:text-zinc-400 mb-4">
+                    <div className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-900 border border-slate-200/80 dark:border-white/10 flex items-center gap-1.5 font-mono text-[11px]">
                       <MapPin className="w-3 h-3 text-sky-600" />
                       <span>{report.latitude?.toFixed(4)}° N, {report.longitude?.toFixed(4)}° E</span>
                     </div>
 
-                    <div className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 flex items-center gap-1.5 text-[11px]">
+                    <div className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-900 border border-slate-200/80 dark:border-white/10 flex items-center gap-1.5 text-[11px]">
                       <Clock className="w-3 h-3 text-slate-400" />
                       <span>{report.created_at ? new Date(report.created_at).toLocaleString() : 'Just now'}</span>
                     </div>
@@ -494,7 +494,7 @@ export default function Reports() {
                 </div>
 
                 {/* Card Action Footer */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-2">
                   <button
                     onClick={() => navigate('/map')}
                     className="text-xs font-bold text-sky-700 hover:text-sky-800 flex items-center gap-1 hover:underline"
@@ -507,7 +507,7 @@ export default function Reports() {
                     {isPending && canVerify && (
                       <button
                         onClick={() => handleVerify(report.id)}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs flex items-center gap-1 border border-slate-900"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs flex items-center gap-1 border border-slate-200/80 dark:border-white/10/90 dark:border-white/10"
                       >
                         <Check className="w-3 h-3" />
                         <span>Verify</span>
@@ -540,22 +540,22 @@ export default function Reports() {
 
       {/* 6. Submit Incident Report Modal Dialog */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white border border-slate-900 rounded-3xl shadow-card max-w-lg w-full overflow-hidden animate-scale-up">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 rounded-3xl shadow-card max-w-lg w-full overflow-hidden animate-scale-up">
             {/* Modal Header */}
-            <div className="p-5 bg-gradient-to-r from-sky-50 via-slate-50 to-emerald-50 border-b border-slate-200 flex items-center justify-between">
+            <div className="p-5 bg-slate-50 dark:bg-zinc-900/90 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-sky-600 text-white flex items-center justify-center shadow-xs">
                   <Send className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">File Field / Citizen Report</h3>
-                  <p className="text-xs text-slate-500">Report tension cracks, ground shifts & highway blocks</p>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">File Field / Citizen Report</h3>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400">Report tension cracks, ground shifts & highway blocks</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-200 transition-all"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200 transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -568,8 +568,8 @@ export default function Reports() {
                   <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-300">
                     <CheckCircle2 className="w-9 h-9" />
                   </div>
-                  <h4 className="text-lg font-black text-slate-900">Incident Reported Successfully!</h4>
-                  <p className="text-xs text-slate-600 max-w-xs mx-auto">
+                  <h4 className="text-lg font-black text-slate-900 dark:text-white">Incident Reported Successfully!</h4>
+                  <p className="text-xs text-slate-600 dark:text-zinc-400 max-w-xs mx-auto">
                     Thank you for your report. The telemetry has been submitted to the emergency operations center.
                   </p>
                 </div>
@@ -584,7 +584,7 @@ export default function Reports() {
 
                   {/* Hazard Type Selector */}
                   <div>
-                    <label className="font-bold text-slate-800 block mb-1.5">
+                    <label className="font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
                       1. Hazard Observation Category *
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -595,8 +595,8 @@ export default function Reports() {
                           onClick={() => setFormType(key)}
                           className={`p-2 rounded-xl text-left border transition-all flex items-center gap-2 ${
                             formType === key
-                              ? 'bg-sky-50 border-slate-900 ring-2 ring-sky-300 text-slate-900 shadow-xs'
-                              : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'
+                              ? 'bg-sky-50 border-slate-900 ring-2 ring-sky-300 text-slate-900 dark:text-white shadow-xs'
+                              : 'bg-white border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-zinc-400 hover:border-slate-400'
                           }`}
                         >
                           <span className="text-lg">{config.icon}</span>
@@ -608,7 +608,7 @@ export default function Reports() {
 
                   {/* Description */}
                   <div>
-                    <label className="font-bold text-slate-800 block mb-1.5">
+                    <label className="font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
                       2. Hazard Description & Field Details *
                     </label>
                     <textarea
@@ -617,14 +617,14 @@ export default function Reports() {
                       placeholder="Describe the crack size, water flow, rockfall, affected road segment..."
                       required
                       rows={3}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-sky-200"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-sky-200"
                     />
                   </div>
 
                   {/* Coordinate Location */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="font-bold text-slate-800">
+                      <label className="font-bold text-slate-800 dark:text-zinc-200">
                         3. GPS Geographic Coordinates *
                       </label>
                       <button
@@ -639,25 +639,25 @@ export default function Reports() {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <span className="text-[10px] text-slate-500 font-semibold block mb-0.5">Latitude (°N)</span>
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-semibold block mb-0.5">Latitude (°N)</span>
                         <input
                           type="number"
                           step="any"
                           value={formLat}
                           onChange={(e) => setFormLat(e.target.value)}
                           required
-                          className="w-full px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-slate-900"
+                          className="w-full px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-slate-900"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500 font-semibold block mb-0.5">Longitude (°E)</span>
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-semibold block mb-0.5">Longitude (°E)</span>
                         <input
                           type="number"
                           step="any"
                           value={formLng}
                           onChange={(e) => setFormLng(e.target.value)}
                           required
-                          className="w-full px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-slate-900"
+                          className="w-full px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-slate-900"
                         />
                       </div>
                     </div>
@@ -673,7 +673,7 @@ export default function Reports() {
                             setFormLat(loc.lat.toString());
                             setFormLng(loc.lng.toString());
                           }}
-                          className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-semibold shrink-0 border border-slate-200"
+                          className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-900 hover:bg-slate-200 text-slate-700 dark:text-zinc-300 text-[10px] font-semibold shrink-0 border border-slate-200/80 dark:border-white/10"
                         >
                           {loc.name}
                         </button>
@@ -684,13 +684,13 @@ export default function Reports() {
                   {/* Reporter Affiliation */}
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
-                      <label className="font-bold text-slate-800 block mb-1">
+                      <label className="font-bold text-slate-800 dark:text-zinc-200 block mb-1">
                         Reporter Role
                       </label>
                       <select
                         value={formRole}
                         onChange={(e) => setFormRole(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:border-slate-900"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 dark:text-zinc-200 bg-white focus:outline-none focus:border-slate-900"
                       >
                         {REPORTER_ROLES.map((r) => (
                           <option key={r.value} value={r.value}>
@@ -701,7 +701,7 @@ export default function Reports() {
                     </div>
 
                     <div>
-                      <label className="font-bold text-slate-800 block mb-1">
+                      <label className="font-bold text-slate-800 dark:text-zinc-200 block mb-1">
                         Contact / Phone (Optional)
                       </label>
                       <input
@@ -709,24 +709,24 @@ export default function Reports() {
                         value={formPhone}
                         onChange={(e) => setFormPhone(e.target.value)}
                         placeholder="+91 9876543210"
-                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-slate-900"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-slate-900"
                       />
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-white/10">
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-xs transition-all"
+                      className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:bg-zinc-900 font-bold text-xs transition-all"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition-all shadow-card hover:shadow-card-hover flex items-center gap-1.5 border border-slate-900 disabled:opacity-50"
+                      className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition-all shadow-card hover:shadow-card-hover flex items-center gap-1.5 border border-slate-200/80 dark:border-white/10/90 dark:border-white/10 disabled:opacity-50"
                     >
                       {submitting ? (
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -39,6 +39,7 @@ export default function Alerts() {
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [timelineSummary, setTimelineSummary] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyDays, setHistoryDays] = useState<number>(30);
   const [actionFeedback, setActionFeedback] = useState<{ id: number; type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
@@ -77,9 +78,9 @@ export default function Alerts() {
     }
   }, []);
 
-  const fetchHistory = useCallback(async () => {
+  const fetchHistory = useCallback(async (days: number = 30) => {
     try {
-      const res = await getAlertHistory(30);
+      const res = await getAlertHistory(days);
       setHistoryData(res.data || []);
     } catch (e) {
       console.error('History fetch error:', e);
@@ -89,7 +90,7 @@ export default function Alerts() {
   useEffect(() => {
     fetchAlerts();
     if (view === 'timeline') fetchTimeline();
-    if (view === 'history') fetchHistory();
+    if (view === 'history') fetchHistory(historyDays);
     const interval = setInterval(() => fetchAlerts(), 15000);
     return () => clearInterval(interval);
   }, [fetchAlerts, fetchTimeline, fetchHistory, view]);
@@ -127,18 +128,26 @@ export default function Alerts() {
     };
   }, [alerts]);
 
-  const CustomChartTooltip = ({ active, payload, label }: any) => {
+    const CustomChartTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const total = payload.reduce((acc: number, p: any) => acc + (typeof p.value === 'number' ? p.value : 0), 0);
       return (
-        <div className="bg-white/95 backdrop-blur-md border border-slate-900 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
-          <p className="text-[10px] font-semibold text-slate-400 mb-1">{label}</p>
-          {payload.map((p: any, i: number) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color || p.stroke || p.fill }} />
-              <span className="font-semibold text-slate-700">{p.name}:</span>
-              <span className="font-bold text-slate-900">{p.value} alerts</span>
-            </div>
-          ))}
+        <div className="bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 rounded-2xl px-4 py-3 shadow-2xl space-y-2 min-w-[170px]">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-1.5">
+            <span className="text-[11px] font-mono font-bold text-slate-500 dark:text-zinc-400">{label}</span>
+            <span className="text-[11px] font-black text-slate-900 dark:text-white font-mono">{total} Alerts</span>
+          </div>
+          <div className="space-y-1">
+            {payload.map((p: any, i: number) => (
+              <div key={i} className="flex items-center justify-between text-xs gap-3 font-mono">
+                <span className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-300 font-sans">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color || p.stroke || p.fill }} />
+                  <span>{p.name}</span>
+                </span>
+                <span className="font-bold text-slate-900 dark:text-white">{p.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
@@ -150,7 +159,7 @@ export default function Alerts() {
       {/* Top Banner & View Switcher Navigation */}
       <div className="bg-white border border-slate-900 rounded-2xl p-4 sm:p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-50 to-orange-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0 shadow-xs">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200/80 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-xs">
             <Bell className="w-5 h-5" />
           </div>
           <div className="min-w-0">
@@ -208,10 +217,10 @@ export default function Alerts() {
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 min-w-0">
         {[
-          { label: t('totalAlerts') || 'Total Alerts', value: stats.total, sub: 'All recorded incidents', icon: Bell, color: 'text-sky-600 bg-sky-50 border-sky-200/80' },
-          { label: t('active') || 'Active Urgent', value: stats.active, sub: stats.active > 0 ? 'Requires intervention' : 'Zero active threats', icon: Radio, color: stats.active > 0 ? 'text-rose-600 bg-rose-50 border-rose-200/80' : 'text-emerald-600 bg-emerald-50 border-emerald-200/80', pulse: stats.active > 0 },
-          { label: t('criticalLevelShort') || 'Critical Risk', value: stats.critical, sub: 'Immediate life safety', icon: AlertTriangle, color: 'text-rose-600 bg-rose-50 border-rose-200/80' },
-          { label: t('highRiskLabel') || 'High Risk Watch', value: stats.high, sub: 'Slope deformation alert', icon: Zap, color: 'text-amber-600 bg-amber-50 border-amber-200/80' },
+          { label: t('totalAlerts') || 'Total Alerts', value: stats.total, sub: 'All recorded incidents', icon: Bell, color: 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 border-sky-200/80 dark:border-sky-500/20' },
+          { label: t('active') || 'Active Urgent', value: stats.active, sub: stats.active > 0 ? 'Requires intervention' : 'Zero active threats', icon: Radio, color: stats.active > 0 ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border-rose-200/80 dark:border-rose-500/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200/80 dark:border-emerald-500/20', pulse: stats.active > 0 },
+          { label: t('criticalLevelShort') || 'Critical Risk', value: stats.critical, sub: 'Immediate life safety', icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border-rose-200/80 dark:border-rose-500/20' },
+          { label: t('highRiskLabel') || 'High Risk Watch', value: stats.high, sub: 'Slope deformation alert', icon: Zap, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200/80 dark:border-amber-500/20' },
         ].map((card, i) => (
           <Card key={i} className="p-3.5 sm:p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
@@ -519,73 +528,241 @@ export default function Alerts() {
         </div>
       )}
 
-      {/* ==================== 3. 30-DAY TREND ANALYTICS ==================== */}
+            {/* ==================== 3. 30-DAY TREND ANALYTICS ==================== */}
       {view === 'history' && (
         <div className="space-y-4 sm:space-y-6 min-w-0">
-          <Card className="p-4 sm:p-5">
-            <CardHeader className="p-0 pb-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0">
+          {/* Historical Summary Metric Pods */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div className="p-4 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 block">
+                Aggregated Volume ({historyDays}D)
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
+                  {historyData.reduce((sum, d) => sum + (d.total || 0), 0)}
+                </span>
+                <span className="text-xs text-sky-600 dark:text-sky-400 font-semibold">Total Alerts</span>
+              </div>
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 block mt-1">Continuous time series</span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 block">
+                Critical Escalations
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 font-mono">
+                  {historyData.reduce((sum, d) => sum + (d.critical || 0), 0)}
+                </span>
+                <span className="text-xs text-rose-500 font-semibold">Events</span>
+              </div>
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 block mt-1">High slope failure threshold</span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 block">
+                High Risk Watch Days
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-orange-600 dark:text-orange-400 font-mono">
+                  {historyData.reduce((sum, d) => sum + (d.high || 0), 0)}
+                </span>
+                <span className="text-xs text-orange-500 font-semibold">Incidents</span>
+              </div>
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 block mt-1">Precipitation spike correlation</span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 block">
+                Daily Mean Frequency
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
+                  {historyData.length > 0 ? (historyData.reduce((sum, d) => sum + (d.total || 0), 0) / historyData.length).toFixed(1) : 0}
+                </span>
+                <span className="text-xs text-slate-500 dark:text-zinc-400 font-semibold">Alerts/Day</span>
+              </div>
+              <span className="text-[10px] text-emerald-500 dark:text-emerald-400 block mt-1">Monitored baseline</span>
+            </div>
+          </div>
+
+          {/* Chart 1: Multi-Risk Evolution Stream (Stacked Area Chart) */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200/80 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400">
                   <TrendingUp className="w-4 h-4" />
                 </div>
                 <div>
-                  <CardTitle className="text-sm sm:text-base truncate">
-                    {t('thirtyDayTrend') || '30-Day Multi-Risk Evolution'}
-                  </CardTitle>
-                  <CardDescription className="truncate">
-                    Historical hazard frequency by severity tier
-                  </CardDescription>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Multi-Severity Hazard Evolution Wave
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400">
+                    Continuous chronological stacked risk distribution across Critical, High, Moderate, and Low tiers
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div className="w-full h-[260px] sm:h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                    <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                    <YAxis stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                    <Tooltip content={<CustomChartTooltip />} />
-                    <Area type="monotone" dataKey="critical" stackId="1" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.4} name="Critical" />
-                    <Area type="monotone" dataKey="high" stackId="1" stroke="#f97316" fill="#f97316" fillOpacity={0.4} name="High Risk" />
-                    <Area type="monotone" dataKey="moderate" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.4} name="Moderate" />
-                    <Area type="monotone" dataKey="low" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.4} name="Low Risk" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="p-4 sm:p-5">
-            <CardHeader className="p-0 pb-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200/80 flex items-center justify-center text-sky-600 shrink-0">
-                  <BarChart3 className="w-4 h-4" />
-                </div>
-                <div>
-                  <CardTitle className="text-sm sm:text-base truncate">
-                    {t('dailyAlertCount') || 'Daily Alert Volume Distribution'}
-                  </CardTitle>
-                  <CardDescription className="truncate">
-                    Total aggregated incidents recorded per day
-                  </CardDescription>
-                </div>
+              {/* Range Filters (7D, 14D, 30D) */}
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-white/10 self-start sm:self-auto">
+                {[
+                  { label: '7 Days', val: 7 },
+                  { label: '14 Days', val: 14 },
+                  { label: '30 Days', val: 30 },
+                ].map(({ label, val }) => (
+                  <button
+                    key={val}
+                    onClick={() => {
+                      setHistoryDays(val);
+                      fetchHistory(val);
+                    }}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      historyDays === val
+                        ? 'bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div className="w-full h-[220px] sm:h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={historyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                    <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                    <YAxis stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                    <Tooltip content={<CustomChartTooltip />} />
-                    <Bar dataKey="total" fill="#0284c7" radius={[4, 4, 0, 0]} name="Total Daily Alerts" />
-                  </BarChart>
-                </ResponsiveContainer>
+            </div>
+
+            <div className="w-full h-[300px] sm:h-[340px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={historyData} margin={{ top: 15, right: 15, left: -20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="critGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.6} />
+                      <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="highGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f97316" stopOpacity={0.55} />
+                      <stop offset="95%" stopColor="#f97316" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="modGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.5} />
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="lowGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.45} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.25} />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#64748b"
+                    tick={{ fontSize: 10, fill: '#94a3b8' }}
+                    tickFormatter={(v) => v.slice(5)}
+                  />
+                  <YAxis stroke="#64748b" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                  <Tooltip content={<CustomChartTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="critical"
+                    stackId="1"
+                    stroke="#f43f5e"
+                    strokeWidth={2}
+                    fill="url(#critGrad)"
+                    name="Critical Risk"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="high"
+                    stackId="1"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    fill="url(#highGrad)"
+                    name="High Risk"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="moderate"
+                    stackId="1"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    fill="url(#modGrad)"
+                    name="Moderate"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="low"
+                    stackId="1"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    fill="url(#lowGrad)"
+                    name="Low Risk"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Legend Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2 border-t border-slate-100 dark:border-white/5 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 text-rose-500">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50" />
+                Critical Threat (≥70)
+              </span>
+              <span className="flex items-center gap-1.5 text-orange-500">
+                <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50" />
+                High Watch (50–69)
+              </span>
+              <span className="flex items-center gap-1.5 text-amber-500">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50" />
+                Moderate Risk (30–49)
+              </span>
+              <span className="flex items-center gap-1.5 text-emerald-500">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                Low Baseline (&lt;30)
+              </span>
+            </div>
+          </div>
+
+          {/* Chart 2: Daily Alert Volume & Influx Rate */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 shadow-card space-y-4">
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-white/10">
+              <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/80 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
+                <BarChart3 className="w-4 h-4" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  Daily Incident Volume & Surge Profile
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-zinc-400">
+                  Total multi-station alert generation volume per 24-hour cycle
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full h-[240px] sm:h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={historyData} margin={{ top: 15, right: 15, left: -20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#38bdf8" />
+                      <stop offset="100%" stopColor="#0284c7" />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.25} />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#64748b"
+                    tick={{ fontSize: 10, fill: '#94a3b8' }}
+                    tickFormatter={(v) => v.slice(5)}
+                  />
+                  <YAxis stroke="#64748b" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                  <Tooltip content={<CustomChartTooltip />} />
+                  <Bar
+                    dataKey="total"
+                    fill="url(#barGrad)"
+                    radius={[6, 6, 0, 0]}
+                    name="Daily Incidents"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       )}
     </div>

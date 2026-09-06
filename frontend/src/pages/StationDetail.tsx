@@ -19,10 +19,10 @@ import { Progress } from '../components/ui/progress';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 const RISK_CONFIG: Record<string, { badgeVariant: 'destructive' | 'warning' | 'sky' | 'success'; color: string; bg: string; text: string; border: string }> = {
-  critical: { badgeVariant: 'destructive', color: '#f43f5e', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
-  high: { badgeVariant: 'warning', color: '#f97316', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
-  moderate: { badgeVariant: 'warning', color: '#f59e0b', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
-  low: { badgeVariant: 'success', color: '#10b981', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+  critical: { badgeVariant: 'destructive', color: '#f43f5e', bg: 'bg-rose-50 dark:bg-rose-500/10', text: 'text-rose-700 dark:text-rose-400', border: 'border-rose-200 dark:border-rose-500/20' },
+  high: { badgeVariant: 'warning', color: '#f97316', bg: 'bg-orange-50 dark:bg-orange-500/10', text: 'text-orange-700 dark:text-orange-400', border: 'border-orange-200 dark:border-orange-500/20' },
+  moderate: { badgeVariant: 'warning', color: '#f59e0b', bg: 'bg-amber-50 dark:bg-amber-500/10', text: 'text-amber-700 dark:text-amber-400', border: 'border-amber-200 dark:border-amber-500/20' },
+  low: { badgeVariant: 'success', color: '#10b981', bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-500/20' },
 };
 
 export default function StationDetail() {
@@ -74,8 +74,8 @@ export default function StationDetail() {
           {payload.map((p: any, i: number) => (
             <div key={i} className="flex items-center gap-1.5 text-xs">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color || p.stroke || p.fill }} />
-              <span className="font-semibold text-slate-700">{p.name}:</span>
-              <span className="font-bold text-slate-900">{typeof p.value === 'number' ? p.value.toFixed(1) : p.value} {p.unit || ''}</span>
+              <span className="font-semibold text-slate-700 dark:text-zinc-300">{p.name}:</span>
+              <span className="font-bold text-slate-900 dark:text-white">{typeof p.value === 'number' ? p.value.toFixed(1) : p.value} {p.unit || ''}</span>
             </div>
           ))}
         </div>
@@ -95,8 +95,8 @@ export default function StationDetail() {
               <Radio className="w-6 h-6 text-sky-600 animate-pulse" />
             </div>
           </div>
-          <h3 className="text-base font-bold text-slate-800">Connecting Station Telemetry</h3>
-          <p className="text-xs text-slate-500 mt-1">Retrieving IoT sensor stream for {stationId}...</p>
+          <h3 className="text-base font-bold text-slate-800 dark:text-zinc-200">Connecting Station Telemetry</h3>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Retrieving IoT sensor stream for {stationId}...</p>
         </div>
       </div>
     );
@@ -106,8 +106,8 @@ export default function StationDetail() {
     return (
       <div className="p-8 text-center max-w-md mx-auto my-12 bg-white border border-slate-900 rounded-3xl shadow-card">
         <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-        <h3 className="text-base font-bold text-slate-900">{t('stationNotFound')}</h3>
-        <p className="text-xs text-slate-500 mt-1">Station ID "{stationId}" could not be located in the NER grid directory.</p>
+        <h3 className="text-base font-bold text-slate-900 dark:text-white">{t('stationNotFound')}</h3>
+        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Station ID "{stationId}" could not be located in the NER grid directory.</p>
         <Button onClick={() => navigate(-1)} variant="sky" size="sm" className="mt-4">
           <ArrowLeft className="w-3.5 h-3.5 mr-1" />
           {t('goBack')}
@@ -140,13 +140,13 @@ export default function StationDetail() {
   return (
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto animate-fade-in min-w-0">
       {/* Top Header & Navigation Bar */}
-      <div className="bg-white border border-slate-900 rounded-2xl p-4 sm:p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-zinc-950/85 backdrop-blur-xl border border-slate-200/90 dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-start sm:items-center gap-3.5 min-w-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate(-1)}
-            className="shrink-0 h-9 px-2.5 text-slate-600 hover:text-sky-700 hover:bg-sky-50"
+            className="shrink-0 h-9 px-2.5 text-slate-600 dark:text-zinc-400 hover:text-sky-700 hover:bg-sky-50"
             title="Return to previous screen"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -154,7 +154,7 @@ export default function StationDetail() {
 
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 tracking-tight truncate">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
                 {s.name}
               </h1>
               <Badge variant="sky" size="md">
@@ -170,7 +170,7 @@ export default function StationDetail() {
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-1 truncate">
+            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-1 truncate">
               {s.state} • {s.district} • {s.village || 'Region'} • Coordinates: {s.latitude?.toFixed(4)}°N, {s.longitude?.toFixed(4)}°E
             </p>
           </div>
@@ -180,10 +180,10 @@ export default function StationDetail() {
         {risk && (
           <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border ${riskConfig.bg} ${riskConfig.border} shrink-0 shadow-xs`}>
             <div className="text-right">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 AI Risk Index
               </div>
-              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
+              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
                 {riskScore}<span className="text-xs font-medium text-slate-400">/100</span>
               </div>
             </div>
@@ -197,21 +197,21 @@ export default function StationDetail() {
       {/* 5-Column Station Geo-Telemetry Metadata Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 min-w-0">
         {[
-          { label: t('elevation'), value: `${s.elevation}m`, sub: 'Above Sea Level', icon: Mountain, color: 'text-indigo-600 bg-indigo-50 border-indigo-200/80' },
-          { label: t('slopeAngle'), value: `${s.slope_angle}°`, sub: 'Incline Gradient', icon: TrendingUp, color: 'text-amber-600 bg-amber-50 border-amber-200/80' },
-          { label: t('soilType'), value: (s.soil_type || 'Sandy Loam').replace('_', ' '), sub: 'Geotech Composition', icon: Layers, color: 'text-sky-600 bg-sky-50 border-sky-200/80' },
-          { label: t('vegetationCover'), value: `${s.vegetation_cover}%`, sub: 'Canopy Density', icon: Droplets, color: 'text-emerald-600 bg-emerald-50 border-emerald-200/80' },
-          { label: 'Current Rainfall', value: `${latestReading.rainfall_mm || 0}mm`, sub: 'Last 1h Telemetry', icon: CloudRain, color: 'text-blue-600 bg-blue-50 border-blue-200/80' },
+          { label: t('elevation'), value: `${s.elevation}m`, sub: 'Above Sea Level', icon: Mountain, color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200/80 dark:border-indigo-500/20' },
+          { label: t('slopeAngle'), value: `${s.slope_angle}°`, sub: 'Incline Gradient', icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200/80 dark:border-amber-500/20' },
+          { label: t('soilType'), value: (s.soil_type || 'Sandy Loam').replace('_', ' '), sub: 'Geotech Composition', icon: Layers, color: 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 border-sky-200/80 dark:border-sky-500/20' },
+          { label: t('vegetationCover'), value: `${s.vegetation_cover}%`, sub: 'Canopy Density', icon: Droplets, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200/80 dark:border-emerald-500/20' },
+          { label: 'Current Rainfall', value: `${latestReading.rainfall_mm || 0}mm`, sub: 'Last 1h Telemetry', icon: CloudRain, color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border-blue-200/80 dark:border-blue-500/20' },
         ].map((item, i) => (
           <Card key={i} className="p-3.5 sm:p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-slate-500">{item.label}</span>
+              <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">{item.label}</span>
               <div className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${item.color}`}>
                 <item.icon className="w-3.5 h-3.5" />
               </div>
             </div>
             <div>
-              <div className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight capitalize truncate">
+              <div className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight capitalize truncate">
                 {item.value}
               </div>
               <div className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
@@ -228,7 +228,7 @@ export default function StationDetail() {
           <CardHeader className="pb-3 border-b border-slate-100">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-50 to-orange-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0 shadow-xs">
+                <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200/80 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-xs">
                   <ShieldAlert className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -251,7 +251,7 @@ export default function StationDetail() {
           <CardContent className="pt-5 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               {/* Circular SVG Gauge */}
-              <div className="flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+              <div className="flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-slate-50/80 dark:bg-zinc-900/60 border border-slate-100 dark:border-white/10">
                 <div className="relative w-28 h-28 flex items-center justify-center my-1">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
                     <circle
@@ -271,7 +271,7 @@ export default function StationDetail() {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-extrabold text-slate-900 leading-none">
+                    <span className="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">
                       {riskScore}
                     </span>
                     <span className="text-[10px] font-bold text-slate-400 mt-0.5">
@@ -286,10 +286,10 @@ export default function StationDetail() {
 
               {/* Assessment Telemetry Parameters */}
               <div className="space-y-3">
-                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-white/10">
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-500 font-medium">{t('landslideProbability')}</span>
-                    <span className="font-bold text-slate-900">
+                    <span className="text-slate-500 dark:text-zinc-400 font-medium">{t('landslideProbability')}</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
                       {((risk.landslide_probability || (riskScore / 100)) * 100).toFixed(1)}%
                     </span>
                   </div>
@@ -301,31 +301,31 @@ export default function StationDetail() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-white/10">
                     <span className="text-[10px] text-slate-400 font-medium block">{t('timeWindow')}</span>
-                    <span className="text-xs font-bold text-slate-800">
+                    <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
                       {risk.predicted_time_window_hours || 24} {t('hours')}
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-white/10">
                     <span className="text-[10px] text-slate-400 font-medium block">Pore Pressure</span>
-                    <span className="text-xs font-bold text-slate-800">
+                    <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
                       {latestReading.pore_water_pressure || 42.5} kPa
                     </span>
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">{t('assessedAt')}</span>
-                  <span className="font-semibold text-slate-800">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 dark:text-zinc-400 font-medium">{t('assessedAt')}</span>
+                  <span className="font-semibold text-slate-800 dark:text-zinc-200">
                     {risk.timestamp ? new Date(risk.timestamp).toLocaleTimeString() : 'Live'}
                   </span>
                 </div>
               </div>
 
               {/* Contributing Warning Factors */}
-              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 space-y-2">
-                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-zinc-900/60 border border-slate-100 dark:border-white/10 space-y-2">
+                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
                   {t('contributingFactors')}
                 </span>
@@ -333,7 +333,7 @@ export default function StationDetail() {
                   {contributingFactors.map((factor, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-2 p-1.5 rounded-lg bg-white border border-slate-200/80 text-xs font-medium text-slate-700"
+                      className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-white/10 text-xs font-medium text-slate-700 dark:text-zinc-300 dark:text-zinc-300"
                     >
                       <ChevronRight className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span className="truncate">{factor}</span>
@@ -345,8 +345,8 @@ export default function StationDetail() {
 
             {/* Recommendation Action Callout */}
             {risk.recommendation && (
-              <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0 mt-0.5">
+              <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-500/30 flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
                   <AlertTriangle className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -370,7 +370,7 @@ export default function StationDetail() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center text-blue-600 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200/80 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
                   <Droplets className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -392,7 +392,7 @@ export default function StationDetail() {
                     className={`px-2 py-0.5 rounded font-semibold transition-all select-none ${
                       timeRange === h
                         ? 'bg-white text-blue-600 shadow-xs'
-                        : 'text-slate-500 hover:text-slate-800'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200'
                     }`}
                   >
                     {h}h
@@ -428,7 +428,7 @@ export default function StationDetail() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <Activity className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -440,7 +440,7 @@ export default function StationDetail() {
                   </CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" size="sm" className="text-[10px] font-semibold text-slate-500 shrink-0">
+              <Badge variant="outline" size="sm" className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 shrink-0">
                 Dual Metric
               </Badge>
             </div>
@@ -469,7 +469,7 @@ export default function StationDetail() {
           <CardHeader className="pb-3 border-b border-slate-100">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-200/80 flex items-center justify-center text-sky-600 shrink-0 shadow-xs">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/80 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 shadow-xs">
                   <CloudSun className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -488,7 +488,7 @@ export default function StationDetail() {
                   className={`px-3 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
                     weatherTab === 'current'
                       ? 'bg-white text-sky-700 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200'
                   }`}
                 >
                   Live Conditions
@@ -498,7 +498,7 @@ export default function StationDetail() {
                   className={`px-3 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
                     weatherTab === 'forecast'
                       ? 'bg-white text-sky-700 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200'
                   }`}
                 >
                   48h Forecast ({forecast.length})
@@ -511,18 +511,18 @@ export default function StationDetail() {
             {weatherTab === 'current' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {[
-                  { label: t('temperatureLabel'), value: `${weather.data.temperature}°C`, icon: Thermometer, color: 'text-rose-600 bg-rose-50' },
-                  { label: t('humidityLabel'), value: `${weather.data.humidity}%`, icon: Droplets, color: 'text-blue-600 bg-blue-50' },
-                  { label: 'Wind Speed', value: `${weather.data.wind_speed} km/h`, icon: Wind, color: 'text-teal-600 bg-teal-50' },
-                  { label: t('forecast24h'), value: `${weather.data.forecast_rainfall_24h} mm`, icon: CloudRain, color: 'text-indigo-600 bg-indigo-50' },
-                  { label: t('forecast48h'), value: `${weather.data.forecast_rainfall_48h} mm`, icon: CloudRain, color: 'text-purple-600 bg-purple-50' },
+                  { label: t('temperatureLabel'), value: `${weather.data.temperature}°C`, icon: Thermometer, color: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-transparent dark:border-rose-500/20' },
+                  { label: t('humidityLabel'), value: `${weather.data.humidity}%`, icon: Droplets, color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-transparent dark:border-blue-500/20' },
+                  { label: 'Wind Speed', value: `${weather.data.wind_speed} km/h`, icon: Wind, color: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-500/10 border border-transparent dark:border-teal-500/20' },
+                  { label: t('forecast24h'), value: `${weather.data.forecast_rainfall_24h} mm`, icon: CloudRain, color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-transparent dark:border-indigo-500/20' },
+                  { label: t('forecast48h'), value: `${weather.data.forecast_rainfall_48h} mm`, icon: CloudRain, color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 border border-transparent dark:border-purple-500/20' },
                 ].map((item, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                  <div key={i} className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/70 border border-slate-100 dark:border-white/10 flex items-center justify-between shadow-xs">
                     <div>
-                      <span className="text-[11px] text-slate-500 font-medium block">{item.label}</span>
-                      <span className="text-base font-bold text-slate-900 mt-0.5 block">{item.value}</span>
+                      <span className="text-[11px] text-slate-500 dark:text-zinc-400 dark:text-zinc-400 font-medium block">{item.label}</span>
+                      <span className="text-base font-bold text-slate-900 dark:text-white dark:text-white mt-0.5 block font-mono">{item.value}</span>
                     </div>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${item.color}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-xs ${item.color}`}>
                       <item.icon className="w-4 h-4" />
                     </div>
                   </div>
@@ -532,7 +532,7 @@ export default function StationDetail() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-slate-500 border-b border-slate-100 font-semibold">
+                    <tr className="text-slate-500 dark:text-zinc-400 border-b border-slate-100 font-semibold">
                       <th className="text-left py-2.5 px-3">{t('forecastTime')}</th>
                       <th className="text-left py-2.5 px-3">Temp</th>
                       <th className="text-left py-2.5 px-3">Rain (1h)</th>
@@ -542,10 +542,10 @@ export default function StationDetail() {
                   <tbody className="divide-y divide-slate-100">
                     {forecast.slice(0, 12).map((f, i) => (
                       <tr key={i} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-2 px-3 text-slate-600 font-medium">
+                        <td className="py-2 px-3 text-slate-600 dark:text-zinc-400 font-medium">
                           {new Date(f.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })}
                         </td>
-                        <td className="py-2 px-3 font-bold text-slate-800">{f.temperature}°C</td>
+                        <td className="py-2 px-3 font-bold text-slate-800 dark:text-zinc-200">{f.temperature}°C</td>
                         <td className="py-2 px-3 font-bold text-sky-600">{f.rainfall_1h || 0} mm</td>
                         <td className="py-2 px-3 font-semibold text-emerald-600">{f.humidity}%</td>
                       </tr>

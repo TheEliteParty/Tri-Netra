@@ -6,6 +6,7 @@ import {
 } from '../services/api';
 import { t } from '../i18n/translations';
 import { useAuth } from '../App';
+import { useTheme } from '../context/ThemeContext';
 import {
   AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -60,6 +61,7 @@ const RISK_COLORS: Record<string, string> = {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [rainfall, setRainfall] = useState<{ timestamp: string; avg_rainfall: number }[]>([]);
   const [riskTrend, setRiskTrend] = useState<{ timestamp: string; avg_risk: number }[]>([]);
@@ -275,7 +277,7 @@ export default function Dashboard() {
       icon: Radio,
       badge: `${activeStats.active_stations} Online`,
       badgeVariant: 'sky' as const,
-      sub: 'NER IoT Station Grid',
+      sub: '15 Mountain States Grid',
       iconColor: 'bg-sky-50 dark:bg-zinc-900/90 text-sky-600 dark:text-white border-sky-200/80 dark:border-white/20 shadow-xs dark:shadow-black/60',
     },
     {
@@ -292,9 +294,9 @@ export default function Dashboard() {
       label: t('peopleAtRisk'),
       value: activeStats.affected_population > 99999 ? `${Math.round(activeStats.affected_population / 1000)}K` : activeStats.affected_population.toLocaleString(),
       icon: Users,
-      badge: 'NER Zone',
+      badge: 'Pan-India',
       badgeVariant: 'secondary' as const,
-      sub: t('acrossNER'),
+      sub: 'Across 15 Mountain States',
       iconColor: 'bg-indigo-50 dark:bg-zinc-900/90 text-indigo-600 dark:text-zinc-100 border-indigo-200/80 dark:border-white/20 shadow-xs dark:shadow-black/60',
     },
     {
@@ -378,13 +380,13 @@ export default function Dashboard() {
     if (active && payload && payload.length) {
       const d = payload[0];
       return (
-        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 dark:border-white/10 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
-          <div className="flex items-center gap-1.5">
+        <div className="bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border border-slate-200/90 dark:border-white/15 rounded-2xl px-3.5 py-2.5 shadow-2xl space-y-1">
+          <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.payload.color }} />
-            <span className="text-xs font-bold text-slate-900">{d.name}</span>
+            <span className="text-xs font-bold text-slate-900 dark:text-white">{d.name}</span>
           </div>
-          <p className="text-xs text-slate-600 mt-1 font-medium">
-            <strong>{d.value}</strong> assessments ({d.payload.pct}%)
+          <p className="text-xs text-slate-600 dark:text-zinc-300 font-medium font-mono">
+            <strong className="text-slate-900 dark:text-white">{d.value}</strong> assessments ({d.payload.pct}%)
           </p>
         </div>
       );
@@ -447,7 +449,7 @@ export default function Dashboard() {
               {t('dashboard')}
             </h1>
             <Badge variant="sky" size="md">
-              NER Live Grid
+              Pan-India Live Grid (15 States)
             </Badge>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1 truncate">
@@ -713,9 +715,15 @@ export default function Dashboard() {
                         dataKey="value"
                         animationBegin={0}
                         animationDuration={800}
+                        stroke="none"
                       >
                         {riskPieData.map((entry, index) => (
-                          <Cell key={index} fill={entry.color} stroke="#ffffff" strokeWidth={2} />
+                          <Cell
+                            key={index}
+                            fill={entry.color}
+                            stroke={isDark ? '#09090b' : '#ffffff'}
+                            strokeWidth={isDark ? 2 : 2}
+                          />
                         ))}
                       </Pie>
                       <Tooltip content={<RiskDonutTooltip />} />
@@ -724,32 +732,32 @@ export default function Dashboard() {
 
                   {/* Center Overlay Label */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-zinc-500">
                       Total
                     </span>
-                    <span className="text-base font-bold text-slate-900 leading-tight">
+                    <span className="text-base font-black text-slate-900 dark:text-white leading-tight font-mono">
                       {totalAssessments}
                     </span>
-                    <span className="text-[9px] font-semibold text-slate-500">
+                    <span className="text-[9px] font-semibold text-slate-500 dark:text-zinc-400">
                       Assessments
                     </span>
                   </div>
                 </div>
 
                 {/* Minimalist 4-Pill Status Grid */}
-                <div className="grid grid-cols-2 gap-1.5 w-full pt-2 border-t border-slate-100">
+                <div className="grid grid-cols-2 gap-1.5 w-full pt-2 border-t border-slate-100 dark:border-white/10">
                   {riskPieData.map((d, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between p-1.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition-all min-w-0"
+                      className="flex items-center justify-between p-1.5 rounded-xl bg-slate-50 dark:bg-zinc-900/70 border border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all min-w-0"
                     >
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-                        <span className="text-[11px] font-semibold text-slate-700 truncate">{d.name}</span>
+                        <span className="text-[11px] font-semibold text-slate-700 dark:text-zinc-300 truncate">{d.name}</span>
                       </div>
                       <div className="flex items-center gap-1 shrink-0 ml-1">
-                        <span className="text-xs font-bold text-slate-900">{d.value}</span>
-                        <span className="text-[10px] text-slate-400">({d.pct}%)</span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">{d.value}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-zinc-500">({d.pct}%)</span>
                       </div>
                     </div>
                   ))}
@@ -1236,8 +1244,8 @@ export default function Dashboard() {
                 </div>
 
                 {/* Footer Station Quick Action */}
-                <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-                  <span className="text-[11px]">Monitoring 20 automated NER stations</span>
+                <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs text-slate-500 font-medium">
+                  <span className="text-[11px]">Monitoring 28 automated stations across 15 States</span>
                   <button
                     onClick={() => setActiveTab('stations')}
                     className="text-[11px] text-sky-600 hover:text-sky-800 font-bold flex items-center gap-1 hover:underline transition-colors"

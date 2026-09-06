@@ -929,8 +929,9 @@ export default function RiskMap() {
 
         {/* ── Floating GIS Layer Switcher Drawer (Top-Left) ────────────── */}
         {layersDrawerOpen ? (
-          <div className="absolute top-3 left-3 z-[1000] w-72 bg-white/95 backdrop-blur-md rounded-xl border border-slate-900 shadow-card overflow-hidden transition-all duration-200">
-            <div className="bg-slate-900 text-white px-3.5 py-2.5 flex items-center justify-between">
+          <div className="absolute top-3 left-3 z-[1000] w-80 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-2xl rounded-2xl border border-slate-200/90 dark:border-white/15 shadow-2xl shadow-black/70 overflow-hidden transition-all duration-200">
+            {/* Header */}
+            <div className="bg-slate-900 dark:bg-zinc-900 text-white px-4 py-3 flex items-center justify-between border-b border-white/10">
               <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider">
                 <Layers className="w-4 h-4 text-sky-400" />
                 <span>GIS Layers ({activeLayersCount}/{totalLayersCount})</span>
@@ -938,68 +939,78 @@ export default function RiskMap() {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => toggleAllLayers(activeLayersCount < totalLayersCount)}
-                  className="text-[10px] bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold px-1.5 py-0.5 rounded transition-all"
+                  className="text-[11px] bg-slate-800 dark:bg-zinc-800 hover:bg-slate-700 dark:hover:bg-zinc-700 text-sky-300 dark:text-zinc-200 font-semibold px-2.5 py-1 rounded-lg border border-white/10 transition-all"
                   title="Toggle all layers"
                 >
                   {activeLayersCount < totalLayersCount ? 'Select All' : 'Reset'}
                 </button>
                 <button
                   onClick={() => setLayersDrawerOpen(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-all"
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 dark:hover:bg-zinc-800 transition-all"
                   title="Close Drawer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <div className="p-2.5 max-h-[calc(100vh-280px)] overflow-y-auto space-y-1 text-xs">
+            {/* Layer Item Rows */}
+            <div className="p-2.5 max-h-[calc(100vh-280px)] overflow-y-auto space-y-1.5 text-xs bg-white dark:bg-zinc-950">
               {[
-                { key: 'stations', label: '📡 28 Stations', count: stations.length, color: 'text-sky-700' },
-                { key: 'aiScanScarp', label: '🛰️ Sentinel-2 / UNet AI Scarp', count: scannedRoiResult ? 1 : 0, color: 'text-rose-600 font-black' },
-                { key: 'alerts', label: '🚨 Active Emergency Alerts', count: activeAlertCount, color: 'text-rose-600' },
-                { key: 'reports', label: '📄 Verified Field Reports', count: verifiedReportCount, color: 'text-cyan-700' },
-                { key: 'roads', label: '🛣️ Highway Corridors', count: roads.length, color: 'text-amber-700' },
-                { key: 'villages', label: '🏘️ Settlement Villages', count: villages.length, color: 'text-slate-700' },
-                { key: 'segmentationScarp', label: '🎯 UNet Scarp Footprints (m²)', count: segmentations.length, color: 'text-orange-600' },
-                { key: 'historicalLandslides', label: '⚡ GSI Historical Events', count: historicalEvents.length, color: 'text-amber-800' },
-                { key: 'evacuationShelters', label: '🛡️ Safe Relief Shelters', count: shelters.length, color: 'text-sky-600' },
-                { key: 'macroBelts', label: '🏔️ GSI Macro Landslide Belts', count: GSI_MACRO_BELTS.length, color: 'text-red-700' },
-                { key: 'riverBasins', label: '🌊 Flood Catchment Basins', count: RIVER_BASINS.length, color: 'text-blue-600' },
-              ].map(({ key, label, count, color }) => (
-                <label
-                  key={key}
-                  className="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <input
-                      type="checkbox"
-                      checked={layerVisibility[key as keyof typeof layerVisibility]}
-                      onChange={() => toggleLayer(key as keyof typeof layerVisibility)}
-                      className="rounded border-slate-400 text-sky-600 focus:ring-sky-500 w-3.5 h-3.5 shrink-0"
-                    />
-                    <span className={`font-semibold text-xs truncate ${color}`}>{label}</span>
-                  </div>
-                  <span className="text-[10px] font-bold bg-slate-100 px-1.5 py-0.2 rounded text-slate-600 border border-slate-300 shrink-0 ml-1">
-                    {count}
-                  </span>
-                </label>
-              ))}
+                { key: 'stations', label: '📡 28 Stations', count: stations.length },
+                { key: 'aiScanScarp', label: '🛰️ Sentinel-2 / UNet AI Scarp', count: scannedRoiResult ? 1 : 0 },
+                { key: 'alerts', label: '🚨 Active Emergency Alerts', count: activeAlertCount },
+                { key: 'reports', label: '📄 Verified Field Reports', count: verifiedReportCount },
+                { key: 'roads', label: '🛣️ Highway Corridors', count: roads.length },
+                { key: 'villages', label: '🏘️ Settlement Villages', count: villages.length },
+                { key: 'segmentationScarp', label: '🎯 UNet Scarp Footprints (m²)', count: segmentations.length },
+                { key: 'historicalLandslides', label: '⚡ GSI Historical Events', count: historicalEvents.length },
+                { key: 'evacuationShelters', label: '🛡️ Safe Relief Shelters', count: shelters.length },
+                { key: 'macroBelts', label: '🏔️ GSI Macro Landslide Belts', count: GSI_MACRO_BELTS.length },
+                { key: 'riverBasins', label: '🌊 Flood Catchment Basins', count: RIVER_BASINS.length },
+              ].map(({ key, label, count }) => {
+                const isActive = layerVisibility[key as keyof typeof layerVisibility];
+                return (
+                  <label
+                    key={key}
+                    className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all cursor-pointer select-none border ${
+                      isActive
+                        ? 'bg-slate-50 dark:bg-zinc-900/90 border-slate-200/80 dark:border-white/15 shadow-xs'
+                        : 'bg-transparent hover:bg-slate-50 dark:hover:bg-zinc-900/40 border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 truncate">
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={() => toggleLayer(key as keyof typeof layerVisibility)}
+                        className="rounded border-slate-300 dark:border-zinc-700 text-sky-600 dark:bg-zinc-900 focus:ring-sky-500 w-4 h-4 shrink-0 accent-sky-500 cursor-pointer"
+                      />
+                      <span className="font-semibold text-xs text-slate-800 dark:text-white truncate">
+                        {label}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-white/10 shrink-0 ml-1">
+                      {count}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         ) : (
           <button
             onClick={() => setLayersDrawerOpen(true)}
-            className="absolute top-3 left-3 z-[1000] bg-white/95 backdrop-blur-md border border-slate-900 rounded-xl shadow-card px-3 py-2 text-xs font-black text-slate-900 hover:bg-sky-50 flex items-center gap-2 transition-all"
+            className="absolute top-3 left-3 z-[1000] bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border border-slate-200/90 dark:border-white/15 rounded-xl shadow-lg px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white hover:bg-sky-50 dark:hover:bg-zinc-900 flex items-center gap-2 transition-all"
           >
-            <Layers className="w-4 h-4 text-sky-600" />
+            <Layers className="w-4 h-4 text-sky-600 dark:text-white" />
             <span>GIS Layers ({activeLayersCount}/{totalLayersCount})</span>
           </button>
         )}
 
         {/* ── 🛰️ Floating Sentinel-2 & Attention-UNet AI Workstation Drawer (Right Side) ──────── */}
         {scannedRoiResult && (
-          <div className="absolute top-3 right-3 z-[1000] w-[calc(100vw-24px)] sm:w-96 max-w-sm bg-white/95 backdrop-blur-md rounded-xl border border-slate-900 shadow-xl overflow-hidden max-h-[calc(100vh-140px)] flex flex-col">
+          <div className="absolute top-3 right-3 z-[1000] w-[calc(100vw-24px)] sm:w-96 max-w-sm bg-white/95 dark:bg-zinc-950/95 backdrop-blur-2xl rounded-2xl border border-slate-200/90 dark:border-white/15 shadow-2xl overflow-hidden max-h-[calc(100vh-140px)] flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-slate-900 to-sky-950 text-white p-3 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 min-w-0">
@@ -1018,7 +1029,7 @@ export default function RiskMap() {
             </div>
 
             {/* Content Body */}
-            <div className="p-3 overflow-y-auto space-y-2.5 text-xs flex-1">
+            <div className="p-3 overflow-y-auto space-y-2.5 text-xs flex-1 bg-white dark:bg-zinc-950">
               {/* Status Banner */}
               {isScanningRoi ? (
                 <div className="bg-sky-50 p-2.5 rounded-lg border border-sky-300 flex items-center gap-2 text-sky-900">
@@ -1026,7 +1037,7 @@ export default function RiskMap() {
                   <span className="font-semibold text-[11px] leading-tight">{scanProgressStep}</span>
                 </div>
               ) : (
-                <div className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-zinc-900/80 p-2 rounded-xl border border-slate-200 dark:border-white/10">
                   <div>
                     <span className="text-[10px] text-slate-500 block">Risk Tier</span>
                     <span className={`font-black text-xs uppercase ${
@@ -1094,7 +1105,7 @@ export default function RiskMap() {
               </div>
 
               {/* Physical Scarp & Geotechnical Metrics */}
-              <div className="grid grid-cols-2 gap-1.5 bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <div className="grid grid-cols-2 gap-1.5 bg-slate-50 dark:bg-zinc-900/80 p-2 rounded-xl border border-slate-200 dark:border-white/10">
                 <div>
                   <span className="text-[10px] text-slate-500 block">Scarp Area</span>
                   <span className="font-bold text-slate-900 text-xs">{scannedRoiResult.segmentation_results.hazard_area_m2.toLocaleString()} m²</span>
