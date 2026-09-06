@@ -1,5 +1,5 @@
 """
-GeoShield - AI-Based Early Warning and Landslide Risk Monitoring System
+Tri-Netra - AI-Based Early Warning and Landslide Risk Monitoring System
 Backend API Server for Smart India Hackathon 2026
 """
 import os
@@ -21,7 +21,7 @@ from starlette.responses import FileResponse
 from app.middleware.rate_limiter import RateLimiter
 
 from app.database import engine, Base, SessionLocal
-from app.routers import sensors, dashboard, alerts, reports, weather, simulator, satellite, predict, alerts_timeline, flood, ml_enhanced
+from app.routers import sensors, dashboard, alerts, reports, weather, simulator, satellite, predict, alerts_timeline, flood, ml_enhanced, segmentation
 from app.auth import authenticate_user, create_token
 
 
@@ -70,11 +70,11 @@ def init_database():
                 capture_output=True, text=True, timeout=30
             )
             if result.returncode != 0:
-                print(f"[GeoShield] ⚠️  Alembic error: {result.stderr}")
+                print(f"[Tri-Netra] ⚠️  Alembic error: {result.stderr}")
             else:
-                print("[GeoShield] ✅ Alembic migrations applied")
+                print("[Tri-Netra] ✅ Alembic migrations applied")
         except Exception as e:
-            print(f"[GeoShield] ⚠️  Alembic failed: {e}, falling back to create_all")
+            print(f"[Tri-Netra] ⚠️  Alembic failed: {e}, falling back to create_all")
             Base.metadata.create_all(bind=engine)
     else:
         # Development: create_all for instant setup
@@ -87,10 +87,10 @@ def init_database():
             from app.seed_data import seed_database
             seed_database()
         else:
-            print("[GeoShield] Database already seeded, skipping.")
+            print("[Tri-Netra] Database already seeded, skipping.")
     finally:
         db.close()
-    print("[GeoShield] ✅ Database ready")
+    print("[Tri-Netra] ✅ Database ready")
 
     # Auto-refresh satellite data if stale (>6 hours old)
     try:
@@ -106,13 +106,13 @@ def init_database():
                     try:
                         last_dt = _dt.fromisoformat(last_update)
                         if _dt.utcnow() - last_dt > _td(hours=6):
-                            print("[GeoShield] 🛰️  Satellite data stale (>6h), run 'python datasets/download_real_data.py' to refresh")
+                            print("[Tri-Netra] 🛰️  Satellite data stale (>6h), run 'python datasets/download_real_data.py' to refresh")
                         else:
-                            print(f"[GeoShield] 🛰️  Satellite data fresh (updated {last_update})")
+                            print(f"[Tri-Netra] 🛰️  Satellite data fresh (updated {last_update})")
                     except (ValueError, TypeError):
                         pass
     except Exception as e:
-        print(f"[GeoShield] ⚠️  Satellite check skipped: {e}")
+        print(f"[Tri-Netra] ⚠️  Satellite check skipped: {e}")
 
 
 init_database()
@@ -120,7 +120,7 @@ init_database()
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
 
 app = FastAPI(
-    title="GeoShield API",
+    title="Tri-Netra API",
     description="AI-Based Early Warning and Landslide Risk Monitoring System for NER",
     version="1.0.0",
 )
@@ -145,6 +145,7 @@ app.include_router(predict.router)
 app.include_router(alerts_timeline.router)
 app.include_router(flood.router)
 app.include_router(ml_enhanced.router)
+app.include_router(segmentation.router)
 
 
 @app.get("/health", response_class=JSONResponse)
@@ -226,4 +227,4 @@ if os.path.exists(FRONTEND_DIR):
         index_path = os.path.join(FRONTEND_DIR, "index.html")
         if os.path.isfile(index_path):
             return FileResponse(index_path)
-        return {"message": "GeoShield API", "version": "1.0.0"}
+        return {"message": "Tri-Netra API", "version": "1.0.0"}

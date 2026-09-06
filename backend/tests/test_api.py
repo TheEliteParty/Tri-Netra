@@ -1,5 +1,5 @@
 """
-GeoShield API Test Suite
+Tri-Netra API Test Suite
 Automated tests for all 33+ API endpoints.
 Run: cd backend && python -m pytest tests/test_api.py -v
 """
@@ -27,7 +27,7 @@ class TestHealthAndAuth:
         assert data["status"] == "healthy"
 
     def test_login_valid(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in", "password": "admin123"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in", "password": "admin123"})
         assert r.status_code == 200
         data = r.json()
         assert "token" in data
@@ -38,7 +38,7 @@ class TestHealthAndAuth:
         assert r.status_code == 401
 
     def test_login_missing_fields(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in"})
         assert r.status_code == 422  # Validation error
 
 
@@ -189,7 +189,7 @@ class TestPredict:
 # ── Simulate ───────────────────────────────────────────────────
 class TestSimulate:
     def _get_token(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in", "password": "admin123"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in", "password": "admin123"})
         return r.json()["token"]
 
     def test_simulate_with_auth(self):

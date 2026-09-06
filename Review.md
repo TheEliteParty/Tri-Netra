@@ -1,6 +1,6 @@
-# GeoShield — Reference vs Current System: Complete Feature Comparison & Implementation Plan
+# Tri-Netra — Reference vs Current System: Complete Feature Comparison & Implementation Plan
 
-> Deep comparison between `officialarghya29/GeoShield` (reference) and current codebase.
+> Deep comparison between `officialarghya29/Tri-Netra` (reference) and current codebase.
 > Every file, every feature, every line checked 2-3 times.
 
 ---

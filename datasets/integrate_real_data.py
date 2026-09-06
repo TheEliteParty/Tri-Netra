@@ -1,5 +1,5 @@
 """
-GeoShield Real Data Integration Script
+Tri-Netra Real Data Integration Script
 Processes SRTM DEM and Sentinel-2 NDVI data to replace simulated values.
 
 Usage:
@@ -110,7 +110,7 @@ def compute_slope_from_elevation(elevation_data, lat, lng, dem_src):
 
 def main():
     print("=" * 60)
-    print("  GeoShield Real Data Integration")
+    print("  Tri-Netra Real Data Integration")
     print("=" * 60)
     print()
 

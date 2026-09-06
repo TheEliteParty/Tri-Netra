@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Use DATABASE_URL env var if set (e.g. PostgreSQL for production),
 # otherwise fall back to local SQLite for development.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./geoshield.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./trinetra.db")
 
 # SQLite-specific args (not needed for PostgreSQL/MySQL)
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}

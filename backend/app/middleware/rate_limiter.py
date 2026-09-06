@@ -1,5 +1,5 @@
 """
-Rate Limiter Middleware for GeoShield API
+Rate Limiter Middleware for Tri-Netra API
 Limits request frequency per IP to prevent abuse.
 """
 import time

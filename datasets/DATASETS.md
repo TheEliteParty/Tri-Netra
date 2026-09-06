@@ -1,8 +1,8 @@
-# 📊 GeoShield — Complete Dataset Manifest
+# 📊 Tri-Netra — Complete Dataset Manifest
 
 ## 📋 Overview
 
-This document lists ALL datasets used, available, and ready to integrate in GeoShield.
+This document lists ALL datasets used, available, and ready to integrate in Tri-Netra.
 
 ---
 

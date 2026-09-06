@@ -1,4 +1,4 @@
-# 🛡️ GeoShield — Smart India Hackathon 2026 — Q&A Preparation
+# 🛡️ Tri-Netra — Smart India Hackathon 2026 — Q&A Preparation
 
 > Problem Statement ID: **26001** | Ministry: **MDoNER** | Region: **North Eastern India**
 
@@ -25,9 +25,9 @@
 
 ## 1. Problem & Motivation
 
-### Q1.1: What problem does GeoShield solve?
+### Q1.1: What problem does Tri-Netra solve?
 
-**A:** GeoShield is an **AI-based early warning and landslide risk monitoring system** for the North Eastern Region (NER) of India. NER has 8 states, 45 million people, and is one of the most landslide-prone regions in the world. Between 2011-2024, there were **44 documented landslide events, 88 deaths, 31 road blockades, and 8,087+ people affected**. The current system relies on manual inspection, English-only alerts, and fragmented state-level handling — GeoShield provides a **centralized, AI-powered, multilingual** platform.
+**A:** Tri-Netra is an **AI-based early warning and landslide risk monitoring system** for the North Eastern Region (NER) of India. NER has 8 states, 45 million people, and is one of the most landslide-prone regions in the world. Between 2011-2024, there were **44 documented landslide events, 88 deaths, 31 road blockades, and 8,087+ people affected**. The current system relies on manual inspection, English-only alerts, and fragmented state-level handling — Tri-Netra provides a **centralized, AI-powered, multilingual** platform.
 
 ---
 
@@ -66,7 +66,7 @@
 
 **A:** Existing systems have critical limitations:
 
-| Existing Solution | Limitation | GeoShield Advantage |
+| Existing Solution | Limitation | Tri-Netra Advantage |
 |-------------------|------------|---------------------|
 | **DAMINI (IMD)** | Only lightning alerts, no landslide-specific AI | Custom ML model trained on NER terrain data |
 | **NDMA Sahay** | Generic national app, no region-specific sensors | 20 purpose-built sensor stations across 8 NER states |
@@ -74,7 +74,7 @@
 | **Google Earth Engine** | Raw satellite data, no actionable alerts | AI-processed risk scores with automated alerting |
 | **Commercial GIS (ArcGIS)** | Expensive, not real-time, requires training | Free, real-time, role-based UI for field officers |
 
-**Key differentiator:** GeoShield is the **only system that combines real-time IoT sensors + AI prediction + multilingual citizen reporting + GIS mapping** in one unified platform specifically designed for NER.
+**Key differentiator:** Tri-Netra is the **only system that combines real-time IoT sensors + AI prediction + multilingual citizen reporting + GIS mapping** in one unified platform specifically designed for NER.
 
 ---
 
@@ -132,7 +132,7 @@ React was chosen because it provides the **best ecosystem for cross-platform dep
 
 **A:**
 
-| Factor | ThingSpeak/Blynk | GeoShield |
+| Factor | ThingSpeak/Blynk | Tri-Netra |
 |--------|-----------------|-----------|
 | **Customization** | Limited dashboards | Full custom UI |
 | **AI integration** | No built-in ML | Integrated RF+GB ensemble |
@@ -162,7 +162,7 @@ Pre-built IoT platforms cannot provide the **custom AI model, multilingual UI, c
 
 ### Q3.1: Describe the overall system architecture.
 
-**A:** GeoShield uses a **3-tier architecture**:
+**A:** Tri-Netra uses a **3-tier architecture**:
 
 ```
 PRESENTATION (React 19 + TypeScript + Tailwind CSS)
@@ -333,7 +333,7 @@ The **small gap between train and test accuracy (99.98% vs 95.2%)** indicates th
 
 **A:**
 
-- **Training:** Happens once at server startup (or when cached model is stale). Takes ~5-10 seconds. Model is saved via `joblib` to `models/geoshield_model.pkl`.
+- **Training:** Happens once at server startup (or when cached model is stale). Takes ~5-10 seconds. Model is saved via `joblib` to `models/trinetra_model.pkl`.
 - **Inference:** `predict_risk()` is called per-station. Takes <1ms per prediction (sklearn is highly optimized).
 - **Caching:** Model is cached on disk with a version tag. If `_MODEL_VERSION` changes, it retrains. Otherwise, it loads the cache — **no retraining on every startup**.
 - **Singleton pattern:** `get_predictor()` ensures only one model instance in memory.
@@ -369,7 +369,7 @@ This allows **predictive monitoring of any location**, not just the 20 sensor st
 
 ## 5. Data & Data Sources
 
-### Q5.1: What data sources does GeoShield use?
+### Q5.1: What data sources does Tri-Netra use?
 
 **A:**
 
@@ -603,7 +603,7 @@ This transforms bright OSM tiles into a dark theme **without any API key**, avoi
 
 ## 8. Security & Authentication
 
-### Q8.1: What security measures does GeoShield implement?
+### Q8.1: What security measures does Tri-Netra implement?
 
 **A:**
 
@@ -672,14 +672,14 @@ This transforms bright OSM tiles into a dark theme **without any API key**, avoi
 
 ## 10. Deployment & Scalability
 
-### Q10.1: What deployment options does GeoShield support?
+### Q10.1: What deployment options does Tri-Netra support?
 
 **A:**
 
 | Platform | Method | File |
 |----------|--------|------|
 | **Local** | `bash deploy.sh` or `bash start.sh` | Auto-creates venv, installs deps, builds frontend |
-| **Docker** | `docker build -t geoshield . && docker run -p 8000:8000 geoshield` | Dockerfile included |
+| **Docker** | `docker build -t trinetra . && docker run -p 8000:8000 trinetra` | Dockerfile included |
 | **Windows** | `start.bat` | One-click setup |
 | **Railway** | `railway.json` config | Auto-deploy from GitHub |
 | **Render** | `render.yaml` config | Auto-deploy from GitHub |
@@ -704,7 +704,7 @@ This transforms bright OSM tiles into a dark theme **without any API key**, avoi
 
 ---
 
-### Q10.3: What is the minimum hardware to run GeoShield?
+### Q10.3: What is the minimum hardware to run Tri-Netra?
 
 **A:**
 
@@ -724,7 +724,7 @@ The entire system runs on a **Raspberry Pi** — SQLite + FastAPI + React static
 ### Q11.1: What happens when the AI model training data is missing?
 
 **A:** The system has a **3-tier fallback:**
-1. **Try cached model** (`models/geoshield_model.pkl`) — fastest startup
+1. **Try cached model** (`models/trinetra_model.pkl`) — fastest startup
 2. **Try real training data** (`datasets/processed/real_ner_training_data.csv`) — retrain with real NER data
 3. **Fall back to synthetic data** — generate 5,000 samples with realistic random distributions
 
@@ -767,11 +767,11 @@ The system **never fails to start** — it always produces a working model.
 
 ## 12. Impact & Future Roadmap
 
-### Q12.1: What is the expected impact of GeoShield?
+### Q12.1: What is the expected impact of Tri-Netra?
 
 **A:**
 
-| Metric | Before GeoShield | After GeoShield |
+| Metric | Before Tri-Netra | After Tri-Netra |
 |--------|-------------------|-----------------|
 | **Alert time** | 6-24 hours (manual) | 30 minutes (AI-automated) |
 | **Coverage** | 1 state at a time | All 8 NER states unified |
@@ -924,5 +924,5 @@ IoT Sensors → REST API → FastAPI → AI Engine → Risk Score
 
 ---
 
-*Document prepared for SIH 2026 — GeoShield Team*
+*Document prepared for SIH 2026 — Tri-Netra Team*
 *Last updated: 2026-08-29*

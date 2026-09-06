@@ -1,29 +1,29 @@
 tests/test_e2e.py::TestEnhancedML::test_enhanced_predict_terrain_enrichment
-  /home/sage/Desktop/GeoShield/backend/tests/../app/routers/predict.py:113: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  /home/sage/Desktop/Tri-Netra/backend/tests/../app/routers/predict.py:113: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
     "timestamp": datetime.utcnow().isoformat(),
 
 tests/test_api.py::TestSimulate::test_simulate_with_auth
 tests/test_e2e.py::TestSimulatorAlertFlow::test_simulate_creates_alert
 tests/test_e2e.py::TestSimulatorAlertFlow::test_simulate_high_intensity
-  /home/sage/Desktop/GeoShield/backend/tests/../app/routers/simulator.py:77: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  /home/sage/Desktop/Tri-Netra/backend/tests/../app/routers/simulator.py:77: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
     timestamp=datetime.utcnow(),
 
 tests/test_api.py::TestExport::test_geojson
 tests/test_e2e.py::TestExportFlow::test_geojson_is_valid
-  /home/sage/Desktop/GeoShield/backend/tests/../app/routers/predict.py:163: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  /home/sage/Desktop/Tri-Netra/backend/tests/../app/routers/predict.py:163: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
     "timestamp": datetime.utcnow().isoformat(),
 
 tests/test_api.py::TestExport::test_csv
 tests/test_e2e.py::TestExportFlow::test_csv_has_headers
-  /home/sage/Desktop/GeoShield/backend/tests/../app/routers/predict.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    "Content-Disposition": f"attachment; filename=geoshield_export_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+  /home/sage/Desktop/Tri-Netra/backend/tests/../app/routers/predict.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "Content-Disposition": f"attachment; filename=trinetra_export_{datetime.utcnow().strftime('%Y%m%d')}.csv"
 
 tests/test_e2e.py::TestFloodFlow::test_flood_data_has_districts
-  /home/sage/Desktop/GeoShield/backend/tests/../app/routers/flood.py:71: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  /home/sage/Desktop/Tri-Netra/backend/tests/../app/routers/flood.py:71: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
     "timestamp": datetime.utcnow().isoformat(),
 
 tests/test_e2e.py::TestAlertWorkflow::test_acknowledge_alert
-  /home/sage/Desktop/GeoShield/backend/tests/../app/routers/alerts.py:70: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  /home/sage/Desktop/Tri-Netra/backend/tests/../app/routers/alerts.py:70: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
     alert.acknowledged_at = datetime.utcnow()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

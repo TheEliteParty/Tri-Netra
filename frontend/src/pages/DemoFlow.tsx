@@ -54,7 +54,7 @@ export default function DemoFlow() {
           {t('sihDemoFlow')}
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
-          GeoShield <span className="text-green-400">{t('liveDemo')}</span>
+          Tri-Netra <span className="text-green-400">{t('liveDemo')}</span>
         </h1>
         <p className="text-dark-400 max-w-2xl mx-auto">
           {t('stepByStepWalkthrough')}

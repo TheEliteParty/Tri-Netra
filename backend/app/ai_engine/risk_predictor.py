@@ -1,5 +1,5 @@
 """
-GeoShield AI Risk Prediction Engine
+Tri-Netra AI Risk Prediction Engine
 Uses Random Forest + Gradient Boosting ensemble for landslide risk assessment.
 Trained on REAL NER data with 2000 samples including actual terrain features.
 """
@@ -27,7 +27,7 @@ class LandslideRiskPredictor:
     Trained on real NER data with elevation, slope, NDVI, soil moisture.
     """
 
-    CACHE_FILE = os.path.join(os.path.dirname(__file__), "models", "geoshield_model.pkl")
+    CACHE_FILE = os.path.join(os.path.dirname(__file__), "models", "trinetra_model.pkl")
 
     def __init__(self):
         self.model_dir = os.path.join(os.path.dirname(__file__), "models")
@@ -57,14 +57,14 @@ class LandslideRiskPredictor:
         try:
             cached = joblib.load(self.CACHE_FILE)
             if cached.get("version") != _MODEL_VERSION:
-                print(f"[GeoShield AI] Model version mismatch (cached={cached['version']}, expected={_MODEL_VERSION}), retraining...")
+                print(f"[Tri-Netra AI] Model version mismatch (cached={cached['version']}, expected={_MODEL_VERSION}), retraining...")
                 return False
             self.model = cached["model"]
             self.scaler = cached["scaler"]
-            print(f"[GeoShield AI] Loaded cached model from {self.CACHE_FILE}")
+            print(f"[Tri-Netra AI] Loaded cached model from {self.CACHE_FILE}")
             return True
         except Exception as e:
-            print(f"[GeoShield AI] Failed to load cached model: {e}")
+            print(f"[Tri-Netra AI] Failed to load cached model: {e}")
             return False
 
     def _save_model(self):
@@ -75,9 +75,9 @@ class LandslideRiskPredictor:
                 "model": self.model,
                 "scaler": self.scaler,
             }, self.CACHE_FILE)
-            print(f"[GeoShield AI] Model cached to {self.CACHE_FILE}")
+            print(f"[Tri-Netra AI] Model cached to {self.CACHE_FILE}")
         except Exception as e:
-            print(f"[GeoShield AI] Failed to cache model: {e}")
+            print(f"[Tri-Netra AI] Failed to cache model: {e}")
 
     def _load_real_training_data(self):
         """Load real NER training data and labels from CSV."""
@@ -106,10 +106,10 @@ class LandslideRiskPredictor:
                         except (ValueError, KeyError):
                             continue
                 if len(data) > 100:
-                    print(f"[GeoShield AI] Loaded {len(data)} real NER training samples from {path}")
+                    print(f"[Tri-Netra AI] Loaded {len(data)} real NER training samples from {path}")
                     return np.array(data), np.array(labels)
             except Exception as e:
-                print(f"[GeoShield AI] Error loading {path}: {e}")
+                print(f"[Tri-Netra AI] Error loading {path}: {e}")
 
         return None, None
 
@@ -157,10 +157,10 @@ class LandslideRiskPredictor:
             y[landslide_mask & (severity >= 0.4) & (severity < 0.6)] = 2
             y[landslide_mask & (severity >= 0.6)] = 3
 
-            print(f"[GeoShield AI] Label distribution: low={np.sum(y==0)}, moderate={np.sum(y==1)}, high={np.sum(y==2)}, critical={np.sum(y==3)}")
+            print(f"[Tri-Netra AI] Label distribution: low={np.sum(y==0)}, moderate={np.sum(y==1)}, high={np.sum(y==2)}, critical={np.sum(y==3)}")
         else:
             # Fallback to synthetic data
-            print("[GeoShield AI] Using synthetic training data (real data not found)")
+            print("[Tri-Netra AI] Using synthetic training data (real data not found)")
             np.random.seed(42)
             n_samples = 5000
             X = np.zeros((n_samples, len(self.feature_names)))
@@ -217,8 +217,8 @@ class LandslideRiskPredictor:
         train_acc = self.model.score(X_train_scaled, y_train)
         test_acc = self.model.score(X_test_scaled, y_test)
 
-        print(f"[GeoShield AI] Model trained on {n_samples} samples")
-        print(f"[GeoShield AI] Train Accuracy: {train_acc:.3f}, Test Accuracy: {test_acc:.3f}")
+        print(f"[Tri-Netra AI] Model trained on {n_samples} samples")
+        print(f"[Tri-Netra AI] Train Accuracy: {train_acc:.3f}, Test Accuracy: {test_acc:.3f}")
         self._save_model()
         return test_acc
 

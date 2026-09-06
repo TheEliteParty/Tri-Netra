@@ -1,5 +1,5 @@
 """
-GeoShield - Alert Timeline API
+Tri-Netra - Alert Timeline API
 Provides chronological timeline view of all alerts for dashboard visualization.
 """
 from fastapi import APIRouter, Depends, Query

@@ -1,7 +1,7 @@
 {
-  "name": "geoshield",
+  "name": "trinetra",
   "version": "1.0.0",
-  "description": "GeoShield - AI-Based Landslide Risk Monitoring System for NER",
+  "description": "Tri-Netra - AI-Based Landslide Risk Monitoring System for NER",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
@@ -11,7 +11,7 @@
     "build:all": "electron-builder -wml --config electron-builder.json",
     "test": "cd backend && python3 tests/test_e2e.py"
   },
-  "author": "Team GeoShield <team@geoshield.dev>",
+  "author": "Team Tri-Netra <team@trinetra.dev>",
   "license": "MIT",
   "devDependencies": {
     "electron": "^33.0.0",

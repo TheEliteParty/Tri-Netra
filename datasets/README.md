@@ -1,8 +1,8 @@
-# 📊 GeoShield Datasets - Real Data Sources & Integration Guide
+# 📊 Tri-Netra Datasets - Real Data Sources & Integration Guide
 
 ## Overview
 
-This document describes all real-world data sources needed for the GeoShield AI-Based Landslide Risk Monitoring System. The project requires data from 5 key categories as specified in the SIH26001 problem statement.
+This document describes all real-world data sources needed for the Tri-Netra AI-Based Landslide Risk Monitoring System. The project requires data from 5 key categories as specified in the SIH26001 problem statement.
 
 ---
 

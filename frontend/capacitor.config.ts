@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.geoshield.app',
-  appName: 'GeoShield',
+  appId: 'com.trinetra.app',
+  appName: 'Tri-Netra',
   webDir: 'dist',
   server: {
     url: 'http://localhost:8000',

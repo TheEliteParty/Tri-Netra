@@ -1,5 +1,5 @@
 """
-Pydantic schemas for GeoShield API request/response validation.
+Pydantic schemas for Tri-Netra API request/response validation.
 Prevents invalid data from reaching the database layer.
 """
 from pydantic import BaseModel, Field, field_validator

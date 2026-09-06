@@ -1,4 +1,4 @@
-# 🚀 Deploy GeoShield Now — Complete Guide
+# 🚀 Deploy Tri-Netra Now — Complete Guide
 
 ## Option 1: Railway (Recommended — 2 minutes)
 
@@ -12,7 +12,7 @@ This opens your browser. Login with GitHub.
 ```bash
 cd geo-shield
 railway init
-# Name: geoshield
+# Name: trinetra
 # Select: "Empty Project"
 ```
 
@@ -30,12 +30,12 @@ railway up
 ### Step 5: Get URL
 ```bash
 railway domain
-# Returns: https://geoshield.up.railway.app
+# Returns: https://trinetra.up.railway.app
 ```
 
 ### Verify
 ```bash
-curl https://geoshield.up.railway.app/api/health
+curl https://trinetra.up.railway.app/api/health
 ```
 
 ---
@@ -52,7 +52,7 @@ curl https://geoshield.up.railway.app/api/health
 2. Click **"Connect"**
 
 ### Step 3: Configure
-- **Name:** geoshield
+- **Name:** trinetra
 - **Runtime:** Python 3
 - **Build Command:**
   ```
@@ -68,7 +68,7 @@ curl https://geoshield.up.railway.app/api/health
 Click **"Create Web Service"**
 
 ### Step 5: Get URL
-Your app will be at: `https://geoshield.onrender.com`
+Your app will be at: `https://trinetra.onrender.com`
 
 ---
 
@@ -76,8 +76,8 @@ Your app will be at: `https://geoshield.onrender.com`
 
 ```bash
 cd geo-shield
-docker build -t geoshield .
-docker run -p 8000:8000 geoshield
+docker build -t trinetra .
+docker run -p 8000:8000 trinetra
 # Opens at http://localhost:8000
 ```
 

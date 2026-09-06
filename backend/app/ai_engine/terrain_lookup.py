@@ -1,5 +1,5 @@
 """
-GeoShield Terrain Lookup Service
+Tri-Netra Terrain Lookup Service
 Provides nearest-neighbor lookup against real terrain datasets to enrich
 predictions with location-specific slope, elevation, NDVI, and soil moisture.
 Uses:

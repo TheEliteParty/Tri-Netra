@@ -1,5 +1,5 @@
 /**
- * GeoShield Electron Preload Script
+ * Tri-Netra Electron Preload Script
  * Secure IPC bridge between renderer and main process.
  */
 const { contextBridge, ipcRenderer } = require('electron');
@@ -15,8 +15,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   close: () => ipcRenderer.send('window-close'),
 
   // Server URL management
-  setServerUrl: (url) => localStorage.setItem('geoshield_server_url', url),
-  getServerUrl: () => localStorage.getItem('geoshield_server_url') || '',
+  setServerUrl: (url) => localStorage.setItem('trinetra_server_url', url),
+  getServerUrl: () => localStorage.getItem('trinetra_server_url') || '',
 
   // Notifications
   showNotification: (title, body) => {

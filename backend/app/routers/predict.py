@@ -1,5 +1,5 @@
 """
-GeoShield - Click-to-Predict and Export API
+Tri-Netra - Click-to-Predict and Export API
 Allows users to click anywhere on the map and get AI risk prediction.
 Supports GeoJSON and CSV export of all risk data.
 """
@@ -151,14 +151,14 @@ def export_geojson(db: Session = Depends(get_db)):
 
     geojson = {
         "type": "FeatureCollection",
-        "name": "GeoShield_NER_Risk_Data",
+        "name": "Tri-Netra_NER_Risk_Data",
         "crs": {
             "type": "name",
             "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}
         },
         "features": features,
         "metadata": {
-            "generated_by": "GeoShield AI - SIH 2026",
+            "generated_by": "Tri-Netra AI - SIH 2026",
             "total_stations": len(features),
             "timestamp": datetime.utcnow().isoformat(),
         }
@@ -200,7 +200,7 @@ def export_csv(db: Session = Depends(get_db)):
         io.BytesIO(output.getvalue().encode()),
         media_type="text/csv",
         headers={
-            "Content-Disposition": f"attachment; filename=geoshield_export_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+            "Content-Disposition": f"attachment; filename=trinetra_export_{datetime.utcnow().strftime('%Y%m%d')}.csv"
         }
     )
 
@@ -245,6 +245,6 @@ def export_risk_zones_geojson(db: Session = Depends(get_db)):
 
     return {
         "type": "FeatureCollection",
-        "name": "GeoShield_High_Risk_Zones",
+        "name": "Tri-Netra_High_Risk_Zones",
         "features": features,
     }

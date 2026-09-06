@@ -1,4 +1,4 @@
-"""initial schema — baseline for all GeoShield tables
+"""initial schema — baseline for all Tri-Netra tables
 
 Revision ID: 0001
 Revises:

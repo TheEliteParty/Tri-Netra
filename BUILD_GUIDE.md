@@ -1,4 +1,4 @@
-# GeoShield Build Guide
+# Tri-Netra Build Guide
 
 ## Prerequisites
 
@@ -51,9 +51,9 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 The backend will:
-1. Create SQLite database (`geoshield.db`)
+1. Create SQLite database (`trinetra.db`)
 2. Seed 20 NER sensor stations
-3. Train AI model (first run: ~22s, cached after — `models/geoshield_model.pkl`)
+3. Train AI model (first run: ~22s, cached after — `models/trinetra_model.pkl`)
 4. Serve API at `http://localhost:8000/api`
 
 ### Frontend (Development)
@@ -87,10 +87,10 @@ npm run build
 
 ```bash
 # Build image (Python 3.12 base, Node.js 22 installed automatically)
-docker build -t geoshield .
+docker build -t trinetra .
 
 # Run container
-docker run -p 8000:8000 geoshield
+docker run -p 8000:8000 trinetra
 
 # Or use Docker Compose (includes health checks, volume mounts)
 docker-compose up --build
@@ -102,8 +102,8 @@ docker-compose up --build
 
 | Variable | Default | Description |
 |---|---|---|
-| `DATABASE_URL` | `sqlite:///./geoshield.db` | PostgreSQL URL for production |
-| `JWT_SECRET` | `geoshield-dev-secret-...` | JWT signing secret |
+| `DATABASE_URL` | `sqlite:///./trinetra.db` | PostgreSQL URL for production |
+| `JWT_SECRET` | `trinetra-dev-secret-...` | JWT signing secret |
 | `TRAINING_DATA_PATH` | Auto-detected | AI training data CSV path |
 | `SATELLITE_DATA_PATH` | Auto-detected | Satellite data JSON path |
 
@@ -175,10 +175,10 @@ python -m pytest tests/ -v
 
 | Email | Password | Role |
 |---|---|---|
-| admin@geoshield.gov.in | admin123 | Admin |
-| field@geoshield.gov.in | field123 | Field Officer |
-| district@geoshield.gov.in | district123 | District Admin |
-| citizen@geoshield.gov.in | demo123 | Citizen |
+| admin@trinetra.gov.in | admin123 | Admin |
+| field@trinetra.gov.in | field123 | Field Officer |
+| district@trinetra.gov.in | district123 | District Admin |
+| citizen@trinetra.gov.in | demo123 | Citizen |
 
 ---
 

@@ -1,16 +1,16 @@
-# 🏆 GeoShield — SIH 2026 Presentation Deck
+# 🏆 Tri-Netra — SIH 2026 Presentation Deck
 
 <p align="center">
-  <img src="branding/team_logo.png" width="150" alt="Team GeoShield Logo">
+  <img src="branding/team_logo.png" width="150" alt="Team Tri-Netra Logo">
 </p>
 
-## Team GeoShield | Problem Statement SIH26001 | MDoNER
+## Team Tri-Netra | Problem Statement SIH26001 | MDoNER
 
 ---
 
 ## 📌 Slide 1: Title
 
-### 🛡️ GeoShield
+### 🛡️ Tri-Netra
 #### AI-Based Early Warning & Landslide Risk Monitoring System
 **North Eastern Region (NER)**
 
@@ -49,7 +49,7 @@ Theme: Disaster Management
 
 ## 💡 Slide 4: Our Solution
 
-### GeoShield — Predict. Warn. Protect.
+### Tri-Netra — Predict. Warn. Protect.
 
 **Three Pillars:**
 
@@ -65,7 +65,7 @@ Theme: Disaster Management
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     GeoShield Platform                          │
+│                     Tri-Netra Platform                          │
 ├─────────────┬───────────────────┬───────────────────────────────┤
 │             │                   │                               │
 │  🖥️ React UI │  ⚙️ FastAPI Server  │  🤖 AI/ML Engine              │
@@ -179,7 +179,7 @@ Sensor Reading → AI Risk Assessment → Risk Score → Alert Generation
 
 **How it works:**
 1. Citizen/field officer sees suspicious activity (cracks, slope movement, blocked roads)
-2. Opens GeoShield app → Takes geo-tagged photo
+2. Opens Tri-Netra app → Takes geo-tagged photo
 3. Selects report type → Submits
 4. Report appears on dashboard for verification
 5. Verified reports feed back into AI model
@@ -209,7 +209,7 @@ Sensor Reading → AI Risk Assessment → Risk Score → Alert Generation
 
 ---
 
-## 🏆 Slide 12: Why GeoShield Wins
+## 🏆 Slide 12: Why Tri-Netra Wins
 
 ### Impact & Innovation
 

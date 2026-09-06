@@ -1,4 +1,4 @@
-name: GeoShield CI
+name: Tri-Netra CI
 
 on:
   push:

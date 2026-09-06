@@ -1,5 +1,5 @@
 """
-GeoShield Enhanced AI Risk Prediction Engine
+Tri-Netra Enhanced AI Risk Prediction Engine
 Merges XGBoost from winning reference repo with existing RF+GB ensemble.
 Features:
 - XGBoost model with feature importance breakdown

@@ -1,7 +1,7 @@
 {
-  "appId": "com.geoshield.app",
-  "productName": "GeoShield",
-  "copyright": "Copyright © 2026 Team GeoShield",
+  "appId": "com.trinetra.app",
+  "productName": "Tri-Netra",
+  "copyright": "Copyright © 2026 Team Tri-Netra",
   "directories": {
     "output": "dist-electron"
   },
@@ -46,7 +46,7 @@
     "icon": "branding/team_logo.png",
     "category": "Science;Education",
     "description": "AI-Based Early Warning & Landslide Risk Monitoring System",
-    "maintainer": "Team GeoShield <team@geoshield.dev>",
+    "maintainer": "Team Tri-Netra <team@trinetra.dev>",
     "synopsis": "Landslide Monitoring for North Eastern India"
   },
   "win": {
@@ -65,7 +65,7 @@
       }
     ],
     "icon": "branding/team_logo.ico",
-    "artifactName": "GeoShield-${version}-Setup.${ext}"
+    "artifactName": "Tri-Netra-${version}-Setup.${ext}"
   },
   "nsis": {
     "oneClick": false,
@@ -73,14 +73,14 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "GeoShield",
+    "shortcutName": "Tri-Netra",
     "installerIcon": "branding/team_logo.ico",
     "uninstallerIcon": "branding/team_logo.ico",
     "installerHeaderIcon": "branding/team_logo.ico",
     "deleteAppDataOnUninstall": false,
     "allowElevation": true,
     "runAfterFinish": true,
-    "artifactName": "GeoShield-${version}-Setup.${ext}"
+    "artifactName": "Tri-Netra-${version}-Setup.${ext}"
   },
   "mac": {
     "target": ["dmg"],

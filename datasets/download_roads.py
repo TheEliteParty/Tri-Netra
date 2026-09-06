@@ -51,7 +51,7 @@ def download_from_overpass():
     data = urllib.parse.urlencode({"data": query}).encode()
     
     try:
-        req = urllib.request.Request(url, data=data, headers={"User-Agent": "GeoShield/1.0"})
+        req = urllib.request.Request(url, data=data, headers={"User-Agent": "Tri-Netra/1.0"})
         with urllib.request.urlopen(req, timeout=60) as resp:
             result = json.loads(resp.read().decode())
         
@@ -121,7 +121,7 @@ def save_roads(osm_roads):
 
 def main():
     print("=" * 60)
-    print("🛣️  GeoShield Road Data Downloader")
+    print("🛣️  Tri-Netra Road Data Downloader")
     print("   Source: OpenStreetMap Overpass API (FREE)")
     print("=" * 60)
     

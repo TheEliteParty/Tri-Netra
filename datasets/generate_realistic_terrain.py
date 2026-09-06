@@ -1,5 +1,5 @@
 """
-GeoShield Realistic Terrain Data Generator
+Tri-Netra Realistic Terrain Data Generator
 Generates realistic terrain data based on actual NER geography.
 Uses real coordinates, elevations, and slope patterns from NER region.
 """
@@ -151,7 +151,7 @@ def generate_landslide_label(slope, elevation, rainfall, ndvi, soil_moisture):
 
 def main():
     print("=" * 60)
-    print("  GeoShield Realistic Terrain Data Generator")
+    print("  Tri-Netra Realistic Terrain Data Generator")
     print("=" * 60)
     print()
     

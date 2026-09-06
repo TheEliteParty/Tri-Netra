@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="branding/team_logo.png" alt="GeoShield Logo" width="200" />
+<img src="branding/team_logo.png" alt="Tri-Netra Logo" width="200" />
 
-# 🛡️ GeoShield
+# 🛡️ Tri-Netra
 
 ### AI-Based Early Warning & Landslide Risk Monitoring System
 **North Eastern Region, India — Smart India Hackathon 2026**
@@ -137,9 +137,9 @@ Landslides in NER are caused by a complex interplay of **geological, meteorologi
 
 ## 🛡️ Our Solution
 
-### GeoShield — A Complete Monitoring Platform
+### Tri-Netra — A Complete Monitoring Platform
 
-GeoShield is a **full-stack AI-powered landslide monitoring system** designed specifically for the North Eastern Region. It combines **real-time sensor data**, **satellite imagery**, **machine learning prediction**, and **multilingual early warning** into a single unified platform.
+Tri-Netra is a **full-stack AI-powered landslide monitoring system** designed specifically for the North Eastern Region. It combines **real-time sensor data**, **satellite imagery**, **machine learning prediction**, and **multilingual early warning** into a single unified platform.
 
 ### 6 Core Capabilities
 
@@ -244,7 +244,7 @@ Traditional landslide susceptibility mapping relies on **static geological maps*
 - Takes weeks to produce results
 - Cannot provide real-time predictions
 
-GeoShield's AI model solves these problems by:
+Tri-Netra's AI model solves these problems by:
 - Processing **real-time sensor data** continuously
 - Learning from **12,000 historical NER terrain samples**
 - Providing predictions in **<30 seconds**
@@ -461,7 +461,7 @@ GeoShield's AI model solves these problems by:
 
 ```
   ┌─────────────────────────────────────────────────────────────┐
-  │  🛡️ GeoShield Dashboard                    LIVE  SIH 2026 │
+  │  🛡️ Tri-Netra Dashboard                    LIVE  SIH 2026 │
   ├─────────┬─────────┬─────────┬─────────┬─────────┬─────────┤
   │ Active  │ Active  │ People  │ Pending │ Avg     │ High-   │
   │ Sensors │ Alerts  │ at Risk │ Reports │ Risk    │ Risk    │
@@ -724,7 +724,7 @@ The simulator allows presenters to **trigger realistic landslide events** and wa
 
 ### Compound Hazard Analysis
 
-GeoShield integrates **flood-landslide correlation** data for all 19 NER districts, sourced from the Asia Flood Atlas and IMD historical records. The system computes **compound risk** (0.4 × flood risk + 0.6 × landslide risk) to identify districts facing dual hazards.
+Tri-Netra integrates **flood-landslide correlation** data for all 19 NER districts, sourced from the Asia Flood Atlas and IMD historical records. The system computes **compound risk** (0.4 × flood risk + 0.6 × landslide risk) to identify districts facing dual hazards.
 
 | District | Flood Risk | Events | Rivers |
 |----------|-----------|--------|--------|
@@ -762,10 +762,10 @@ GeoShield integrates **flood-landslide correlation** data for all 19 NER distric
 
 | Platform | File | Size | How to Run |
 |----------|------|------|------------|
-| **Android** | `GeoShield-Android.apk` | 7.9 MB | Transfer to phone → Install |
-| **Linux AppImage** | `GeoShield-1.0.0.AppImage` | 108 MB | `chmod +x` then `./GeoShield-*.AppImage` |
-| **Linux DEB** | `geoshield_1.0.0_amd64.deb` | 104 MB | `sudo dpkg -i geoshield_*.deb` |
-| **Windows** | `GeoShield-1.0.0-Windows-x64.zip` | 165 MB | Extract → Run `GeoShield.exe` |
+| **Android** | `Tri-Netra-Android.apk` | 7.9 MB | Transfer to phone → Install |
+| **Linux AppImage** | `Tri-Netra-1.0.0.AppImage` | 108 MB | `chmod +x` then `./Tri-Netra-*.AppImage` |
+| **Linux DEB** | `trinetra_1.0.0_amd64.deb` | 104 MB | `sudo dpkg -i trinetra_*.deb` |
+| **Windows** | `Tri-Netra-1.0.0-Windows-x64.zip` | 165 MB | Extract → Run `Tri-Netra.exe` |
 | **Windows** | `start.bat` | 1 KB | Double-click to auto-setup & launch |
 
 ### One-Command Deploy (Web)
@@ -805,18 +805,18 @@ npm run dev                   # Dev server at http://localhost:5173
 ### Docker
 
 ```bash
-docker build -t geoshield .
-docker run -p 8000:8000 geoshield
+docker build -t trinetra .
+docker run -p 8000:8000 trinetra
 ```
 
-**Demo Login:** `admin@geoshield.gov.in` / `admin123` — or click any demo button on the login page.
+**Demo Login:** `admin@trinetra.gov.in` / `admin123` — or click any demo button on the login page.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-GeoShield/
+Tri-Netra/
 ├── README.md                              # This file
 ├── SIH_2026_PRESENTATION.md               # 15-slide pitch deck
 ├── PRESENTATION.md                        # Slide content with diagrams
@@ -948,7 +948,7 @@ GeoShield/
 
 ```
   ╔══════════════════════════════════════════════════════════════╗
-  ║              GeoShield Performance Dashboard                 ║
+  ║              Tri-Netra Performance Dashboard                 ║
   ╠══════════════════════════════════════════════════════════════╣
   ║                                                              ║
   ║  🤖 AI Model            95.2% accuracy, 94.6% F1 (12,000 samples)     ║
@@ -971,7 +971,7 @@ GeoShield/
 
 ### Potential Impact
 
-| Metric | Before GeoShield | After GeoShield |
+| Metric | Before Tri-Netra | After Tri-Netra |
 |--------|------------------|-----------------|
 | **Warning Time** | 0 (reactive) | 6+ hours (predictive) |
 | **Coverage** | Manual inspection | 20 automated stations |
@@ -1042,7 +1042,7 @@ GeoShield/
 
 | Detail | Value |
 |--------|-------|
-| **Package** | com.geoshield.app |
+| **Package** | com.trinetra.app |
 | **Size** | 7.9 MB |
 | **Target** | Android 14 (API 34) |
 | **Min SDK** | API 22 (Android 5.1) |
@@ -1074,17 +1074,17 @@ cd frontend && npx cap sync android && cd android && ./gradlew assembleDebug
 
 ```bash
 # Run AppImage
-chmod +x dist-electron/GeoShield-1.0.0.AppImage
-./dist-electron/GeoShield-1.0.0.AppImage
+chmod +x dist-electron/Tri-Netra-1.0.0.AppImage
+./dist-electron/Tri-Netra-1.0.0.AppImage
 # OR install DEB
-sudo dpkg -i dist-electron/geoshield_1.0.0_amd64.deb
+sudo dpkg -i dist-electron/trinetra_1.0.0_amd64.deb
 ```
 
 ### Windows Desktop
 
 | Format | Size | Details |
 |--------|------|---------|
-| **Portable ZIP** | 165 MB | Extract + run GeoShield.exe |
+| **Portable ZIP** | 165 MB | Extract + run Tri-Netra.exe |
 | **Unpacked Dir** | 408 MB | Full Electron + Python backend |
 
 | Feature | Details |
@@ -1126,7 +1126,7 @@ cd geo-shield && npm install && npm run build:win
 
 <div align="center">
 
-### 🛡️ GeoShield — Protecting North Eastern India
+### 🛡️ Tri-Netra — Protecting North Eastern India
 
 **Built with ❤️ by The Elite Party for Smart India Hackathon 2026**
 

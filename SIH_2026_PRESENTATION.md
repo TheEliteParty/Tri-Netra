@@ -1,4 +1,4 @@
-# 🏔️ GeoShield — SIH 2026 Presentation
+# 🏔️ Tri-Netra — SIH 2026 Presentation
 
 ## Smart India Hackathon 2026 | Problem Statement #26001
 ### Ministry of Development of North Eastern Region (MDoNER)
@@ -7,7 +7,7 @@
 
 # Slide 1: Title Slide
 
-**🛡️ GeoShield**
+**🛡️ Tri-Netra**
 **AI-Based Early Warning & Landslide Risk Monitoring System for NER**
 
 - **Problem ID:** 26001
@@ -44,7 +44,7 @@
 
 # Slide 3: Our Solution
 
-## 🛡️ GeoShield — Full-Stack Monitoring Platform
+## 🛡️ Tri-Netra — Full-Stack Monitoring Platform
 
 ### 6 Core Capabilities:
 
@@ -320,7 +320,7 @@
 
 # Slide 15: Thank You
 
-## 🛡️ GeoShield — Protecting NER
+## 🛡️ Tri-Netra — Protecting NER
 
 ### Team The Elite Party
 

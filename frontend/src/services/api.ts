@@ -31,12 +31,12 @@ const normalizeHost = (h: string): string => {
 
 const getApiBase = () => {
   if (isElectron()) {
-    const savedUrl = localStorage.getItem('geoshield_server_url');
+    const savedUrl = localStorage.getItem('trinetra_server_url');
     if (savedUrl) return `http://${normalizeHost(savedUrl)}/api`;
     return 'http://localhost:8000/api';
   }
   if (isMobile()) {
-    const savedUrl = localStorage.getItem('geoshield_server_url');
+    const savedUrl = localStorage.getItem('trinetra_server_url');
     if (savedUrl) return `http://${normalizeHost(savedUrl)}/api`;
     // Default to localhost — works with adb reverse for USB-connected devices
     return 'http://localhost:8000/api';
@@ -57,18 +57,18 @@ api.interceptors.request.use((config) => {
 
 // Allow mobile app to change server URL
 export const setServerUrl = (url: string) => {
-  localStorage.setItem('geoshield_server_url', url);
+  localStorage.setItem('trinetra_server_url', url);
   window.location.reload();
 };
 
 export const getServerUrl = () => {
-  return localStorage.getItem('geoshield_server_url') || '';
+  return localStorage.getItem('trinetra_server_url') || '';
 };
 
 export const isMobileApp = isMobile;
 
 // --- JWT token management ---
-const TOKEN_KEY = 'geoshield_token';
+const TOKEN_KEY = 'trinetra_token';
 
 export function getStoredToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -205,6 +205,7 @@ export interface Report {
   latitude: number;
   longitude: number;
   reporter_name: string | null;
+  reporter_language?: string | null;
   status: string;
   created_at: string;
 }
@@ -340,6 +341,7 @@ export interface SatelliteStation {
   real_rainfall_current: number; real_rainfall_24h: number; real_rainfall_7d: number;
   real_temperature: number; real_humidity: number; real_wind_speed: number;
   estimated_ndvi: number;
+  real_pressure?: number;
 }
 export interface SatelliteSummary {
   total_stations: number;
@@ -440,5 +442,215 @@ export const getMLDistrictRisk = (district: string) =>
   api.get<MLDistrictRisk>(`/ml/risk/district/${district}`);
 export const trainMLModel = () => api.post<{ message: string; details: any }>('/ml/train');
 
+// --- Landslide Semantic Segmentation & RCAN Super-Resolution (Eb3ls/landslides_segmentation) ---
+export interface SegmentationSummary {
+  total_stations_evaluated: number;
+  total_hazard_area_m2: number;
+  total_hazard_area_ha: number;
+  mean_model_iou: number;
+  mean_dice_score: number;
+  critical_hazard_stations: number;
+  high_hazard_stations: number;
+}
+
+export interface StationSegmentation {
+  station_id: string;
+  station_name: string;
+  coordinates: { lat: number; lng: number };
+  terrain_input: {
+    slope_angle_deg: number;
+    ndvi: number;
+    soil_moisture_pct: number;
+    rainfall_24h_mm: number;
+  };
+  segmentation_results: {
+    risk_tier: 'low' | 'moderate' | 'high' | 'critical';
+    landslide_pixels: number;
+    total_pixels: number;
+    hazard_area_m2: number;
+    hazard_area_ha: number;
+    coverage_percent: number;
+    max_probability: number;
+    mean_probability: number;
+    confidence_iou: number;
+    dice_score: number;
+  };
+  super_resolution: {
+    model: string;
+    native_resolution: string;
+    enhanced_resolution: string;
+    psnr_rgb: number;
+    ssim: number;
+  };
+  polygons: number[][][];
+  spectral_summary: {
+    red_mean_dn: number;
+    green_mean_dn: number;
+    blue_mean_dn: number;
+    nir_mean_dn: number;
+  };
+  visual_layers?: {
+    lr_rgb_grid: number[][][];
+    sr_rgb_grid: number[][][];
+    prob_mask_grid: number[][];
+  };
+}
+
+export interface SegmentationModelsMetadata {
+  source_repository: string;
+  architectures: {
+    rcan_super_resolution: {
+      model_name: string;
+      scale_factor: string;
+      psnr_rgb_db: number;
+      psnr_nir_db: number;
+      ssim: number;
+      lpips: number;
+      loss_function: string;
+    };
+    attention_unet_segmentation: {
+      model_name: string;
+      mean_iou: number;
+      dice_score: number;
+      overall_accuracy: number;
+      loss_function: string;
+      training_patches: number;
+    };
+  };
+  feature_channels: { index: number; band: string; wavelength?: string; type?: string; resolution?: string }[];
+  loss_functions: string[];
+}
+
+export interface HistoricalLandslideEvent {
+  date: string;
+  lat: number;
+  lng: number;
+  state: string;
+  district: string;
+  trigger: string;
+  severity: string;
+  elevation: number;
+  slope: number;
+  soil_type: string;
+  vegetation_cover: number;
+}
+
+export interface EvacuationShelter {
+  id: string;
+  name: string;
+  state: string;
+  district: string;
+  lat: number;
+  lng: number;
+  elevation: number;
+  capacity: number;
+  medical_support: boolean;
+  status: string;
+  contact: string;
+}
+
+export const getSegmentationModels = () =>
+  api.get<SegmentationModelsMetadata>('/segmentation/models');
+
+export const getStationSegmentationData = () =>
+  api.get<{ summary: SegmentationSummary; stations: StationSegmentation[] }>('/segmentation/stations');
+
+export const getSingleStationSegmentation = (stationId: string) =>
+  api.get<StationSegmentation>(`/segmentation/station/${stationId}`);
+
+export const runSegmentationInference = (data: {
+  station_name?: string;
+  lat: number;
+  lng: number;
+  slope_angle: number;
+  ndvi: number;
+  soil_moisture: number;
+  rainfall_24h: number;
+}) => api.post<StationSegmentation>('/segmentation/inference', data);
+
+export const getHistoricalLandslideEvents = () =>
+  api.get<{ events: HistoricalLandslideEvent[]; total: number }>('/satellite/historical-events');
+
+export const getEvacuationShelters = () =>
+  api.get<{ shelters: EvacuationShelter[]; total: number }>('/satellite/shelters');
+
+export interface RoiScanRequest {
+  lat: number;
+  lng: number;
+  location_name?: string;
+  slope_angle?: number;
+  ndvi?: number;
+  soil_moisture?: number;
+  rainfall_24h?: number;
+}
+
+export interface RoiScanResult {
+  status: string;
+  metadata: {
+    location_name: string;
+    center_coordinates: { lat: number; lng: number };
+    satellite_platform: string;
+    dem_source: string;
+    spatial_resolution: string;
+    date_acquired: string;
+    cloud_cover_percent: number;
+  };
+  terrain_metrics: {
+    slope_angle_deg: number;
+    mean_ndvi: number;
+    mean_ndmi_moisture: number;
+    soil_moisture_pct: number;
+    rainfall_24h_mm: number;
+  };
+  segmentation_results: {
+    risk_tier: 'low' | 'moderate' | 'high' | 'critical';
+    hazard_area_m2: number;
+    hazard_area_hectares: number;
+    max_probability: number;
+    mean_probability: number;
+    model_mean_iou: number;
+    model_dice_score: number;
+    estimated_runout_velocity_ms: number;
+    estimated_debris_volume_m3: number;
+    factor_of_safety: number;
+  };
+  geojson: {
+    type: 'FeatureCollection';
+    features: Array<{
+      type: 'Feature';
+      properties: {
+        feature_id: string;
+        feature_type: string;
+        area_m2: number;
+        area_hectares: number;
+        mean_probability: number;
+        risk_level: 'low' | 'moderate' | 'high' | 'critical';
+        scarp_length_m: number;
+        estimated_volume_m3: number;
+      };
+      geometry: {
+        type: 'Polygon';
+        coordinates: number[][][];
+      };
+    }>;
+  };
+  spectral_previews: {
+    true_color_rgb_native: string;
+    true_color_rgb_rcan_5x: string;
+    false_color_infrared_nir: string;
+    ndvi_vegetation_mask: string;
+    unet_probability_mask: string;
+  };
+}
+
+export const scanRoiWithAttentionUnet = (data: RoiScanRequest) =>
+  api.post<RoiScanResult>('/segmentation/scan-roi', data);
+
+export const getSatelliteLayerTemplates = () =>
+  api.get<{ layers: Array<{ id: string; name: string; type: string; url_template: string; attribution: string; resolution: string; max_zoom: number }> }>('/segmentation/satellite-layers');
+
 export default api;
 export { api };
+
+
+

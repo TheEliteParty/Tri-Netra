@@ -1,5 +1,5 @@
 """
-GeoShield End-to-End Integration Tests
+Tri-Netra End-to-End Integration Tests
 Full flow tests covering complete user workflows.
 Run: cd backend && python -m pytest tests/test_e2e.py -v
 """
@@ -23,7 +23,7 @@ class TestCoreBackend:
         assert r.json()["status"] == "healthy"
 
     def test_login_returns_jwt_token(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in", "password": "admin123"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in", "password": "admin123"})
         assert r.status_code == 200
         token = r.json()["token"]
         assert len(token) > 50  # JWT tokens are long
@@ -145,7 +145,7 @@ class TestAlertsFlow:
 # ── Simulator → Alert Flow ─────────────────────────────────────
 class TestSimulatorAlertFlow:
     def _get_admin_token(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in", "password": "admin123"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in", "password": "admin123"})
         return r.json()["token"]
 
     def test_simulate_creates_alert(self):
@@ -356,14 +356,14 @@ class TestAlertWorkflow:
             assert r2.status_code == 200
 
     def _get_admin_token(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in", "password": "admin123"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in", "password": "admin123"})
         return r.json()["token"]
 
 
 # ── Security ───────────────────────────────────────────────────
 class TestSecurity:
     def test_invalid_login_rejected(self):
-        r = client.post("/api/auth/login", data={"email": "admin@geoshield.gov.in", "password": "wrong"})
+        r = client.post("/api/auth/login", data={"email": "admin@trinetra.gov.in", "password": "wrong"})
         assert r.status_code == 401
 
     def test_protected_endpoint_without_token(self):
@@ -371,7 +371,7 @@ class TestSecurity:
         assert r.status_code == 401
 
     def test_citizen_cannot_resolve_alerts(self):
-        r = client.post("/api/auth/login", data={"email": "citizen@geoshield.gov.in", "password": "demo123"})
+        r = client.post("/api/auth/login", data={"email": "citizen@trinetra.gov.in", "password": "demo123"})
         token = r.json()["token"]
         r2 = client.put("/api/alerts/1/resolve",
                        headers={"Authorization": f"Bearer {token}"})

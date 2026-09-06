@@ -48,7 +48,7 @@ def fetch_json(url, retries=3):
     """Fetch JSON from URL with retries."""
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "GeoShield/1.0"})
+            req = urllib.request.Request(url, headers={"User-Agent": "Tri-Netra/1.0"})
             with urllib.request.urlopen(req, timeout=15) as resp:
                 return json.loads(resp.read().decode())
         except Exception as e:
@@ -295,7 +295,7 @@ def update_training_data(elevations, weather_data):
 
 def main():
     print("=" * 60)
-    print("🛰️  GeoShield Real Data Downloader")
+    print("🛰️  Tri-Netra Real Data Downloader")
     print("   Source: Open-Meteo API (FREE, no signup)")
     print("=" * 60)
     

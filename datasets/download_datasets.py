@@ -1,5 +1,5 @@
 """
-GeoShield Dataset Downloader
+Tri-Netra Dataset Downloader
 Downloads available datasets for the landslide risk monitoring system.
 """
 import os
@@ -244,7 +244,7 @@ def create_sample_data():
             print(f"  {f} ({size:,} bytes)")
 
 if __name__ == "__main__":
-    print("GeoShield Dataset Downloader")
+    print("Tri-Netra Dataset Downloader")
     print("=" * 40)
     print("\nCreating sample datasets for immediate use...")
     print("(For real data, download from the sources listed in README.md)\n")

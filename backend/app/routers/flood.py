@@ -1,5 +1,5 @@
 """
-GeoShield - Flood Monitoring Data API
+Tri-Netra - Flood Monitoring Data API
 Provides flood risk data integrated from Asia Flood Atlas and IMD sources.
 Flood data complements landslide monitoring in NER where both hazards co-occur.
 """

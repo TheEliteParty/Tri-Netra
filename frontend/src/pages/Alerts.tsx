@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   getAlerts, acknowledgeAlert, resolveAlert, getAlertTimeline, getAlertHistory,
   Alert as AlertType, TimelineEntry,
@@ -8,21 +8,22 @@ import { useAuth } from '../App';
 import {
   AlertTriangle, CheckCircle, XCircle, Clock, Users, MapPin, Radio, Bell,
   BarChart3, List, History, ChevronRight, Activity, TrendingUp,
+  ShieldAlert, Sparkles, Filter, CheckCircle2, Shield, Zap, RefreshCw
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area,
 } from 'recharts';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
-const RISK_STYLES: Record<string, { bg: string; border: string; text: string; icon: string }> = {
-  critical: { bg: 'bg-red-600/10', border: 'border-red-600/30', text: 'text-red-400', icon: '🔴' },
-  high: { bg: 'bg-orange-600/10', border: 'border-orange-600/30', text: 'text-orange-400', icon: '🟠' },
-  moderate: { bg: 'bg-amber-600/10', border: 'border-amber-600/30', text: 'text-amber-400', icon: '🟡' },
-  low: { bg: 'bg-green-600/10', border: 'border-green-600/30', text: 'text-green-400', icon: '🟢' },
-};
-
-const RISK_COLORS: Record<string, string> = {
-  critical: '#ef4444', high: '#f97316', moderate: '#f59e0b', low: '#22c55e',
+const RISK_CONFIG: Record<string, { badgeVariant: 'destructive' | 'warning' | 'sky' | 'success'; color: string; bg: string; text: string; border: string; dot: string }> = {
+  critical: { badgeVariant: 'destructive', color: '#f43f5e', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200/80', dot: 'bg-rose-500' },
+  high: { badgeVariant: 'warning', color: '#f97316', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200/80', dot: 'bg-orange-500' },
+  moderate: { badgeVariant: 'warning', color: '#f59e0b', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200/80', dot: 'bg-amber-500' },
+  low: { badgeVariant: 'success', color: '#10b981', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200/80', dot: 'bg-emerald-500' },
 };
 
 export default function Alerts() {
@@ -33,25 +34,27 @@ export default function Alerts() {
   const [filter, setFilter] = useState('all');
   const [riskFilter, setRiskFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [view, setView] = useState<'list' | 'timeline' | 'history'>('list');
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [timelineSummary, setTimelineSummary] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any[]>([]);
-  const [actionFeedback, setActionFeedback] = useState<{id: number; type: 'success' | 'error'; message: string} | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<{ id: number; type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     if (actionFeedback) {
-      const t = setTimeout(() => setActionFeedback(null), 3000);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setActionFeedback(null), 3000);
+      return () => clearTimeout(timer);
     }
   }, [actionFeedback]);
 
-  const fetchAlerts = useCallback(async () => {
+  const fetchAlerts = useCallback(async (isManual = false) => {
+    if (isManual) setRefreshing(true);
     try {
       const params: { status?: string } = {};
       if (filter !== 'all') params.status = filter;
       const res = await getAlerts(params);
-      let data = res.data;
+      let data = res.data || [];
       if (riskFilter !== 'all') {
         data = data.filter((a: AlertType) => a.risk_level === riskFilter);
       }
@@ -60,14 +63,15 @@ export default function Alerts() {
       console.error('Alert fetch error:', e);
     } finally {
       setLoading(false);
+      if (isManual) setRefreshing(false);
     }
   }, [filter, riskFilter]);
 
   const fetchTimeline = useCallback(async () => {
     try {
       const res = await getAlertTimeline(72);
-      setTimeline(res.data.timeline);
-      setTimelineSummary(res.data.summary);
+      setTimeline(res.data?.timeline || []);
+      setTimelineSummary(res.data?.summary || null);
     } catch (e) {
       console.error('Timeline fetch error:', e);
     }
@@ -76,7 +80,7 @@ export default function Alerts() {
   const fetchHistory = useCallback(async () => {
     try {
       const res = await getAlertHistory(30);
-      setHistoryData(res.data);
+      setHistoryData(res.data || []);
     } catch (e) {
       console.error('History fetch error:', e);
     }
@@ -86,17 +90,17 @@ export default function Alerts() {
     fetchAlerts();
     if (view === 'timeline') fetchTimeline();
     if (view === 'history') fetchHistory();
-    const interval = setInterval(fetchAlerts, 15000);
+    const interval = setInterval(() => fetchAlerts(), 15000);
     return () => clearInterval(interval);
   }, [fetchAlerts, fetchTimeline, fetchHistory, view]);
 
   const handleAcknowledge = async (id: number) => {
     try {
       await acknowledgeAlert(id);
-      setActionFeedback({ id, type: 'success', message: t('alertAcknowledged') });
+      setActionFeedback({ id, type: 'success', message: t('alertAcknowledged') || 'Alert acknowledged successfully' });
       fetchAlerts();
     } catch (e: any) {
-      const msg = e.response?.data?.detail || t('acknowledgeFailed');
+      const msg = e.response?.data?.detail || t('acknowledgeFailed') || 'Failed to acknowledge alert';
       setActionFeedback({ id, type: 'error', message: msg });
     }
   };
@@ -104,286 +108,409 @@ export default function Alerts() {
   const handleResolve = async (id: number) => {
     try {
       await resolveAlert(id);
-      setActionFeedback({ id, type: 'success', message: t('alertResolved') });
+      setActionFeedback({ id, type: 'success', message: t('alertResolved') || 'Alert marked as resolved' });
       fetchAlerts();
     } catch (e: any) {
-      const msg = e.response?.data?.detail || t('resolveFailed');
+      const msg = e.response?.data?.detail || t('resolveFailed') || 'Failed to resolve alert';
       setActionFeedback({ id, type: 'error', message: msg });
     }
   };
 
-  const stats = {
-    total: alerts.length,
-    critical: alerts.filter(a => a.risk_level === 'critical').length,
-    high: alerts.filter(a => a.risk_level === 'high').length,
-    active: alerts.filter(a => a.status === 'active').length,
+  const stats = useMemo(() => {
+    return {
+      total: alerts.length,
+      critical: alerts.filter(a => a.risk_level === 'critical').length,
+      high: alerts.filter(a => a.risk_level === 'high').length,
+      active: alerts.filter(a => a.status === 'active').length,
+      acknowledged: alerts.filter(a => a.status === 'acknowledged').length,
+      resolved: alerts.filter(a => a.status === 'resolved').length,
+    };
+  }, [alerts]);
+
+  const CustomChartTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white/95 backdrop-blur-md border border-slate-900 rounded-xl px-3 py-2 shadow-lg shadow-slate-900/5">
+          <p className="text-[10px] font-semibold text-slate-400 mb-1">{label}</p>
+          {payload.map((p: any, i: number) => (
+            <div key={i} className="flex items-center gap-1.5 text-xs">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color || p.stroke || p.fill }} />
+              <span className="font-semibold text-slate-700">{p.name}:</span>
+              <span className="font-bold text-slate-900">{p.value} alerts</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
-    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
-            {t('alerts')}
-          </h1>
-          <p className="text-dark-400 text-xs sm:text-sm mt-1">{t('earlyWarningSubtitle')}</p>
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto animate-fade-in min-w-0">
+      {/* Top Banner & View Switcher Navigation */}
+      <div className="bg-white border border-slate-900 rounded-2xl p-4 sm:p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-50 to-orange-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0 shadow-xs">
+            <Bell className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 tracking-tight truncate">
+                {t('alerts')}
+              </h1>
+              <Badge variant={stats.active > 0 ? 'destructive' : 'success'} size="md">
+                {stats.active > 0 ? `${stats.active} Active Early Warnings` : 'All Clear'}
+              </Badge>
+            </div>
+            <p className="text-xs text-slate-500 font-medium mt-1 truncate">
+              {t('earlyWarningSubtitle') || 'Multi-level risk escalation, ground telemetry & response workflow'}
+            </p>
+          </div>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {[
-            { key: 'list', icon: List, label: t('alerts') },
-            { key: 'timeline', icon: Clock, label: t('timeline') },
-            { key: 'history', icon: History, label: t('thirtyDayTrend') },
-          ].map(({ key, icon: Icon, label }) => (
-            <button
-              key={key}
-              onClick={() => setView(key as any)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1 whitespace-nowrap min-h-[40px] ${
-                view === key
-                  ? 'bg-green-600/20 text-green-400 border border-green-600/30'
-                  : 'bg-dark-800 text-dark-400 border border-dark-700 hover:text-white'
-              }`}
-            >
-              <Icon className="w-3 h-3" /> {label}
-            </button>
-          ))}
+
+        {/* View Switcher Tabs */}
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+          <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs">
+            {[
+              { key: 'list', icon: List, label: 'Alert Stream' },
+              { key: 'timeline', icon: Clock, label: '72h Timeline' },
+              { key: 'history', icon: History, label: '30-Day Trend' },
+            ].map(({ key, icon: Icon, label }) => (
+              <button
+                key={key}
+                onClick={() => setView(key as any)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all select-none ${
+                  view === key
+                    ? 'bg-white text-sky-700 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchAlerts(true)}
+            disabled={refreshing}
+            className="text-slate-600 hover:text-sky-600 shrink-0 h-9"
+            title="Refresh alerts"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-sky-600' : ''}`} />
+            <span className="hidden md:inline ml-1.5">Refresh</span>
+          </Button>
         </div>
       </div>
 
-      {/* Alert Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      {/* KPI Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 min-w-0">
         {[
-          { label: t('totalAlerts'), value: stats.total, icon: Bell, color: 'from-blue-500 to-cyan-500' },
-          { label: t('active'), value: stats.active, icon: Radio, color: stats.active > 0 ? 'from-red-500 to-orange-500' : 'from-green-500 to-emerald-500', pulse: stats.active > 0 },
-          { label: t('criticalLevelShort'), value: stats.critical, icon: AlertTriangle, color: 'from-red-600 to-red-500' },
-          { label: t('highRiskLabel'), value: stats.high, icon: AlertTriangle, color: 'from-orange-500 to-amber-500' },
+          { label: t('totalAlerts') || 'Total Alerts', value: stats.total, sub: 'All recorded incidents', icon: Bell, color: 'text-sky-600 bg-sky-50 border-sky-200/80' },
+          { label: t('active') || 'Active Urgent', value: stats.active, sub: stats.active > 0 ? 'Requires intervention' : 'Zero active threats', icon: Radio, color: stats.active > 0 ? 'text-rose-600 bg-rose-50 border-rose-200/80' : 'text-emerald-600 bg-emerald-50 border-emerald-200/80', pulse: stats.active > 0 },
+          { label: t('criticalLevelShort') || 'Critical Risk', value: stats.critical, sub: 'Immediate life safety', icon: AlertTriangle, color: 'text-rose-600 bg-rose-50 border-rose-200/80' },
+          { label: t('highRiskLabel') || 'High Risk Watch', value: stats.high, sub: 'Slope deformation alert', icon: Zap, color: 'text-amber-600 bg-amber-50 border-amber-200/80' },
         ].map((card, i) => (
-          <div key={i} className={`glass rounded-xl p-3 sm:p-4 ${card.pulse ? 'pulse-alert' : ''}`}>
-            <div className="flex items-center gap-2 mb-1 sm:mb-2">
-              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center`}>
-                <card.icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+          <Card key={i} className="p-3.5 sm:p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-slate-500">{card.label}</span>
+              <div className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${card.color}`}>
+                <card.icon className="w-3.5 h-3.5" />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-white">{card.value}</p>
-            <p className="text-[10px] sm:text-xs text-dark-400">{card.label}</p>
-          </div>
+            <div>
+              <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
+                {card.value}
+                {card.pulse && <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />}
+              </div>
+              <div className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
+                {card.sub}
+              </div>
+            </div>
+          </Card>
         ))}
       </div>
 
-      {/* LIST VIEW */}
+      {/* Action Toast Feedback */}
+      {actionFeedback && (
+        <div className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 animate-fade-in ${
+          actionFeedback.type === 'success'
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+            : 'bg-rose-50 border-rose-200 text-rose-800'
+        }`}>
+          {actionFeedback.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
+          <span>{actionFeedback.message}</span>
+        </div>
+      )}
+
+      {/* ==================== 1. ALERT STREAM LIST VIEW ==================== */}
       {view === 'list' && (
-        <>
-          {/* Filters */}
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                <span className="text-xs text-dark-400 self-center whitespace-nowrap">{t('filterByStatus')}:</span>
-                {['all', 'active', 'acknowledged', 'resolved'].map((status) => (
+        <div className="space-y-4 min-w-0">
+          {/* Filters Toolbar */}
+          <Card className="p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 min-w-0">
+            {/* Status Filter */}
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
+              <span className="text-xs font-semibold text-slate-500 flex items-center gap-1 shrink-0">
+                <Filter className="w-3 h-3 text-slate-400" />
+                Status:
+              </span>
+              <div className="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200/80 text-xs">
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'active', label: `Active (${stats.active})` },
+                  { key: 'acknowledged', label: `Acknowledged (${stats.acknowledged})` },
+                  { key: 'resolved', label: `Resolved (${stats.resolved})` },
+                ].map(({ key, label }) => (
                   <button
-                    key={status}
-                    onClick={() => setFilter(status)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap min-h-[40px] ${
-                      filter === status
-                        ? 'bg-green-600/20 text-green-400 border border-green-600/30'
-                        : 'bg-dark-800 text-dark-400 border border-dark-700 hover:text-white'
+                    key={key}
+                    onClick={() => setFilter(key)}
+                    className={`px-2.5 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
+                      filter === key
+                        ? 'bg-white text-sky-700 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800'
                     }`}
                   >
-                    {status === 'all' ? t('all') : status === 'active' ? t('active') : status === 'acknowledged' ? t('acknowledged') : t('resolved')}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                <span className="text-xs text-dark-400 self-center whitespace-nowrap">{t('filterByRisk')}:</span>
-                {['all', 'critical', 'high', 'moderate', 'low'].map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setRiskFilter(level)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap min-h-[40px] ${
-                      riskFilter === level
-                        ? 'bg-green-600/20 text-green-400 border border-green-600/30'
-                        : 'bg-dark-800 text-dark-400 border border-dark-700 hover:text-white'
-                    }`}
-                  >
-                    {level === 'all' ? t('allLevels') : level === 'critical' ? t('criticalLevelShort') : level === 'high' ? t('highRisk') : level === 'moderate' ? t('moderateRisk') : t('lowRisk')}
+                    {label}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Alert List */}
+            {/* Risk Tier Filter */}
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
+              <span className="text-xs font-semibold text-slate-500 shrink-0">
+                Severity:
+              </span>
+              <div className="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200/80 text-xs">
+                {[
+                  { key: 'all', label: 'All Levels' },
+                  { key: 'critical', label: 'Critical' },
+                  { key: 'high', label: 'High' },
+                  { key: 'moderate', label: 'Moderate' },
+                  { key: 'low', label: 'Low' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setRiskFilter(key)}
+                    className={`px-2.5 py-1 rounded-md font-semibold text-[11px] transition-all select-none ${
+                      riskFilter === key
+                        ? 'bg-white text-sky-700 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* Alert Cards Stream */}
           {loading ? (
             <div className="flex justify-center py-12">
-              <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : alerts.length === 0 ? (
-            <div className="text-center py-12">
-              <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-              <p className="text-dark-400">{t('noAlertsFound')}</p>
-            </div>
+            <Card className="p-12 text-center">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-slate-900">{t('noAlertsFound') || 'No Alerts Matching Filter'}</h3>
+              <p className="text-xs text-slate-500 mt-1">All monitored stations are operating within safe geological tolerances.</p>
+              {(filter !== 'all' || riskFilter !== 'all') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setFilter('all'); setRiskFilter('all'); }}
+                  className="mt-3 text-xs"
+                >
+                  Reset Filters
+                </Button>
+              )}
+            </Card>
           ) : (
             <div className="space-y-3">
               {alerts.map((alert) => {
-                const style = RISK_STYLES[alert.risk_level] || RISK_STYLES.low;
+                const riskKey = (alert.risk_level || 'low').toLowerCase();
+                const config = RISK_CONFIG[riskKey] || RISK_CONFIG.low;
+
                 return (
-                   <div
-                     key={alert.id}
-                     className={`glass rounded-xl p-3 sm:p-5 border ${style.border} ${style.bg} transition-smooth`}
-                   >
-                     <div className="flex flex-col gap-3">
-                       <div className="flex items-start gap-3">
-                         <span className="text-base sm:text-lg">{style.icon}</span>
-                         <div className="flex-1 min-w-0">
-                           <h3 className="font-semibold text-white text-sm sm:text-base">{alert.title}</h3>
-                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-dark-400 mt-1">
-                             <span className={`px-1.5 py-0.5 rounded-full ${style.bg} ${style.text} font-medium border ${style.border}`}>
-                               {alert.risk_level.toUpperCase()}
-                             </span>
-                             <span className="flex items-center gap-1">
-                               <Clock className="w-3 h-3" />
-                               {new Date(alert.created_at).toLocaleString()}
-                             </span>
-                             <span className="flex items-center gap-1">
-                               <MapPin className="w-3 h-3" />
-                               {alert.station_id}
-                             </span>
-                             {alert.affected_population > 0 && (
-                               <span className="flex items-center gap-1">
-                                 <Users className="w-3 h-3" />
-                                 {alert.affected_population.toLocaleString()} {t('people')}
-                               </span>
-                             )}
-                           </div>
-                         </div>
-                       </div>
+                  <Card
+                    key={alert.id}
+                    className="p-4 sm:p-5 hover:border-black transition-all flex flex-col justify-between gap-3.5"
+                  >
+                    {/* Top Alert Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <span className={`w-3 h-3 rounded-full mt-1 shrink-0 ${config.dot}`} />
+                        <div className="min-w-0">
+                          <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                            {alert.title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-medium mt-1">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              {new Date(alert.created_at).toLocaleString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-slate-400" />
+                              <strong className="text-slate-700">{alert.station_id}</strong>
+                            </span>
+                            {alert.affected_population > 0 && (
+                              <span className="flex items-center gap-1">
+                                <Users className="w-3 h-3 text-slate-400" />
+                                <strong className="text-slate-700">{alert.affected_population.toLocaleString()}</strong> residents
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
 
-                       <p className="text-xs sm:text-sm text-dark-300 ml-0 sm:ml-8">{alert.message}</p>
+                      {/* Status & Severity Badges */}
+                      <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                        <Badge variant={config.badgeVariant} size="sm" className="font-bold uppercase tracking-wider">
+                          {alert.risk_level}
+                        </Badge>
+                        <Badge
+                          variant={alert.status === 'active' ? 'destructive' : alert.status === 'acknowledged' ? 'warning' : 'success'}
+                          size="sm"
+                          className="capitalize"
+                        >
+                          {alert.status}
+                        </Badge>
+                      </div>
+                    </div>
 
-                       {/* Actions */}
-                       <div className="flex flex-wrap items-center gap-2 ml-0 sm:ml-8">
+                    {/* Alert Message Box */}
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50/90 p-3 rounded-xl border border-slate-100 font-medium">
+                      {alert.message}
+                    </p>
+
+                    {/* Operational Action Workflow Buttons */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 text-xs">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {alert.status === 'active' && canAcknowledge && (
                           <>
-                            <button
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => handleAcknowledge(alert.id)}
-                              className="px-3 py-1.5 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 text-xs font-medium hover:bg-amber-600/30 transition-all"
+                              className="text-xs font-semibold text-amber-800 border-amber-300 hover:bg-amber-50 h-8"
                             >
-                              <CheckCircle className="w-3 h-3 inline mr-1" />
-                              {t('acknowledge')}
-                            </button>
+                              <CheckCircle className="w-3.5 h-3.5 mr-1 text-amber-600" />
+                              {t('acknowledge') || 'Acknowledge Alert'}
+                            </Button>
                             {canResolve && (
-                              <button
+                              <Button
+                                size="sm"
+                                variant="sky"
                                 onClick={() => handleResolve(alert.id)}
-                                className="px-3 py-1.5 rounded-lg bg-green-600/20 text-green-400 border border-green-600/30 text-xs font-medium hover:bg-green-600/30 transition-all"
+                                className="text-xs font-semibold text-emerald-700 bg-emerald-50 border-emerald-300 hover:bg-emerald-100 h-8"
                               >
-                                <XCircle className="w-3 h-3 inline mr-1" />
-                                {t('resolve')}
-                              </button>
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                                {t('resolve') || 'Resolve & Clear'}
+                              </Button>
                             )}
                           </>
                         )}
                         {alert.status === 'acknowledged' && (
-                          <span className="px-3 py-1.5 rounded-lg bg-amber-600/10 text-amber-400 border border-amber-600/20 text-xs font-medium">
-                            ⏳ {t('acknowledged')}
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
+                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            Acknowledged by Response Unit
                           </span>
                         )}
                         {alert.status === 'resolved' && (
-                          <span className="px-3 py-1.5 rounded-lg bg-green-600/10 text-green-400 border border-green-600/20 text-xs font-medium">
-                            ✅ {t('resolved')}
-                          </span>                        )}
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            Resolved & Mitigated
+                          </span>
+                        )}
                       </div>
-                      {actionFeedback?.id === alert.id && (
-                        <div className={`w-full mt-2 px-3 py-1.5 rounded-lg text-xs font-medium ${
-                          actionFeedback.type === 'success'
-                            ? 'bg-green-600/10 text-green-400 border border-green-600/20'
-                            : 'bg-red-600/10 text-red-400 border border-red-600/20'
-                        }`}>
-                          {actionFeedback.type === 'success' ? '✓' : '✗'} {actionFeedback.message}
-                        </div>
-                      )}
+
+                      <a
+                        href={`#/station/${alert.station_id}`}
+                        className="text-sky-600 hover:text-sky-800 font-bold flex items-center gap-1 text-xs hover:underline ml-auto"
+                      >
+                        <span>View Station Telemetry</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </a>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
           )}
-        </>
+        </div>
       )}
 
-
-      {/* TIMELINE VIEW */}
+      {/* ==================== 2. 72-HOUR TIMELINE VIEW ==================== */}
       {view === 'timeline' && (
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           {timelineSummary && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <div className="glass rounded-xl p-3 text-center">
-                <p className="text-xl font-bold text-white">{timelineSummary.total_alerts}</p>
-                <p className="text-xs text-dark-400">{t('totalAlerts')} (72h)</p>
-              </div>
-              <div className="glass rounded-xl p-3 text-center">
-                <p className="text-xl font-bold text-red-400">{timelineSummary.critical_count}</p>
-                <p className="text-xs text-dark-400">{t('criticalLevelShort')}</p>
-              </div>
-              <div className="glass rounded-xl p-3 text-center">
-                <p className="text-xl font-bold text-orange-400">{timelineSummary.high_count}</p>
-                <p className="text-xs text-dark-400">{t('highRiskLabel')}</p>
-              </div>
-              <div className="glass rounded-xl p-3 text-center">
-                <p className="text-xl font-bold text-amber-400">{timelineSummary.moderate_count}</p>
-                <p className="text-xs text-dark-400">{t('moderateRisk')}</p>
-              </div>
-              <div className="glass rounded-xl p-3 text-center">
-                <p className="text-xl font-bold text-white">{timelineSummary.total_affected_population?.toLocaleString()}</p>
-                <p className="text-xs text-dark-400">{t('peopleAffected')}</p>
-              </div>
+              {[
+                { label: 'Total Incidents (72h)', value: timelineSummary.total_alerts, color: 'text-slate-900' },
+                { label: 'Critical Escalations', value: timelineSummary.critical_count, color: 'text-rose-600' },
+                { label: 'High Risk Events', value: timelineSummary.high_count, color: 'text-orange-600' },
+                { label: 'Moderate Alerts', value: timelineSummary.moderate_count, color: 'text-amber-600' },
+                { label: 'Affected Residents', value: timelineSummary.total_affected_population?.toLocaleString() || 0, color: 'text-sky-700' },
+              ].map((item, i) => (
+                <Card key={i} className="p-3 text-center">
+                  <span className={`text-lg sm:text-xl font-bold ${item.color} block`}>{item.value}</span>
+                  <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5">{item.label}</span>
+                </Card>
+              ))}
             </div>
           )}
+
           {timeline.length === 0 ? (
-            <div className="text-center py-12">
-              <Clock className="w-12 h-12 text-dark-500 mx-auto mb-3" />
-              <p className="text-dark-400">{t('noData')}</p>
-            </div>
+            <Card className="p-12 text-center">
+              <Clock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-slate-800">{t('noData') || 'No Timeline Incidents in 72h'}</h3>
+              <p className="text-xs text-slate-500 mt-1">No recorded telemetry spikes or hazard trigger events.</p>
+            </Card>
           ) : (
-            <div className="relative pl-8">
-              {/* Timeline line */}
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-dark-700" />
+            <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
               {timeline.map((entry, idx) => {
-                const style = RISK_STYLES[entry.max_risk] || RISK_STYLES.low;
+                const riskKey = (entry.max_risk || 'low').toLowerCase();
+                const config = RISK_CONFIG[riskKey] || RISK_CONFIG.low;
+
                 return (
-                  <div key={idx} className="relative mb-6">
-                    {/* Timeline dot */}
-                    <div className={`absolute -left-6 top-2 w-4 h-4 rounded-full border-2 ${
-                      entry.max_risk === 'critical' ? 'bg-red-500 border-red-400' :
-                      entry.max_risk === 'high' ? 'bg-orange-500 border-orange-400' :
-                      entry.max_risk === 'moderate' ? 'bg-amber-500 border-amber-400' :
-                      'bg-green-500 border-green-400'
-                    }`} />
-                    <div className={`glass rounded-xl p-4 border ${style.border}`}>
-                      <div className="flex items-center justify-between mb-2">
+                  <div key={idx} className="relative">
+                    {/* Node Dot */}
+                    <div className={`absolute -left-6 sm:-left-8 top-3 w-4 h-4 rounded-full border-2 border-white shadow-xs ${config.dot}`} />
+
+                    <Card className="p-4 hover:border-slate-400 transition-all">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 pb-2 border-b border-slate-100">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-white">{entry.timestamp}</span>
-                          <span className="text-xs text-dark-400">• {entry.alerts.length} alerts</span>
+                          <span className="text-xs sm:text-sm font-bold text-slate-900">{entry.timestamp}</span>
+                          <span className="text-[11px] text-slate-500 font-medium">• {entry.alerts.length} alerts</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${style.bg} ${style.text} border ${style.border}`}>
-                            {entry.max_risk.toUpperCase()}
-                          </span>
-                          <span className="text-xs text-dark-400">
-                            👥 {entry.total_affected.toLocaleString()} {t('peopleAffected')}
+                          <Badge variant={config.badgeVariant} size="sm" className="font-bold uppercase">
+                            {entry.max_risk}
+                          </Badge>
+                          <span className="text-xs text-slate-500 font-semibold">
+                            👥 {entry.total_affected.toLocaleString()} affected
                           </span>
                         </div>
                       </div>
-                      <div className="space-y-1">
+
+                      <div className="space-y-1.5">
                         {entry.alerts.map((alert, ai) => (
-                          <div key={ai} className="flex items-center gap-2 text-xs">
-                            <span>{RISK_STYLES[alert.risk_level]?.icon}</span>
-                            <span className="text-dark-300">{alert.title}</span>
-                            <span className="text-dark-500">({alert.station_id})</span>
-                            {alert.status === 'resolved' && <CheckCircle className="w-3 h-3 text-green-400" />}
+                          <div key={ai} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${RISK_CONFIG[alert.risk_level?.toLowerCase()]?.dot || 'bg-slate-400'}`} />
+                              <span className="font-semibold text-slate-800 truncate">{alert.title}</span>
+                              <span className="text-slate-400 font-mono">({alert.station_id})</span>
+                            </div>
+                            {alert.status === 'resolved' && (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 ml-2" />
+                            )}
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </Card>
                   </div>
                 );
               })}
@@ -392,48 +519,73 @@ export default function Alerts() {
         </div>
       )}
 
-      {/* HISTORY / TREND VIEW */}
+      {/* ==================== 3. 30-DAY TREND ANALYTICS ==================== */}
       {view === 'history' && (
-        <div className="space-y-6">
-          <div className="glass rounded-xl p-6">
-            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-green-400" />
-              {t('thirtyDayTrend')}
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={historyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 10 }} />
-                <YAxis stroke="#64748b" tick={{ fontSize: 10 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
-                  labelStyle={{ color: '#fff' }}
-                />
-                <Area type="monotone" dataKey="critical" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} name={t('criticalRisk')} />
-                <Area type="monotone" dataKey="high" stackId="1" stroke="#f97316" fill="#f97316" fillOpacity={0.3} name={t('highRisk')} />
-                <Area type="monotone" dataKey="moderate" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.3} name={t('moderateRisk')} />
-                <Area type="monotone" dataKey="low" stackId="1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} name={t('lowRisk')} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="glass rounded-xl p-6">
-            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-blue-400" />
-              {t('dailyAlertCount')}
-            </h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={historyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 10 }} />
-                <YAxis stroke="#64748b" tick={{ fontSize: 10 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
-                  labelStyle={{ color: '#fff' }}
-                />
-                <Bar dataKey="total" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('totalAlerts')} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="space-y-4 sm:space-y-6 min-w-0">
+          <Card className="p-4 sm:p-5">
+            <CardHeader className="p-0 pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm sm:text-base truncate">
+                    {t('thirtyDayTrend') || '30-Day Multi-Risk Evolution'}
+                  </CardTitle>
+                  <CardDescription className="truncate">
+                    Historical hazard frequency by severity tier
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 pt-2">
+              <div className="w-full h-[260px] sm:h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 9 }} />
+                    <YAxis stroke="#94a3b8" tick={{ fontSize: 9 }} />
+                    <Tooltip content={<CustomChartTooltip />} />
+                    <Area type="monotone" dataKey="critical" stackId="1" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.4} name="Critical" />
+                    <Area type="monotone" dataKey="high" stackId="1" stroke="#f97316" fill="#f97316" fillOpacity={0.4} name="High Risk" />
+                    <Area type="monotone" dataKey="moderate" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.4} name="Moderate" />
+                    <Area type="monotone" dataKey="low" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.4} name="Low Risk" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="p-4 sm:p-5">
+            <CardHeader className="p-0 pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200/80 flex items-center justify-center text-sky-600 shrink-0">
+                  <BarChart3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm sm:text-base truncate">
+                    {t('dailyAlertCount') || 'Daily Alert Volume Distribution'}
+                  </CardTitle>
+                  <CardDescription className="truncate">
+                    Total aggregated incidents recorded per day
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 pt-2">
+              <div className="w-full h-[220px] sm:h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={historyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 9 }} />
+                    <YAxis stroke="#94a3b8" tick={{ fontSize: 9 }} />
+                    <Tooltip content={<CustomChartTooltip />} />
+                    <Bar dataKey="total" fill="#0284c7" radius={[4, 4, 0, 0]} name="Total Daily Alerts" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

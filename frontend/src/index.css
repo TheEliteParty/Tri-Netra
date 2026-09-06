@@ -8,55 +8,53 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: light;
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #020617;
-  color: #e2e8f0;
+  background-color: #f8fafc;
+  color: #0f172a;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* Custom light-theme scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }
 
-/* Leaflet map overrides */
+/* Leaflet map overrides - Light Mode */
 .leaflet-container {
-  background: #0f172a !important;
+  background: #f0f9ff !important;
   border-radius: 12px;
   font-family: 'Inter', sans-serif;
 }
 
-/* Dark filter for OSM tiles — strong filter washes out tile text labels
-   so our own translated UI overlays (markers, legend, popups) stand out */
-.dark-tiles {
-  filter: brightness(0.55) invert(1) contrast(3.5) hue-rotate(200deg) saturate(0.15) brightness(0.6);
-}
-
 .leaflet-popup-content-wrapper {
-  background: rgba(15, 23, 42, 0.95) !important;
-  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.98) !important;
+  color: #0f172a !important;
   border-radius: 12px;
-  border: 1px solid #334155;
+  border: 1px solid #e2e8f0;
   backdrop-filter: blur(12px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
 }
 
 .leaflet-popup-tip {
-  background: rgba(15, 23, 42, 0.95) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
 }
 
 .leaflet-popup-close-button {
@@ -64,152 +62,81 @@ body {
 }
 
 .leaflet-popup-close-button:hover {
-  color: #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 /* Pulse animations */
-@keyframes pulse-green {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+@keyframes pulse-sky {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
 }
 
 @keyframes pulse-red {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
 }
 
 .pulse-alert {
   animation: pulse-red 2s ease-in-out infinite;
 }
 
-.pulse-green {
-  animation: pulse-green 2s ease-in-out infinite;
+.pulse-sky {
+  animation: pulse-sky 2s ease-in-out infinite;
 }
 
-/* Gradient backgrounds */
+/* Subtle light gradients */
 .gradient-bg {
-  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%);
 }
 
-/* Risk level badges */
-.risk-low { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.risk-moderate { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.risk-high { background: linear-gradient(135deg, #f97316, #ea580c); }
-.risk-critical { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.sky-gradient-text {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-/* Glass morphism */
+/* Clean glass cards */
 .glass {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.glass::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-  transition: left 0.5s;
-}
-
-.glass:hover::before {
-  left: 100%;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass:hover {
-  border-color: rgba(34, 197, 94, 0.3);
-  background: rgba(15, 23, 42, 0.7);
-  box-shadow: 0 0 30px rgba(34, 197, 94, 0.08);
+  border-color: #bae6fd;
+  box-shadow: 0 10px 25px -3px rgba(14, 165, 233, 0.08), 0 4px 6px -4px rgba(14, 165, 233, 0.04);
 }
 
-/* Smooth transitions */
+/* Risk level pill badges */
+.risk-low { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.risk-moderate { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.risk-high { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+.risk-critical { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+/* Transitions & Animations */
 .transition-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Number animation */
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(4px); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-count {
-  animation: countUp 0.5s ease-out;
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Shimmer loading effect */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.shimmer {
-  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-/* Glow effects */
-.glow-green {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15), 0 0 60px rgba(34, 197, 94, 0.05);
-}
-
-.glow-red {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15), 0 0 60px rgba(239, 68, 68, 0.05);
-}
-
-.glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15), 0 0 60px rgba(59, 130, 246, 0.05);
-}
-
-/* Futuristic grid background */
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-/* Neon glow text */
-.neon-green {
-  text-shadow: 0 0 10px rgba(34, 197, 94, 0.5), 0 0 40px rgba(34, 197, 94, 0.2);
-}
-
-.neon-red {
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.2);
-}
-
-/* Animated gradient border */
-@keyframes gradientBorder {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.gradient-border {
-  background: linear-gradient(135deg, #22c55e, #3b82f6, #8b5cf6, #22c55e);
-  background-size: 300% 300%;
-  animation: gradientBorder 4s ease infinite;
-  padding: 1px;
-  border-radius: 12px;
-}
-
-.gradient-border > * {
-  background: #0f172a;
-  border-radius: 11px;
-}
-
-/* Map marker animations */
-@keyframes markerPulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 0.8; }
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Chart tooltip styling */
@@ -217,76 +144,24 @@ body {
   outline: none !important;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #22c55e, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Subtle grid dots for hero / light background */
+.dot-grid {
+  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Animated border */
-@keyframes borderGlow {
-  0%, 100% { border-color: rgba(34, 197, 94, 0.2); }
-  50% { border-color: rgba(34, 197, 94, 0.5); }
+/* Selection color */
+::selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: #0369a1;
 }
 
-.animate-border-glow {
-  animation: borderGlow 3s ease-in-out infinite;
+/* Light inputs */
+input, textarea, select {
+  color-scheme: light;
 }
 
-/* Fade in animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
-}
-
-/* Slide in animation */
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.animate-slide-in {
-  animation: slideInLeft 0.3s ease-out;
-}
-
-/* Scale in animation */
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
-}
-
-/* Risk bar animation */
-@keyframes riskBar {
-  from { width: 0; }
-}
-
-.animate-risk-bar {
-  animation: riskBar 1s ease-out;
-}
-
-/* Live dot animation */
-@keyframes liveDot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
-}
-
-.animate-live-dot {
-  animation: liveDot 2s ease-in-out infinite;
-}
-
-/* ==================== MOBILE / ANDROID FUTURISTIC ==================== */
-
-/* Status bar and safe area for notched phones */
+/* Safe area for mobile */
 @supports (padding-top: env(safe-area-inset-top)) {
   body {
     padding-top: env(safe-area-inset-top);
@@ -294,220 +169,3 @@ body {
   }
 }
 
-/* Capacitor / Cordova mobile optimizations */
-@media (max-width: 768px) {
-  .glass {
-    background: rgba(10, 15, 26, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  .glass:hover::before {
-    left: -100%;
-  }
-
-  .glass:active {
-    transform: scale(0.98);
-    background: rgba(34, 197, 94, 0.08);
-    transition: transform 0.1s;
-  }
-
-  /* Mobile haptic-like feedback for interactive elements */
-  button:active, a:active, [role="button"]:active {
-    transform: scale(0.97);
-    transition: transform 0.05s;
-  }
-
-  /* Mobile sidebar overlay */
-  aside {
-    z-index: 50;
-  }
-
-  /* Mobile risk badges pulse more visible */
-  .risk-critical {
-    animation: mobilePulseCritical 1.5s ease-in-out infinite;
-  }
-
-  @keyframes mobilePulseCritical {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-    50% { box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.2); }
-  }
-}
-
-/* Capacitor splash screen transition */
-.capacitor-ready body {
-  animation: splashFadeIn 0.6s ease-out;
-}
-
-@keyframes splashFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Mobile bottom safe area */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .mobile-bottom-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-/* Haptic press feedback for touch devices */
-@media (hover: none) and (pointer: coarse) {
-  .glass:active {
-    transform: scale(0.985);
-  }
-
-  button:active {
-    opacity: 0.85;
-  }
-}
-
-/* Neon flicker for critical alerts on mobile */
-@keyframes neonFlicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    text-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.4), 0 0 80px rgba(239, 68, 68, 0.2);
-  }
-  20%, 24%, 55% {
-    text-shadow: none;
-  }
-}
-
-.neon-flicker {
-  animation: neonFlicker 3s infinite;
-}
-
-/* Mobile chart touch optimization */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  stroke: rgba(34, 197, 94, 0.08);
-}
-
-/* 3D tilt effect for cards on hover (desktop) */
-@media (hover: hover) {
-  .tilt-card {
-    perspective: 1000px;
-    transform-style: preserve-3d;
-  }
-  .tilt-card:hover {
-    transform: rotateY(2deg) rotateX(1deg);
-    transition: transform 0.3s;
-  }
-}
-
-/* Animated scan line for futuristic feel */
-@keyframes scanLine {
-  0% { top: -2px; }
-  100% { top: 100%; }
-}
-
-.scan-line::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.3), transparent);
-  animation: scanLine 4s linear infinite;
-  pointer-events: none;
-}
-
-/* Matrix rain effect for background */
-@keyframes matrixRain {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 0% 100%; }
-}
-
-.matrix-bg {
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 30px,
-      rgba(34, 197, 94, 0.015) 30px,
-      rgba(34, 197, 94, 0.015) 31px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 30px,
-      rgba(34, 197, 94, 0.015) 30px,
-      rgba(34, 197, 94, 0.015) 31px
-    );
-  animation: matrixRain 20s linear infinite;
-}
-
-/* Radar sweep for monitoring indicator */
-@keyframes radarSweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.radar-sweep {
-  animation: radarSweep 3s linear infinite;
-}
-
-/* Hexagon pattern overlay */
-.hex-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2322c55e' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* Print styles */
-@media print {
-  aside { display: none; }
-  main { margin: 0; padding: 1rem; }
-}
-
-/* Dark theme inputs */
-input, textarea, select {
-  color-scheme: dark;
-}
-
-/* Selection color */
-::selection {
-  background: rgba(34, 197, 94, 0.3);
-  color: #ffffff;
-}
-
-/* Futuristic scrollbar for sidebar */
-nav::-webkit-scrollbar {
-  width: 3px;
-}
-nav::-webkit-scrollbar-thumb {
-  background: rgba(34, 197, 94, 0.3);
-  border-radius: 3px;
-}
-
-/* Holographic effect for cards */
-@keyframes holo {
-  0% { background-position: 0% 0%; }
-  50% { background-position: 100% 100%; }
-  100% { background-position: 0% 0%; }
-}
-
-.holo-effect {
-  background: linear-gradient(135deg, 
-    rgba(34, 197, 94, 0.05), 
-    rgba(59, 130, 246, 0.05), 
-    rgba(139, 92, 246, 0.05), 
-    rgba(34, 197, 94, 0.05));
-  background-size: 400% 400%;
-  animation: holo 8s ease infinite;
-}
-
-/* Data stream effect */
-@keyframes dataStream {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 0% 100%; }
-}
-
-.data-stream {
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 20px,
-    rgba(34, 197, 94, 0.03) 20px,
-    rgba(34, 197, 94, 0.03) 21px
-  );
-  background-size: 100% 42px;
-  animation: dataStream 2s linear infinite;
-}

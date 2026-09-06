@@ -1,4 +1,4 @@
-# 🚀 GeoShield Deployment Guide
+# 🚀 Tri-Netra Deployment Guide
 
 ## Option 1: Railway (Recommended — Free Tier)
 
@@ -26,17 +26,17 @@ https://your-app-name.up.railway.app/api/health
 2. Click **"New"** → **"Web Service"**
 3. Connect `mohitsharmaa21/Tri-Netra`
 4. Configure:
-   - **Name:** geoshield
+   - **Name:** trinetra
    - **Runtime:** Python 3
    - **Build Command:** `cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt`
    - **Start Command:** `cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT`
    - **Port:** 8000
 5. Click **"Create Web Service"**
-6. Your app will be live at `https://geoshield.onrender.com`
+6. Your app will be live at `https://trinetra.onrender.com`
 
 ### Verify:
 ```
-https://geoshield.onrender.com/api/health
+https://trinetra.onrender.com/api/health
 ```
 
 ---
@@ -45,7 +45,7 @@ https://geoshield.onrender.com/api/health
 
 ```bash
 git clone https://github.com/mohitsharmaa21/Tri-Netra.git
-cd GeoShield
+cd Tri-Netra
 bash deploy.sh
 # Opens at http://localhost:8000
 ```
@@ -55,8 +55,8 @@ bash deploy.sh
 ## Option 4: Docker
 
 ```bash
-docker build -t geoshield .
-docker run -p 8000:8000 geoshield
+docker build -t trinetra .
+docker run -p 8000:8000 trinetra
 # Opens at http://localhost:8000
 ```
 

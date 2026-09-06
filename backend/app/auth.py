@@ -1,5 +1,5 @@
 """
-JWT Authentication for GeoShield API.
+JWT Authentication for Tri-Netra API.
 Provides token creation, verification, and FastAPI dependency injection.
 """
 import os
@@ -10,7 +10,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # Secret key for JWT signing — in production, use a proper secret manager
-JWT_SECRET = os.getenv("JWT_SECRET", "geoshield-dev-secret-change-in-production")
+JWT_SECRET = os.getenv("JWT_SECRET", "trinetra-dev-secret-change-in-production")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24
 
@@ -29,10 +29,10 @@ security = HTTPBearer(auto_error=False)
 # Demo user database (in production, use a real DB with hashed passwords)
 # Passwords are hashed with bcrypt
 DEMO_USERS = {
-    "admin@geoshield.gov.in": {"password_hash": _hash_password("admin123"), "name": "Admin", "role": "admin"},
-    "field@geoshield.gov.in": {"password_hash": _hash_password("field123"), "name": "Field Officer", "role": "field_officer"},
-    "district@geoshield.gov.in": {"password_hash": _hash_password("district123"), "name": "District Admin", "role": "district_admin"},
-    "citizen@geoshield.gov.in": {"password_hash": _hash_password("demo123"), "name": "Citizen", "role": "citizen"},
+    "admin@trinetra.gov.in": {"password_hash": _hash_password("admin123"), "name": "Admin", "role": "admin"},
+    "field@trinetra.gov.in": {"password_hash": _hash_password("field123"), "name": "Field Officer", "role": "field_officer"},
+    "district@trinetra.gov.in": {"password_hash": _hash_password("district123"), "name": "District Admin", "role": "district_admin"},
+    "citizen@trinetra.gov.in": {"password_hash": _hash_password("demo123"), "name": "Citizen", "role": "citizen"},
 }
 
 

@@ -1,5 +1,5 @@
 /**
- * GeoShield Electron Desktop App
+ * Tri-Netra Electron Desktop App
  * Auto-starts the Python backend and loads the frontend.
  */
 const { app, BrowserWindow, ipcMain } = require('electron');
@@ -18,7 +18,7 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 700,
     backgroundColor: '#0a0f1a',
-    title: 'GeoShield — Landslide Risk Monitoring',
+    title: 'Tri-Netra — Landslide Risk Monitoring',
     icon: path.join(__dirname, '..', 'branding', 'team_logo.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -45,7 +45,7 @@ function startBackend() {
   const backendDir = path.join(__dirname, '..', 'backend');
   const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
 
-  console.log('[GeoShield] Starting backend...');
+  console.log('[Tri-Netra] Starting backend...');
   backendProcess = spawn(pythonCmd, [
     '-m', 'uvicorn', 'app.main:app',
     '--host', '127.0.0.1',
@@ -64,13 +64,13 @@ function startBackend() {
   });
 
   backendProcess.on('close', (code) => {
-    console.log(`[GeoShield] Backend exited with code ${code}`);
+    console.log(`[Tri-Netra] Backend exited with code ${code}`);
   });
 }
 
 function stopBackend() {
   if (backendProcess) {
-    console.log('[GeoShield] Stopping backend...');
+    console.log('[Tri-Netra] Stopping backend...');
     backendProcess.kill();
     backendProcess = null;
   }
@@ -86,7 +86,7 @@ function waitForBackend(retries = 30, delay = 1000) {
       attempts++;
       const req = http.get(`${BACKEND_URL}/api/health`, (res) => {
         if (res.statusCode === 200) {
-          console.log('[GeoShield] Backend ready!');
+          console.log('[Tri-Netra] Backend ready!');
           resolve();
         } else {
           retry();
@@ -115,7 +115,7 @@ app.whenReady().then(async () => {
   try {
     await waitForBackend();
   } catch (err) {
-    console.error('[GeoShield] Backend failed to start:', err.message);
+    console.error('[Tri-Netra] Backend failed to start:', err.message);
   }
 
   createWindow();
