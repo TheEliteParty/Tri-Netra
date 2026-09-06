@@ -4,8 +4,8 @@
 
 # 🛡️ Tri-Netra
 
-### AI-Based Early Warning & Landslide Risk Monitoring System
-**North Eastern Region, India — Smart India Hackathon 2026**
+### Pan-India AI-Based Early Warning & Multi-Hazard Landslide Risk Monitoring System
+**Pan-India (Western Ghats, NW Himalayas, NER, Eastern Ghats) — Smart India Hackathon 2026**
 
 ![SIH 2026](https://img.shields.io/badge/SIH-2026-green?style=for-the-badge)
 ![Problem ID](https://img.shields.io/badge/Problem_ID-26001-blue?style=for-the-badge)
@@ -139,16 +139,16 @@ Landslides in NER are caused by a complex interplay of **geological, meteorologi
 
 ### Tri-Netra — A Complete Monitoring Platform
 
-Tri-Netra is a **full-stack AI-powered landslide monitoring system** designed specifically for the North Eastern Region. It combines **real-time sensor data**, **satellite imagery**, **machine learning prediction**, and **multilingual early warning** into a single unified platform.
+Tri-Netra is a **full-stack AI-powered landslide and multi-hazard monitoring system** covering all 4 major landslide-prone belts of India (Western Ghats, North-West Himalayas, North-East NER, and Eastern Ghats). It combines **real-time sensor data**, **satellite imagery**, **machine learning prediction**, and **multilingual early warning** into a single unified platform.
 
 ### 6 Core Capabilities
 
 | # | Capability | Description | Technology |
 |---|------------|-------------|------------|
-| 1 | **Real-Time Monitoring** | 20 IoT sensor stations across 8 NER states collecting rainfall, soil moisture, ground displacement, tilt, and pore pressure data | FastAPI + SQLite |
+| 1 | **Real-Time Monitoring** | 28 Real-Time IoT & Satellite Stations across 15 States and UTs collecting rainfall, soil moisture, ground displacement, tilt, and pore pressure data | FastAPI + SQLite |
 | 2 | **AI Risk Prediction** | RF+GB VotingClassifier ensemble (95.2% accuracy, 94.6% F1) trained on 12,000 real NER terrain samples | scikit-learn |
 | 3 | **Early Warning System** | Multi-level alert framework (Low → Moderate → High → Critical) with automatic SMS/push notification support | WebSocket + REST |
-| 4 | **GIS Risk Mapping** | Interactive Leaflet.js heatmaps showing real-time risk distribution, road status, village locations, and sensor stations | Leaflet.js |
+| 4 | **GIS Risk Mapping** | 13-Layer Interactive Leaflet.js GIS Map with On-Demand Sentinel-2/GEE AI Scarp Scanning, Highway Corridors, Relief Shelters, and GSI Historical Records | Leaflet.js |
 | 5 | **Citizen Reporting** | Geo-tagged photo/video reporting system for field officers and local residents with offline queue support | React + FastAPI |
 | 6 | **Multilingual UI** | Full interface translation in English, Hindi, Bengali, and Assamese covering all 90+ UI strings | i18n system |
 
