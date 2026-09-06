@@ -1,10 +1,10 @@
 #!/bin/bash
-# GeoShield Deployment Script
+# Tri-Netra Deployment Script
 # Quick setup and run
 
 set -e
 
-echo "🛡️  GeoShield - Deploying..."
+echo "🛡️  Tri-Netra - Deploying..."
 echo "================================"
 
 # Check Python
@@ -67,9 +67,9 @@ cd ..
 
 # ── Start ────────────────────────────────────────────────
 echo ""
-echo "🚀 Starting GeoShield on port 8000..."
+echo "🚀 Starting Tri-Netra on port 8000..."
 echo "   Open http://localhost:8000 in your browser"
-echo "   Login: admin@geoshield.gov.in / admin123"
+echo "   Login: admin@trinetra.gov.in / admin123"
 echo "   Press Ctrl+C to stop"
 echo ""
 

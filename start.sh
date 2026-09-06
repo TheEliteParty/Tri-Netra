@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "🛡️  GeoShield - Starting Server..."
+echo "🛡️  Tri-Netra - Starting Server..."
 echo "=================================="
 
 cd "$(dirname "$0")/backend"
@@ -24,9 +24,9 @@ for i in $(seq 1 30); do
         echo "   📊 API docs: http://localhost:8000/docs"
         echo ""
         echo "   Demo logins:"
-        echo "   - admin@geoshield.gov.in / admin123"
-        echo "   - field@geoshield.gov.in / field123"
-        echo "   - citizen@geoshield.gov.in / demo123"
+        echo "   - admin@trinetra.gov.in / admin123"
+        echo "   - field@trinetra.gov.in / field123"
+        echo "   - citizen@trinetra.gov.in / demo123"
         echo ""
         echo "   Press Ctrl+C to stop the server"
         wait $SERVER_PID

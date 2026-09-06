@@ -1,10 +1,10 @@
 @echo off
-title GeoShield - Landslide Risk Monitoring System
+title Tri-Netra - Landslide Risk Monitoring System
 echo.
 echo ============================================
-echo   GeoShield - Starting Application
+echo   Tri-Netra - Starting Application
 echo   AI-Based Landslide Risk Monitoring
-echo   North Eastern Region, India
+echo   North Eastern Region & Pan-India
 echo ============================================
 echo.
 
@@ -48,12 +48,12 @@ cd frontend
 call npm run build
 cd ..
 
-echo [5/5] Starting GeoShield server...
+echo [5/5] Starting Tri-Netra server...
 echo.
 echo ============================================
-echo   GeoShield is running!
+echo   Tri-Netra is running!
 echo   Open: http://localhost:8000
-echo   Login: admin@geoshield.gov.in / admin123
+echo   Login: admin@trinetra.gov.in / admin123
 echo   Press Ctrl+C to stop
 echo ============================================
 echo.

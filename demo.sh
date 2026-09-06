@@ -1,15 +1,15 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════════════
-# GeoShield Live Demo Script for SIH 2026 Judges
+# Tri-Netra Live Demo Script for SIH 2026 Judges
 # Polished 3-minute walkthrough
 # ════════════════════════════════════════════════════════════════
 set -e
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║          🛡️  GeoShield Live Demo — SIH 2026                ║"
+echo "║          🛡️  Tri-Netra Live Demo — SIH 2026                ║"
 echo "║     AI-Based Landslide Risk Monitoring System              ║"
-echo "║         North Eastern Region, India                        ║"
+echo "║         North Eastern Region & Pan-India                   ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 
