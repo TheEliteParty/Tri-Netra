@@ -21,15 +21,20 @@ const isMobile = () => {
   } catch { return false; }
 };
 
-// For Electron/mobile: use localhost (backend runs locally)
-// For web: use relative URL (same origin)
+// For Electron/mobile: use localhost (backend runs locally).
+// For web development: use the Vite /api proxy. Production requires the
+// public Render origin through VITE_API_BASE_URL.
 const normalizeHost = (h: string): string => {
   let host = h.replace(/^https?:\/\//, '').replace(/\/+$/, '');
   if (!host.includes(':')) host += ':8000';
   return host;
 };
 
-const getApiBase = () => {
+const configuredWebApiBase = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+
+const withApiPath = (value: string) => /\/api$/i.test(value) ? value : `${value}/api`;
+
+export const getApiBase = () => {
   if (isElectron()) {
     const savedUrl = localStorage.getItem('trinetra_server_url');
     if (savedUrl) return `http://${normalizeHost(savedUrl)}/api`;
@@ -40,6 +45,10 @@ const getApiBase = () => {
     if (savedUrl) return `http://${normalizeHost(savedUrl)}/api`;
     // Default to localhost — works with adb reverse for USB-connected devices
     return 'http://localhost:8000/api';
+  }
+  if (configuredWebApiBase) return withApiPath(configuredWebApiBase);
+  if (import.meta.env.PROD) {
+    throw new Error('VITE_API_BASE_URL is required for production web builds');
   }
   return '/api';
 };

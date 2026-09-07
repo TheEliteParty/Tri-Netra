@@ -22,7 +22,7 @@ COPY datasets/ ./datasets/
 # Build frontend
 COPY frontend/ ./frontend/
 WORKDIR /app/frontend
-RUN npm install && npm run build
+RUN npm ci && npm run build
 
 WORKDIR /app/backend
 
@@ -30,4 +30,4 @@ WORKDIR /app/backend
 EXPOSE 8000
 
 # Start the server
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "python -m alembic upgrade head && exec python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"]

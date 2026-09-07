@@ -1,71 +1,115 @@
-# 🚀 Tri-Netra Deployment Guide
+# Tri-Netra deployment guide
 
-## Option 1: Railway (Recommended — Free Tier)
+## Production architecture
 
-### Steps:
-1. Go to https://railway.app and sign up with GitHub
-2. Click **"New Project"** → **"Deploy from GitHub repo"**
-3. Select `mohitsharmaa21/Tri-Netra`
-4. Railway will auto-detect the Dockerfile and build
-5. Set environment variable:
-   - Key: `PORT` → Value: `8000`
-6. Click **"Deploy"**
-7. Your app will be live at `https://your-app-name.up.railway.app`
+Deploy the React/Vite frontend to Vercel, the FastAPI service to Render, and
+use hosted PostgreSQL for durable production data.
 
-### Verify:
-```
-https://your-app-name.up.railway.app/api/health
+```text
+Browser -> Vercel (Vite frontend and committed /gis assets)
+        -> Render (FastAPI HTTP and WebSockets)
+        -> hosted PostgreSQL
 ```
 
----
+The scientific Python backend is intentionally a long-running service rather
+than a Vercel Function. Its WebSocket connection manager is process-local, so
+run one Render instance until a shared pub/sub layer is added.
 
-## Option 2: Render (Free Tier)
+## Local development
 
-### Steps:
-1. Go to https://render.com and sign up with GitHub
-2. Click **"New"** → **"Web Service"**
-3. Connect `mohitsharmaa21/Tri-Netra`
-4. Configure:
-   - **Name:** trinetra
-   - **Runtime:** Python 3
-   - **Build Command:** `cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt`
-   - **Start Command:** `cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-   - **Port:** 8000
-5. Click **"Create Web Service"**
-6. Your app will be live at `https://trinetra.onrender.com`
+Local development keeps SQLite and the Vite proxy:
 
-### Verify:
-```
-https://trinetra.onrender.com/api/health
+```text
+Browser -> Vite :5173 -> FastAPI :8000 -> SQLite
 ```
 
----
-
-## Option 3: Local Demo (Easiest)
-
-```bash
-git clone https://github.com/mohitsharmaa21/Tri-Netra.git
-cd Tri-Netra
-bash deploy.sh
-# Opens at http://localhost:8000
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
----
+In a second terminal:
 
-## Option 4: Docker
-
-```bash
-docker build -t trinetra .
-docker run -p 8000:8000 trinetra
-# Opens at http://localhost:8000
+```powershell
+cd frontend
+npm ci
+npm run dev
 ```
 
----
+No frontend environment variable is required locally. Vite proxies `/api` and
+`/ws`; committed assets under `frontend/public/gis` are served directly by Vite.
 
-## For SIH Demo Day
+## Vercel frontend
 
-**Recommended:** Deploy to Railway first, then use the public URL for your demo.
+Import `TheEliteParty/Tri-Netra`, leave the Vercel project root at the
+repository root, and use the committed `vercel.json`. Configure this public
+build variable for Production and Preview:
 
-**Backup:** Have the local demo ready with `bash deploy.sh` in case of internet issues.
+```text
+VITE_API_BASE_URL=https://<your-render-host>
+```
 
-**Slide Link:** Put the Railway/Render URL in your presentation slides.
+The value may include `/api`. The app fails API requests explicitly if this
+variable is missing from a production build. Leave `VITE_ENABLE_DEMO_LOGIN`
+unset or `false` so local demo credentials are not bundled. `HashRouter` keeps
+application routes client-side. Vercel publishes the committed
+`frontend/public/gis` GeoJSON and PNG assets at `/gis/*`.
+
+## Render backend
+
+`render.yaml` defines the backend-only service on `main`. The release command
+installs backend dependencies, applies committed Alembic migrations, and only
+then starts Uvicorn. Configure:
+
+```text
+APP_ENV=production
+DATABASE_URL=postgresql://<hosted-postgresql-connection>
+JWT_SECRET=<unique random value of at least 32 characters>
+CORS_ORIGINS=https://<exact-vercel-or-custom-domain>
+TRINETRA_ADMIN_PASSWORD=<unique value of at least 12 characters>
+AUTO_SEED_DATABASE=true
+```
+
+`CORS_ORIGINS` is a comma-separated list of exact HTTPS origins without paths
+or wildcards. Add each stable frontend origin that needs API and WebSocket
+access. `CORS_ALLOWED_ORIGINS` remains a compatible alias. Do not invent a
+domain before Vercel assigns it.
+
+Optional accounts use `TRINETRA_FIELD_PASSWORD`,
+`TRINETRA_DISTRICT_PASSWORD`, and `TRINETRA_CITIZEN_PASSWORD`; an account is
+disabled in production if its password is unset. `GIS_ASSET_DIR` can override
+the backend GIS directory with an existing absolute path. Without it, Render
+serves the committed `frontend/public/gis` directory at `/gis/*`.
+
+On a completely empty database, `AUTO_SEED_DATABASE=true` loads the existing
+prototype seed dataset. Safe seeding skips the entire operation if any managed
+application table already contains data. Set the variable to `false` after
+initialization when production data is managed separately.
+
+## PostgreSQL and Alembic
+
+Production configuration fails closed when `DATABASE_URL`, `JWT_SECRET`,
+`CORS_ORIGINS`, or the admin password is absent, and rejects SQLite. Standard
+`postgres://` and `postgresql://` URLs are normalized for psycopg 3.
+
+From `backend`, validate a clean local schema with:
+
+```powershell
+$env:DATABASE_URL = "sqlite:///./migration-check.db"
+python -m alembic upgrade head
+python -m alembic check
+```
+
+## Deployment verification
+
+After both services are live, verify the final URLs rather than assuming that
+a successful build means the system is operational:
+
+- `/api/health`, login, and authenticated API requests
+- dashboard, stations, alerts, reports, exports, satellite, flood, simulator
+- `/gis/hillshade_overlay.png`, `/gis/slope_overlay.png`, and each map layer
+- allowed Vercel origin and rejected unconfigured origin
+- authenticated district-scoped WebSocket connection and ping/pong

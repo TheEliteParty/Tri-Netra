@@ -4,6 +4,7 @@ Backend API Server for Smart India Hackathon 2026
 """
 import os
 import sys
+import logging
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -11,53 +12,33 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from datetime import datetime
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Form, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 from app.middleware.rate_limiter import RateLimiter
 
-from app.database import engine, Base, SessionLocal
+from app.database import engine, Base
 from app.routers import sensors, dashboard, alerts, reports, weather, simulator, satellite, predict, alerts_timeline, flood, ml_enhanced, segmentation, dispatch, scout
 from app.auth import authenticate_user, create_token, verify_token
 from app.websocket_manager import can_subscribe, manager, normalize_district
+from app.config import AUTO_SEED_DATABASE, CORS_ORIGINS, IS_PRODUCTION
 
+logger = logging.getLogger("trinetra")
 
 def init_database():
-    # Use Alembic for production (PostgreSQL), create_all for local dev (SQLite)
-    database_url = os.getenv("DATABASE_URL", "")
-    if database_url and not database_url.startswith("sqlite"):
-        # Production: run Alembic migrations
-        try:
-            import subprocess
-            alembic_ini = os.path.join(os.path.dirname(__file__), "..", "alembic.ini")
-            result = subprocess.run(
-                [sys.executable, "-m", "alembic", "upgrade", "head"],
-                cwd=os.path.dirname(os.path.dirname(__file__)),
-                capture_output=True, text=True, timeout=30
-            )
-            if result.returncode != 0:
-                print(f"[Tri-Netra] ⚠️  Alembic error: {result.stderr}")
-            else:
-                print("[Tri-Netra] ✅ Alembic migrations applied")
-        except Exception as e:
-            print(f"[Tri-Netra] ⚠️  Alembic failed: {e}, falling back to create_all")
-            Base.metadata.create_all(bind=engine)
-    else:
-        # Development: create_all for instant setup
+    # Production migrations are an explicit release command. A failed migration
+    # must stop deployment instead of falling back to create_all.
+    if not IS_PRODUCTION:
         Base.metadata.create_all(bind=engine)
 
-    db = SessionLocal()
-    try:
-        from app.models import SensorStation
-        if db.query(SensorStation).count() == 0:
-            from app.seed_data import seed_database
-            seed_database()
-        else:
-            print("[Tri-Netra] Database already seeded, skipping.")
-    finally:
-        db.close()
+    if not AUTO_SEED_DATABASE:
+        logger.info("Automatic database seeding is disabled")
+        return
+
+    from app.seed_data import seed_database
+    seed_database(force=False)
     print("[Tri-Netra] ✅ Database ready")
 
     # Auto-refresh satellite data if stale (>6 hours old)
@@ -93,20 +74,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-_cors_origins = [
-    origin.strip()
-    for origin in os.getenv(
-        "CORS_ALLOWED_ORIGINS",
-        "http://localhost,http://localhost:3000,http://localhost:5173,http://localhost:4173,"
-        "capacitor://localhost,null,"
-        "http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:4173",
-    ).split(",")
-    if origin.strip()
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_cors_origins,
-    allow_credentials=True,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept"],
 )
@@ -183,7 +154,17 @@ def _websocket_user(websocket: WebSocket) -> dict:
     return verify_token(token)
 
 
+def _websocket_origin_allowed(websocket: WebSocket) -> bool:
+    origin = (websocket.headers.get("origin") or "").rstrip("/")
+    if not origin:
+        return not IS_PRODUCTION
+    return origin in CORS_ORIGINS
+
+
 async def _serve_alert_socket(websocket: WebSocket, requested_district: str) -> None:
+    if not _websocket_origin_allowed(websocket):
+        await websocket.close(code=1008, reason="Origin not allowed")
+        return
     try:
         user = _websocket_user(websocket)
         district = normalize_district(requested_district)
@@ -227,15 +208,33 @@ async def websocket_alerts_all(websocket: WebSocket):
     await _serve_alert_socket(websocket, "all")
 
 
+# Serve the committed GIS assets for backend-hosted and smoke-test deployments.
+# Vercel serves the same files directly from frontend/public/gis.
+_repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+_configured_gis_dir = os.getenv("GIS_ASSET_DIR", "").strip()
+if _configured_gis_dir:
+    GIS_DIR = os.path.abspath(_configured_gis_dir)
+    if not os.path.isdir(GIS_DIR):
+        raise RuntimeError("GIS_ASSET_DIR must point to an existing directory")
+else:
+    GIS_DIR = os.path.join(_repo_root, "frontend", "public", "gis")
+
+if os.path.isdir(GIS_DIR):
+    app.mount("/gis", StaticFiles(directory=GIS_DIR), name="gis")
+elif IS_PRODUCTION:
+    raise RuntimeError("Required GIS assets are unavailable")
+
+
 # Serve frontend static files
 if os.path.exists(os.path.join(FRONTEND_DIR, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="assets")
 
 if os.path.exists(FRONTEND_DIR):
-    @app.get("/{full_path:path}", include_in_schema=False)
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
     async def serve_frontend(full_path: str):
         # Skip ALL API, WebSocket, and health routes - never return HTML for these
-        if (full_path.startswith("api/") or full_path.startswith("ws") 
+        if (full_path.startswith("api/") or full_path.startswith("ws")
+            or full_path.startswith("gis/") or full_path == "gis"
             or full_path == "health" or full_path == "api"):
             return JSONResponse({"message": "API endpoint not found", "path": full_path}, status_code=404)
         # Sanitize path to prevent path traversal attacks
@@ -245,7 +244,7 @@ if os.path.exists(FRONTEND_DIR):
                 return {"message": "Not found", "version": "1.0.0"}
             file_path = os.path.join(FRONTEND_DIR, normalized)
             # Ensure resolved path stays within FRONTEND_DIR
-            if not os.path.abspath(file_path).startswith(os.path.abspath(FRONTEND_DIR)):
+            if os.path.commonpath([os.path.abspath(file_path), FRONTEND_DIR]) != FRONTEND_DIR:
                 return {"message": "Not found", "version": "1.0.0"}
             if os.path.isfile(file_path):
                 return FileResponse(file_path)

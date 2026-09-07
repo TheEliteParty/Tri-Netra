@@ -2,26 +2,13 @@
 JWT Authentication for Tri-Netra API.
 Provides token creation, verification, and FastAPI dependency injection.
 """
-import os
 import jwt
 import bcrypt
+import os
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-# Production must opt in explicitly and must never fall back to the public dev key.
-APP_ENV = os.getenv("TRINETRA_ENV", os.getenv("APP_ENV", "development")).strip().lower()
-IS_PRODUCTION = (
-    APP_ENV in {"production", "prod"}
-    or os.getenv("RENDER", "").lower() == "true"
-    or bool(os.getenv("RAILWAY_ENVIRONMENT"))
-)
-_DEV_JWT_SECRET = "trinetra-dev-secret-change-in-production"
-JWT_SECRET = os.getenv("JWT_SECRET", "").strip()
-if IS_PRODUCTION and (len(JWT_SECRET) < 32 or JWT_SECRET == _DEV_JWT_SECRET):
-    raise RuntimeError("JWT_SECRET must be set to a unique value of at least 32 characters in production")
-if not JWT_SECRET:
-    JWT_SECRET = _DEV_JWT_SECRET
+from app.config import IS_PRODUCTION, JWT_SECRET
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24
 
@@ -37,14 +24,35 @@ def _verify_password(password: str, hashed: str) -> bool:
 
 security = HTTPBearer(auto_error=False)
 
-# Demo user database (in production, use a real DB with hashed passwords)
-# Passwords are hashed with bcrypt
-DEMO_USERS = {
-    "admin@trinetra.gov.in": {"password_hash": _hash_password("admin123"), "name": "Admin", "role": "admin", "districts": ["*"]},
-    "field@trinetra.gov.in": {"password_hash": _hash_password("field123"), "name": "Field Officer", "role": "field_officer", "districts": ["Gangtok"]},
-    "district@trinetra.gov.in": {"password_hash": _hash_password("district123"), "name": "District Admin", "role": "district_admin", "districts": ["Gangtok"]},
-    "citizen@trinetra.gov.in": {"password_hash": _hash_password("demo123"), "name": "Citizen", "role": "citizen", "districts": ["Gangtok"]},
-}
+def _configured_users() -> dict:
+    """Keep demo accounts local and require environment-backed production passwords."""
+    definitions = (
+        ("admin@trinetra.gov.in", "TRINETRA_ADMIN_PASSWORD", "admin123", "Admin", "admin", ["*"]),
+        ("field@trinetra.gov.in", "TRINETRA_FIELD_PASSWORD", "field123", "Field Officer", "field_officer", ["Gangtok"]),
+        ("district@trinetra.gov.in", "TRINETRA_DISTRICT_PASSWORD", "district123", "District Admin", "district_admin", ["Gangtok"]),
+        ("citizen@trinetra.gov.in", "TRINETRA_CITIZEN_PASSWORD", "demo123", "Citizen", "citizen", ["Gangtok"]),
+    )
+    users = {}
+    for email, env_name, development_password, name, role, districts in definitions:
+        password = os.getenv(env_name, "").strip()
+        if not password and not IS_PRODUCTION:
+            password = development_password
+        if IS_PRODUCTION and password and len(password) < 12:
+            raise RuntimeError(f"{env_name} must be at least 12 characters in production")
+        if password:
+            users[email] = {
+                "password_hash": _hash_password(password),
+                "name": name,
+                "role": role,
+                "districts": districts,
+            }
+
+    if IS_PRODUCTION and "admin@trinetra.gov.in" not in users:
+        raise RuntimeError("TRINETRA_ADMIN_PASSWORD is required in production")
+    return users
+
+
+DEMO_USERS = _configured_users()
 
 
 def authenticate_user(email: str, password: str) -> dict | None:
@@ -53,8 +61,6 @@ def authenticate_user(email: str, password: str) -> dict | None:
     user = DEMO_USERS.get(normalized_email)
     if user:
         if _verify_password(password, user["password_hash"]):
-            return {"email": normalized_email, "name": user["name"], "role": user["role"], "districts": user["districts"]}
-        if normalized_email == "citizen@trinetra.gov.in" and password in ("citizen123", "demo123"):
             return {"email": normalized_email, "name": user["name"], "role": user["role"], "districts": user["districts"]}
     return None
 

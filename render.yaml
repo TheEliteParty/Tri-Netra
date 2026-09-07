@@ -1,10 +1,24 @@
 services:
   - type: web
-    name: trinetra
+    name: trinetra-api
     runtime: python
-    buildCommand: cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt
-    startCommand: cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    branch: main
+    region: singapore
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python -m alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: "3.12"
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: TRINETRA_ADMIN_PASSWORD
+        sync: false
+      - key: AUTO_SEED_DATABASE
+        value: "true"
     healthCheckPath: /api/health

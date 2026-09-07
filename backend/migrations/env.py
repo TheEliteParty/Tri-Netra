@@ -1,4 +1,3 @@
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
@@ -18,14 +17,12 @@ from app.models import (
     SensorStation, SensorReading, RiskAssessment, Alert,
     CitizenReport, WeatherData, RoadStatus, Village,
 )
-from app.database import Base
+from app.database import Base, DATABASE_URL
 
 target_metadata = Base.metadata
 
-# Override sqlalchemy.url from DATABASE_URL env var if set
-db_url = os.getenv("DATABASE_URL")
-if db_url:
-    config.set_main_option("sqlalchemy.url", db_url)
+# Use the same normalized URL as the application (including psycopg v3).
+config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:

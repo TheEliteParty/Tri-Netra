@@ -151,23 +151,26 @@ def _generate_real_satellite_reading(station: dict, sat_data: dict, hours_ago: i
         "timestamp": now,
     }
 
-def seed_database(force: bool = True):
+def seed_database(force: bool = False):
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    sat_map = _load_real_satellite_map()
-    seg_engine = get_segmentation_engine()
 
     try:
+        managed_models = (
+            Alert, RiskAssessment, SensorReading, WeatherData, RoadStatus,
+            Village, CitizenReport, SensorStation,
+        )
+        if not force and any(db.query(model).first() is not None for model in managed_models):
+            print("[Seed] Existing application data found; safe seed skipped.")
+            return
+
+        sat_map = _load_real_satellite_map()
+        seg_engine = get_segmentation_engine()
         print("[Seed] Refreshing database with seeded station telemetry and prototype heuristic assessments...")
-        db.query(Alert).delete()
-        db.query(RiskAssessment).delete()
-        db.query(SensorReading).delete()
-        db.query(WeatherData).delete()
-        db.query(RoadStatus).delete()
-        db.query(Village).delete()
-        db.query(CitizenReport).delete()
-        db.query(SensorStation).delete()
-        db.commit()
+        if force:
+            for model in managed_models:
+                db.query(model).delete()
+            db.commit()
 
         print(f"[Seed] 🛰️  Seeding {len(PAN_INDIA_STATIONS)} Pan-India sensor stations with SRTM elevation...")
         for s in PAN_INDIA_STATIONS:

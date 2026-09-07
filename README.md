@@ -768,14 +768,14 @@ Tri-Netra integrates **flood-landslide correlation** data for all 19 NER distric
 | **Windows** | `Tri-Netra-1.0.0-Windows-x64.zip` | 165 MB | Extract → Run `Tri-Netra.exe` |
 | **Windows** | `start.bat` | 1 KB | Double-click to auto-setup & launch |
 
-### One-Command Deploy (Web)
+### Local web setup
 
 ```bash
 # Clone
-git clone https://github.com/mohitsharmaa21/Tri-Netra.git
+git clone https://github.com/TheEliteParty/Tri-Netra.git
 cd Tri-Netra
 
-# Deploy (creates venv, installs deps, builds frontend, starts server)
+# Local launcher (creates venv, installs deps, builds frontend, starts server)
 bash deploy.sh
 
 # Open
@@ -809,7 +809,8 @@ docker build -t trinetra .
 docker run -p 8000:8000 trinetra
 ```
 
-**Demo Login:** `admin@trinetra.gov.in` / `admin123` — or click any demo button on the login page.
+For production deployment, use the Vercel frontend + Render FastAPI + hosted
+PostgreSQL architecture in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ---
 
@@ -820,11 +821,11 @@ Tri-Netra/
 ├── README.md                              # This file
 ├── SIH_2026_PRESENTATION.md               # 15-slide pitch deck
 ├── PRESENTATION.md                        # Slide content with diagrams
-├── DEPLOYMENT_GUIDE.md                    # Railway/Render/Docker
+├── DEPLOYMENT_GUIDE.md                    # Vercel/Render/PostgreSQL
 ├── SATELLITE_INTEGRATION.md               # Real data integration
 ├── BUILD_GUIDE.md                         # Desktop/mobile build instructions
 ├── Dockerfile                             # Docker deployment
-├── Procfile                               # Railway deployment
+├── Procfile                               # ASGI process command
 ├── deploy.sh                              # One-click local deploy (Linux/Mac)
 ├── start.bat                              # One-click local deploy (Windows)
 ├── start.sh                               # Quick launcher script
@@ -837,7 +838,7 @@ Tri-Netra/
 │   ├── app/
 │   │   ├── main.py                        # App entry + static files
 │   │   ├── models.py                      # 8 SQLAlchemy models
-│   │   ├── database.py                    # SQLite connection
+│   │   ├── database.py                    # Local SQLite / production PostgreSQL
 │   │   ├── seed_data.py                   # Realistic NER seeder
 │   │   ├── ai_engine/
 │   │   │   ├── risk_predictor.py          # RF + GB ensemble (original)
@@ -926,7 +927,7 @@ Tri-Netra/
 | **Charts** | Recharts | 2.x | Data visualization |
 | **Icons** | Lucide React | Latest | UI icons |
 | **Backend** | Python FastAPI | 0.115 | REST API server |
-| **Database** | SQLite | 3.x | Data storage |
+| **Database** | SQLite / PostgreSQL | 3.x / hosted | Local / production data storage |
 | **AI/ML** | scikit-learn | 1.x | Risk prediction (RF+GB VotingClassifier) |
 | **Caching** | joblib | — | Model persistence across restarts |
 | **APIs** | Open-Meteo | Free | Real-time weather |
@@ -1126,6 +1127,6 @@ cd geo-shield && npm install && npm run build:win
 
 **Built with ❤️ by The Elite Party for Smart India Hackathon 2026**
 
-[![GitHub](https://img.shields.io/badge/GitHub-mohitsharmaa21-181717?style=for-the-badge&logo=github)](https://github.com/mohitsharmaa21/Tri-Netra)
+[![GitHub](https://img.shields.io/badge/GitHub-TheEliteParty-181717?style=for-the-badge&logo=github)](https://github.com/TheEliteParty/Tri-Netra)
 
 </div>

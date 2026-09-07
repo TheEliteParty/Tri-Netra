@@ -28,7 +28,7 @@ class ReportType(str, enum.Enum):
 class SensorStation(Base):
     __tablename__ = "sensor_stations"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     station_id = Column(String, unique=True, index=True)
     name = Column(String)
     latitude = Column(Float)
@@ -47,7 +47,7 @@ class SensorStation(Base):
 class SensorReading(Base):
     __tablename__ = "sensor_readings"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     station_id = Column(String, index=True)
     rainfall_mm = Column(Float, default=0.0)
     soil_moisture = Column(Float, default=0.0)  # percentage
@@ -63,7 +63,7 @@ class SensorReading(Base):
 class RiskAssessment(Base):
     __tablename__ = "risk_assessments"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     station_id = Column(String, index=True)
     risk_level = Column(String)  # low, moderate, high, critical
     risk_score = Column(Float)  # 0-100
@@ -78,7 +78,7 @@ class RiskAssessment(Base):
 class Alert(Base):
     __tablename__ = "alerts"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     station_id = Column(String, index=True)
     risk_level = Column(String)
     title = Column(String)
@@ -96,7 +96,7 @@ class Alert(Base):
 class CitizenReport(Base):
     __tablename__ = "citizen_reports"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     report_type = Column(String)
     description = Column(Text)
     latitude = Column(Float)
@@ -112,7 +112,7 @@ class CitizenReport(Base):
 class WeatherData(Base):
     __tablename__ = "weather_data"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     station_id = Column(String, index=True)
     temperature = Column(Float)
     humidity = Column(Float)
@@ -131,7 +131,7 @@ class WeatherData(Base):
 class RoadStatus(Base):
     __tablename__ = "road_status"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     road_name = Column(String)
     road_type = Column(String)  # national_highway, state_highway, district_road
     start_lat = Column(Float)
@@ -147,7 +147,7 @@ class RoadStatus(Base):
 class Village(Base):
     __tablename__ = "villages"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String)
     state = Column(String)
     district = Column(String)

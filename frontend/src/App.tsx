@@ -1,7 +1,7 @@
 import { HashRouter as Router, Routes, Route, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { t, setLanguage, getCurrentLanguage, Language, languages } from './i18n/translations';
-import { loginAPI, setStoredToken, clearStoredToken, getStoredToken, getAlertStats, getServerUrl, setServerUrl, isMobileApp, api } from './services/api';
+import { loginAPI, setStoredToken, clearStoredToken, getStoredToken, getAlertStats, getServerUrl, setServerUrl, isMobileApp, api, getApiBase } from './services/api';
 import Dashboard from './pages/Dashboard';
 import RiskMap from './pages/RiskMap';
 import Alerts from './pages/Alerts';
@@ -57,11 +57,12 @@ function LoginPage() {
   const [needsServer, setNeedsServer] = useState(false);
 
   useEffect(() => {
-    const isLoadedFromServer = window.location.port === '8000' || window.location.port === '5173' || window.location.port === '';
-    const defaultUrl = '/api';
     const saved = getServerUrl();
-    const currentUrl = saved && !isLoadedFromServer ? `${saved}/api` : defaultUrl;
-    setApiUrl(currentUrl);
+    try {
+      setApiUrl(getApiBase());
+    } catch {
+      setApiUrl('VITE_API_BASE_URL not configured');
+    }
     setServerInput(saved || '');
     setNeedsServer(false);
     setShowServerSettings(false);
@@ -83,7 +84,11 @@ function LoginPage() {
   const clearServerUrl = () => {
     localStorage.removeItem('trinetra_server_url');
     setServerInput('');
-    setApiUrl('/api');
+    try {
+      setApiUrl(getApiBase());
+    } catch {
+      setApiUrl('VITE_API_BASE_URL not configured');
+    }
     setNeedsServer(true);
     setShowServerSettings(true);
     setError('Server URL cleared. Please enter a new one above.');
@@ -146,7 +151,14 @@ function LoginPage() {
     } catch (err: any) {
       const status = err.response?.status;
       const detail = err.response?.data?.detail;
-      const currentApiUrl = getServerUrl() ? `http://${getServerUrl()}/api` : '/api';
+      let currentApiUrl = 'configured backend';
+      try {
+        currentApiUrl = getApiBase();
+      } catch (configurationError: any) {
+        setError(configurationError.message);
+        setLoading(false);
+        return;
+      }
       const isNetworkError = !err.response || status === 0 || status === undefined || err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.code === 'ERR_NETWORK';
       if (isNetworkError) {
         setError(`Cannot reach backend at ${currentApiUrl}. Check network or set Backend URL in Settings.`);
@@ -266,7 +278,8 @@ function LoginPage() {
             </Button>
           </form>
 
-          {/* Quick Demo Logins */}
+          {/* Quick demo credentials are excluded from ordinary production builds. */}
+          {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === 'true') && (
           <div className="mt-6 pt-5 border-t border-slate-100">
             <p className="text-[11px] font-medium text-slate-500 text-center mb-2.5">
               ⚡ Quick Demo Credentials
@@ -290,6 +303,7 @@ function LoginPage() {
               ))}
             </div>
           </div>
+          )}
         </Card>
       </div>
     </div>
