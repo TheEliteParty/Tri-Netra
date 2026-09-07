@@ -76,6 +76,8 @@ const allKeys = [
   'simulateFab', 'riskMapFab', 'alertsFab', 'liveFab',
   // Nav items
   'floodRisk', 'demoFlow',
+  'gisNerStates', 'gisNerDistricts', 'gisHillshadeOverlay', 'gisSlopeOverlay',
+  'gisOsmRoads', 'gisOsmRivers', 'gisOsmSettlements',
   'acknowledgeFailed', 'alertAcknowledged', 'alertResolved', 'anonymous', 'demoTip', 'dismiss', 'dismissFailed', 'elevationSoilRainfall', 'found', 'go', 'landslideRisk', 'languageLabel', 'latitude', 'longitude', 'newReport', 'noReports', 'noStationsFound', 'reportDismissed', 'reportSubmitted', 'reportThankYou', 'reportType', 'reportVerified', 'reportsSubtitle', 'resolveFailed', 'searchStations', 'state', 'statusDismissed', 'statusPending', 'statusVerified', 'submitError', 'submitting', 'verify', 'verifyFailed',
   'across8NerStates', 'alertGeneratedLabel', 'alertsFab', 'annualFloodDays', 'apiEndpointsLabel', 'avgFloodRisk', 'componentCrashed', 'compoundRiskFormula', 'demoFlow', 'districtsMonitored', 'floodLandslideCompoundAnalysis', 'floodRisk', 'floodRiskByDistrict', 'floodRiskDistrictDetails', 'floodRiskMonitoring', 'floodVsLandslideCompoundRisk', 'highRiskDistricts', 'historicalEventsLabel', 'keyMetricsToHighlight', 'languagesLabel', 'liveDemo', 'liveFab', 'modelAccuracyLabel', 'monitoredStations', 'p95ApiLatency', 'rainfallSpike', 'realNerTerrainData', 'reloadPage', 'resetDemo', 'responseTimeLabel', 'rfGbEnsemble', 'riskMapFab', 'riverSystems', 'runLiveSimulation', 'sihDemoFlow', 'simulateFab', 'simulationCompleteCriticalEvent', 'somethingWentWrong', 'stepByStepWalkthrough', 'techAuth', 'techBackend', 'techCharts', 'techDatabase', 'techFrontend', 'techSatellite', 'technologyStack', 'totalHistoricalEvents', 'trainingSamples', 'tryAgain',
 ];
@@ -449,6 +451,13 @@ export const translations: Record<Language, Record<string, string>> = {
     gisEvacuationShelters: 'NDRF Evacuation Shelters',
     gisMacroBelts: 'GSI Macro Hazard Belts',
     gisRiverBasins: 'Major River Catchment Basins',
+    gisNerStates: 'NER State Boundaries',
+    gisNerDistricts: 'NER District Boundaries',
+    gisHillshadeOverlay: 'Terrain Hillshade',
+    gisSlopeOverlay: 'Terrain Slope',
+    gisOsmRoads: 'OpenStreetMap Roads',
+    gisOsmRivers: 'OpenStreetMap Rivers',
+    gisOsmSettlements: 'OpenStreetMap Settlements',
     liveTelemetry: 'LATEST DATABASE RECORD',
     panIndiaSubtitle: 'Pan-India Prototype • 15 States & UTs • 28 Seeded Monitoring Nodes',
     collapseSidebar: 'Collapse Sidebar',

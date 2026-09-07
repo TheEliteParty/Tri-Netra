@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, Polygon, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, Polygon, ImageOverlay, GeoJSON, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import { t } from '../i18n/translations';
 import {
@@ -124,6 +125,222 @@ function MapViewController({ center, zoom }: { center: [number, number]; zoom: n
   return null;
 }
 
+const TERRAIN_OVERLAY_BOUNDS: [[number, number], [number, number]] = [
+  [21.94125, 88.013472],
+  [29.461528, 97.41125],
+];
+
+const GIS_ZOOM = {
+  districts: 6,
+  rivers: 6,
+  roads: 7,
+  settlements: 9,
+};
+
+type GisFeature = {
+  type: string;
+  properties?: Record<string, any>;
+  geometry: any;
+};
+
+type GisCollection = {
+  type: 'FeatureCollection';
+  features: GisFeature[];
+};
+
+function filterGisFeatures(
+  data: GisCollection | null,
+  predicate: (props: Record<string, any>) => boolean,
+): GisCollection | null {
+  if (!data) return null;
+  return {
+    type: 'FeatureCollection',
+    features: data.features.filter((feature) => predicate(feature.properties || {})),
+  };
+}
+
+function ZoomTracker({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    onZoomChange(map.getZoom());
+  }, [map, onZoomChange]);
+  useMapEvents({
+    zoomend(e) {
+      onZoomChange(e.target.getZoom());
+    },
+  });
+  return null;
+}
+
+function NerFoundationLayers({
+  currentZoom,
+  layerVisibility,
+  statesGeoJson,
+  districtsGeoJson,
+  roadsGeoJson,
+  riversGeoJson,
+  settlementsGeoJson,
+}: {
+  currentZoom: number;
+  layerVisibility: {
+    states: boolean;
+    districts: boolean;
+    hillshade: boolean;
+    slope: boolean;
+    gisRoads: boolean;
+    gisRivers: boolean;
+    gisSettlements: boolean;
+  };
+  statesGeoJson: GisCollection | null;
+  districtsGeoJson: GisCollection | null;
+  roadsGeoJson: GisCollection | null;
+  riversGeoJson: GisCollection | null;
+  settlementsGeoJson: GisCollection | null;
+}) {
+  const canvasRenderer = useMemo(() => L.canvas({ padding: 0.5, tolerance: 4 }), []);
+
+  const roadData = useMemo(() => {
+    if (!roadsGeoJson) return null;
+    if (currentZoom >= 11) return roadsGeoJson;
+    if (currentZoom >= 9) {
+      return filterGisFeatures(roadsGeoJson, (props) =>
+        ['motorway', 'trunk', 'primary', 'secondary', 'trunk_link', 'primary_link'].includes(props.road_type),
+      );
+    }
+    return filterGisFeatures(roadsGeoJson, (props) =>
+      ['motorway', 'trunk', 'primary'].includes(props.road_type),
+    );
+  }, [roadsGeoJson, currentZoom]);
+
+  const riverData = useMemo(() => {
+    if (!riversGeoJson) return null;
+    if (currentZoom >= 9) return riversGeoJson;
+    return filterGisFeatures(riversGeoJson, (props) => props.waterway === 'river');
+  }, [riversGeoJson, currentZoom]);
+
+  const settlementData = useMemo(() => {
+    if (!settlementsGeoJson) return null;
+    if (currentZoom >= 12) return settlementsGeoJson;
+    if (currentZoom >= 10) {
+      return filterGisFeatures(settlementsGeoJson, (props) =>
+        ['city', 'town', 'village'].includes(props.settlement_type),
+      );
+    }
+    return filterGisFeatures(settlementsGeoJson, (props) =>
+      ['city', 'town'].includes(props.settlement_type),
+    );
+  }, [settlementsGeoJson, currentZoom]);
+
+  const roadStyle = useCallback((feature?: GisFeature) => {
+    const roadType = feature?.properties?.road_type;
+    const weight = roadType === 'trunk' || roadType === 'motorway' ? 2.2 : roadType === 'primary' ? 1.6 : 1.1;
+    return { color: '#EA580C', weight, opacity: 0.8, renderer: canvasRenderer };
+  }, [canvasRenderer]);
+
+  const riverStyle = useCallback((feature?: GisFeature) => {
+    const isRiver = feature?.properties?.waterway === 'river';
+    return { color: '#0284C7', weight: isRiver ? 1.6 : 1.0, opacity: 0.85, renderer: canvasRenderer };
+  }, [canvasRenderer]);
+
+  return (
+    <>
+      {layerVisibility.hillshade && (
+        <ImageOverlay
+          url="/gis/hillshade_overlay.png"
+          bounds={TERRAIN_OVERLAY_BOUNDS}
+          opacity={0.45}
+          zIndex={350}
+        />
+      )}
+      {layerVisibility.slope && (
+        <ImageOverlay
+          url="/gis/slope_overlay.png"
+          bounds={TERRAIN_OVERLAY_BOUNDS}
+          opacity={0.38}
+          zIndex={351}
+        />
+      )}
+      {layerVisibility.states && statesGeoJson && (
+        <GeoJSON
+          data={statesGeoJson as any}
+          style={() => ({
+            color: '#0F172A',
+            weight: 2.2,
+            fillColor: '#64748b',
+            fillOpacity: 0.02,
+            renderer: canvasRenderer,
+          })}
+          onEachFeature={(feature, layer) => {
+            const name = feature.properties?.state_name || 'NER state';
+            layer.bindPopup(
+              `<div class="p-2 min-w-[160px]"><div class="text-[10px] font-black uppercase tracking-wider text-slate-500">NER State Boundary</div><div class="text-sm font-bold">${name}</div><div class="text-[10px] text-slate-500 mt-1">geoBoundaries ADM1</div></div>`,
+            );
+          }}
+        />
+      )}
+      {layerVisibility.districts && currentZoom >= GIS_ZOOM.districts && districtsGeoJson && (
+        <GeoJSON
+          data={districtsGeoJson as any}
+          style={() => ({
+            color: '#475569',
+            weight: 1,
+            dashArray: '4 3',
+            fillColor: '#64748b',
+            fillOpacity: 0.04,
+            renderer: canvasRenderer,
+          })}
+          onEachFeature={(feature, layer) => {
+            const district = feature.properties?.district_name || 'District';
+            const state = feature.properties?.state_name || '';
+            layer.bindPopup(
+              `<div class="p-2 min-w-[180px]"><div class="text-[10px] font-black uppercase tracking-wider text-slate-500">NER District</div><div class="text-sm font-bold">${district}</div><div class="text-xs text-slate-600">${state}</div><div class="text-[10px] text-slate-500 mt-1">geoBoundaries ADM2</div></div>`,
+            );
+          }}
+        />
+      )}
+      {layerVisibility.gisRivers && currentZoom >= GIS_ZOOM.rivers && riverData && (
+        <GeoJSON
+          key={`gis-rivers-${currentZoom >= 9 ? 'all' : 'main'}`}
+          data={riverData as any}
+          style={riverStyle as any}
+        />
+      )}
+      {layerVisibility.gisRoads && currentZoom >= GIS_ZOOM.roads && roadData && (
+        <GeoJSON
+          key={`gis-roads-${currentZoom >= 11 ? 'all' : currentZoom >= 9 ? 'mid' : 'major'}`}
+          data={roadData as any}
+          style={roadStyle as any}
+        />
+      )}
+      {layerVisibility.gisSettlements && currentZoom >= GIS_ZOOM.settlements && settlementData && (
+        <GeoJSON
+          key={`gis-settlements-${currentZoom >= 12 ? 'all' : currentZoom >= 10 ? 'villages' : 'towns'}`}
+          data={settlementData as any}
+          pointToLayer={(_feature, latlng) =>
+            L.circleMarker(latlng, {
+              radius: 4,
+              color: '#FFFFFF',
+              weight: 1,
+              fillColor: '#DC2626',
+              fillOpacity: 0.9,
+              renderer: canvasRenderer,
+            })
+          }
+          onEachFeature={(feature, layer) => {
+            const name = feature.properties?.name || 'Settlement';
+            const kind = feature.properties?.settlement_type || 'place';
+            const district = feature.properties?.district_name || '';
+            const state = feature.properties?.state_name || '';
+            layer.bindPopup(
+              `<div class="p-2 min-w-[180px]"><div class="text-[10px] font-black uppercase tracking-wider text-slate-500">OSM Settlement</div><div class="text-sm font-bold">${name}</div><div class="text-xs text-slate-600">${kind}${district ? ` · ${district}` : ''}${state ? `, ${state}` : ''}</div></div>`,
+            );
+          }}
+        />
+      )}
+    </>
+  );
+}
+
 function ClickHandler({
   onLocationClick,
   aiScanActive,
@@ -167,6 +384,7 @@ export default function RiskMap() {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [mapCenter, setMapCenter] = useState<[number, number]>([22.8, 82.5]);
   const [mapZoom, setMapZoom] = useState(5);
+  const [currentZoom, setCurrentZoom] = useState<number>(5);
   const [layersDrawerOpen, setLayersDrawerOpen] = useState(false);
 
   // Inspection Drawer
@@ -182,8 +400,19 @@ export default function RiskMap() {
   const [scannedRoiResult, setScannedRoiResult] = useState<RoiScanResult | null>(null);
   const [selectedBandPreview, setSelectedBandPreview] = useState<'rgb' | 'rcan' | 'nir' | 'ndvi' | 'mask'>('rcan');
 
-  // Layer Visibility Toggles (11 Defined Layers)
+  // Static NER GIS datasets (loaded on demand)
+  const [statesGeoJson, setStatesGeoJson] = useState<GisCollection | null>(null);
+  const [districtsGeoJson, setDistrictsGeoJson] = useState<GisCollection | null>(null);
+  const [roadsGeoJson, setRoadsGeoJson] = useState<GisCollection | null>(null);
+  const [riversGeoJson, setRiversGeoJson] = useState<GisCollection | null>(null);
+  const [settlementsGeoJson, setSettlementsGeoJson] = useState<GisCollection | null>(null);
+
+  // Layer Visibility Toggles (operational + NER geographic foundation)
   const [layerVisibility, setLayerVisibility] = useState({
+    states: true,
+    districts: true,
+    hillshade: false,
+    slope: false,
     stations: true,
     aiScanScarp: true,
     alerts: true,
@@ -195,6 +424,9 @@ export default function RiskMap() {
     evacuationShelters: true,
     macroBelts: true,
     riverBasins: true,
+    gisRoads: false,
+    gisRivers: false,
+    gisSettlements: false,
   });
 
   const activeLayersCount = useMemo(() => {
@@ -215,7 +447,57 @@ export default function RiskMap() {
     setLayerVisibility(updated);
   };
 
-  // Fetch all real geospatial datasets
+  useEffect(() => {
+    let cancelled = false;
+    const loadLayer = async (
+      url: string,
+      setter: (data: GisCollection) => void,
+      label: string,
+    ) => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        const data = await response.json();
+        if (!cancelled) setter(data);
+      } catch (err) {
+        console.error(`Failed to load ${label}:`, err);
+      }
+    };
+
+    if (layerVisibility.states && !statesGeoJson) {
+      loadLayer('/gis/ner_states.geojson', setStatesGeoJson, 'ner_states.geojson');
+    }
+    if (layerVisibility.districts && currentZoom >= GIS_ZOOM.districts && !districtsGeoJson) {
+      loadLayer('/gis/ner_districts.geojson', setDistrictsGeoJson, 'ner_districts.geojson');
+    }
+    if (layerVisibility.gisRoads && currentZoom >= GIS_ZOOM.roads && !roadsGeoJson) {
+      loadLayer('/gis/ner_roads.geojson', setRoadsGeoJson, 'ner_roads.geojson');
+    }
+    if (layerVisibility.gisRivers && currentZoom >= GIS_ZOOM.rivers && !riversGeoJson) {
+      loadLayer('/gis/ner_rivers.geojson', setRiversGeoJson, 'ner_rivers.geojson');
+    }
+    if (layerVisibility.gisSettlements && currentZoom >= GIS_ZOOM.settlements && !settlementsGeoJson) {
+      loadLayer('/gis/ner_settlements.geojson', setSettlementsGeoJson, 'ner_settlements.geojson');
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    layerVisibility.states,
+    layerVisibility.districts,
+    layerVisibility.gisRoads,
+    layerVisibility.gisRivers,
+    layerVisibility.gisSettlements,
+    currentZoom,
+    statesGeoJson,
+    districtsGeoJson,
+    roadsGeoJson,
+    riversGeoJson,
+    settlementsGeoJson,
+  ]);
+
+  // Fetch all operational geospatial datasets
   const fetchAllLayers = useCallback(async () => {
     setLoading(true);
     try {
@@ -498,6 +780,7 @@ export default function RiskMap() {
           zoomControl={true}
         >
           <MapViewController center={mapCenter} zoom={mapZoom} />
+          <ZoomTracker onZoomChange={setCurrentZoom} />
           <ClickHandler
             onLocationClick={handleLocationClick}
             aiScanActive={aiScanActive}
@@ -510,6 +793,16 @@ export default function RiskMap() {
             url={BASEMAP_TILES[activeBasemap].url}
             attribution={BASEMAP_TILES[activeBasemap].attribution}
             maxZoom={18}
+          />
+
+          <NerFoundationLayers
+            currentZoom={currentZoom}
+            layerVisibility={layerVisibility}
+            statesGeoJson={statesGeoJson}
+            districtsGeoJson={districtsGeoJson}
+            roadsGeoJson={roadsGeoJson}
+            riversGeoJson={riversGeoJson}
+            settlementsGeoJson={settlementsGeoJson}
           />
 
           {/* 🏔️ Layer 10: GSI Macro Landslide Susceptibility Belts */}
@@ -961,6 +1254,10 @@ export default function RiskMap() {
             {/* Layer Item Rows */}
             <div className="p-2.5 max-h-[calc(100vh-280px)] overflow-y-auto space-y-1.5 text-xs bg-white dark:bg-zinc-950">
               {[
+                { key: 'states', label: `🗺️ ${t('gisNerStates')}`, count: statesGeoJson?.features.length ?? 0 },
+                { key: 'districts', label: `📐 ${t('gisNerDistricts')}`, count: districtsGeoJson?.features.length ?? 0 },
+                { key: 'hillshade', label: `🌄 ${t('gisHillshadeOverlay')}`, count: 1 },
+                { key: 'slope', label: `⛰️ ${t('gisSlopeOverlay')}`, count: 1 },
                 { key: 'stations', label: `📡 28 ${t('stations')}`, count: stations.length },
                 { key: 'aiScanScarp', label: `🛰️ ${t('gisAiScarps')}`, count: scannedRoiResult ? 1 : 0 },
                 { key: 'alerts', label: `🚨 ${t('gisActiveAlerts')}`, count: activeAlertCount },
@@ -972,6 +1269,9 @@ export default function RiskMap() {
                 { key: 'evacuationShelters', label: `🛡️ ${t('gisEvacuationShelters')}`, count: shelters.length },
                 { key: 'macroBelts', label: `🏔️ ${t('gisMacroBelts')}`, count: GSI_MACRO_BELTS.length },
                 { key: 'riverBasins', label: `🌊 ${t('gisRiverBasins')}`, count: RIVER_BASINS.length },
+                { key: 'gisRoads', label: `🛤️ ${t('gisOsmRoads')}`, count: roadsGeoJson?.features.length ?? 0 },
+                { key: 'gisRivers', label: `💧 ${t('gisOsmRivers')}`, count: riversGeoJson?.features.length ?? 0 },
+                { key: 'gisSettlements', label: `📍 ${t('gisOsmSettlements')}`, count: settlementsGeoJson?.features.length ?? 0 },
               ].map(({ key, label, count }) => {
                 const isActive = layerVisibility[key as keyof typeof layerVisibility];
                 return (
