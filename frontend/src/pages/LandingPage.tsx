@@ -1,15 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   BellRing,
   ChevronDown,
+  CloudRain,
+  Droplets,
   Eye,
   Layers3,
+  MapPin,
   MapPinned,
   Mountain,
   Radar,
+  Radio,
   ShieldCheck,
+  Sprout,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
@@ -21,11 +26,86 @@ const workflow = [
   { label: 'Act', icon: ShieldCheck },
 ];
 
+const storyStages = [
+  {
+    title: 'Observe',
+    eyebrow: 'Environmental inputs',
+    description: 'Rainfall, terrain, monitoring observations, and environmental context enter the same field of view.',
+    detail: 'Scattered observations become visible together.',
+    icon: Eye,
+  },
+  {
+    title: 'Assess',
+    eyebrow: 'Context alignment',
+    description: 'Signals are read against slope conditions, environmental state, and the people and places exposed nearby.',
+    detail: 'Conditions gain geographic and operational context.',
+    icon: Layers3,
+  },
+  {
+    title: 'Predict',
+    eyebrow: 'Risk synthesis',
+    description: 'Multiple signals become one explainable risk picture.',
+    detail: 'The prototype organizes contributing factors into a shared assessment.',
+    icon: Radar,
+  },
+  {
+    title: 'Alert',
+    eyebrow: 'Threshold awareness',
+    description: 'When assessed risk crosses a warning threshold, the affected area is surfaced for attention.',
+    detail: 'Early warning focuses attention without creating panic.',
+    icon: BellRing,
+  },
+  {
+    title: 'Act',
+    eyebrow: 'Decision support',
+    description: 'Prioritize an area, inspect a location, issue a warning, and support response planning.',
+    detail: 'Prediction is only useful when it leads to action.',
+    icon: ShieldCheck,
+  },
+];
+
+const riskSignals = [
+  {
+    id: 'rainfall',
+    label: 'Rainfall',
+    icon: CloudRain,
+    items: ['Recent rainfall', 'Accumulated rainfall', 'Rainfall intensity'],
+  },
+  {
+    id: 'terrain',
+    label: 'Terrain',
+    icon: Mountain,
+    items: ['Slope', 'Elevation', 'Terrain structure'],
+  },
+  {
+    id: 'environment',
+    label: 'Environment',
+    icon: Sprout,
+    items: ['Soil conditions', 'Vegetation indicators'],
+  },
+  {
+    id: 'monitoring',
+    label: 'Monitoring',
+    icon: Radio,
+    items: ['Sensor observations', 'Changing local conditions'],
+  },
+  {
+    id: 'exposure',
+    label: 'Exposure',
+    icon: MapPin,
+    items: ['Settlements', 'Roads', 'Infrastructure context'],
+  },
+];
+
 const sectionShell = 'mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12';
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const terrainSceneRef = useRef<HTMLDivElement>(null);
+  const storyStageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const riskSectionRef = useRef<HTMLElement>(null);
+  const [activeStoryStage, setActiveStoryStage] = useState(0);
+  const [riskSectionActive, setRiskSectionActive] = useState(false);
 
   useEffect(() => {
     const scene = terrainSceneRef.current;
@@ -48,6 +128,46 @@ export default function LandingPage() {
       window.removeEventListener('scroll', onScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
+  }, []);
+
+  useEffect(() => {
+    const section = riskSectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRiskSectionActive(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.18 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const ratios = new Map<Element, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => ratios.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0));
+        let nextStage = 0;
+        let highestRatio = 0;
+        storyStageRefs.current.forEach((stage, index) => {
+          const ratio = stage ? ratios.get(stage) || 0 : 0;
+          if (ratio > highestRatio) {
+            highestRatio = ratio;
+            nextStage = index;
+          }
+        });
+        if (highestRatio > 0) setActiveStoryStage(nextStage);
+      },
+      { rootMargin: '-24% 0px -34% 0px', threshold: [0.15, 0.35, 0.55, 0.75] },
+    );
+
+    storyStageRefs.current.forEach((stage) => stage && observer.observe(stage));
+    return () => observer.disconnect();
   }, []);
 
   const scrollToHowItWorks = () => {
@@ -227,26 +347,155 @@ export default function LandingPage() {
           <div className={sectionShell}>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">02 / How Trinetra works</p>
             <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-5xl">Observe → Assess → Predict → Alert → Act</h2>
-            <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-5">
-              {workflow.map(({ label, icon: Icon }, index) => (
-                <div key={label} className="min-h-44 bg-[#061011] p-6">
-                  <span className="text-xs font-mono text-slate-600">0{index + 1}</span>
-                  <Icon className="mt-8 h-6 w-6 text-cyan-300" />
-                  <h3 className="mt-4 text-lg font-bold">{label}</h3>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-400">
+              Trinetra’s prototype workflow connects environmental context to the decisions that follow an emerging risk.
+            </p>
+
+            <div className="mt-16 grid items-start gap-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)] lg:gap-16">
+              <div className="sticky top-8 hidden min-h-[calc(100vh-4rem)] items-center lg:flex">
+                <div className="w-full">
+                  <div className="landing-story-rail" data-stage={activeStoryStage} aria-label="Trinetra workflow progress">
+                    {storyStages.map((stage, index) => (
+                      <button
+                        key={stage.title}
+                        type="button"
+                        onClick={() => storyStageRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                        className={index <= activeStoryStage ? 'is-active' : ''}
+                        aria-current={index === activeStoryStage ? 'step' : undefined}
+                      >
+                        <span>{String(index + 1).padStart(2, '0')}</span>
+                        <strong>{stage.title}</strong>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="landing-story-visual mt-7" data-stage={activeStoryStage} aria-hidden="true">
+                    <div className="story-grid" />
+                    <div className="story-contours story-contours-back" />
+                    <div className="story-contours story-contours-front" />
+                    <div className="story-input story-input-rain"><Droplets className="h-4 w-4" /></div>
+                    <div className="story-input story-input-terrain"><Mountain className="h-4 w-4" /></div>
+                    <div className="story-input story-input-observation"><Eye className="h-4 w-4" /></div>
+                    <span className="story-node story-node-one" />
+                    <span className="story-node story-node-two" />
+                    <span className="story-node story-node-three" />
+                    <svg viewBox="0 0 760 520" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+                      <path className="story-terrain-fill" d="M-30 430 C105 373 169 420 280 333 C382 253 451 322 548 235 C617 174 681 190 790 104 L790 560 L-30 560 Z" />
+                      <path className="story-terrain-line" d="M-30 430 C105 373 169 420 280 333 C382 253 451 322 548 235 C617 174 681 190 790 104" />
+                      <path className="story-flow story-flow-one" d="M108 165 C186 202 254 245 369 286" />
+                      <path className="story-flow story-flow-two" d="M105 379 C205 350 268 319 369 286" />
+                      <path className="story-flow story-flow-three" d="M646 180 C550 218 474 248 369 286" />
+                      <circle className="story-risk-field" cx="404" cy="302" r="105" />
+                      <circle className="story-warning-wave story-warning-wave-one" cx="404" cy="302" r="68" />
+                      <circle className="story-warning-wave story-warning-wave-two" cx="404" cy="302" r="68" />
+                      <path className="story-action-route" d="M404 302 C475 336 526 387 626 404" />
+                    </svg>
+                    <div className="story-synthesis">
+                      <Radar className="h-5 w-5" />
+                      <span>Risk picture</span>
+                    </div>
+                    <div className="story-decision">
+                      <ShieldCheck className="h-5 w-5" />
+                      <span>Decision support</span>
+                    </div>
+                    <div className="story-stage-caption">
+                      <span>{String(activeStoryStage + 1).padStart(2, '0')}</span>
+                      <strong>{storyStages[activeStoryStage].eyebrow}</strong>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="landing-story-stages">
+                {storyStages.map(({ title, eyebrow, description, detail, icon: Icon }, index) => (
+                  <div
+                    key={title}
+                    ref={(element) => { storyStageRefs.current[index] = element; }}
+                    className={`landing-story-stage ${index === activeStoryStage ? 'is-active' : ''}`}
+                  >
+                    <div className="landing-mobile-story-visual lg:hidden" data-mobile-stage={index} aria-hidden="true">
+                      <span className="mobile-story-line" />
+                      <span className="mobile-story-signal mobile-story-signal-one" />
+                      <span className="mobile-story-signal mobile-story-signal-two" />
+                      <Icon className="relative z-10 h-6 w-6 text-cyan-200" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-mono text-sm text-cyan-300/65">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{eyebrow}</span>
+                    </div>
+                    <h3 className="mt-5 text-4xl font-black uppercase tracking-[-0.03em] text-white sm:text-5xl">{title}</h3>
+                    <p className="mt-5 text-lg leading-8 text-slate-300">{description}</p>
+                    <p className="mt-5 border-l border-cyan-300/30 pl-4 text-sm leading-6 text-slate-500">{detail}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        <section id="risk-intelligence" className="border-b border-white/10 py-28 sm:py-36" data-animation-hook="risk-intelligence">
-          <div className={`${sectionShell} grid gap-12 lg:grid-cols-2`}>
-            <div>
+        <section
+          ref={riskSectionRef}
+          id="risk-intelligence"
+          className={`landing-risk-section relative overflow-hidden border-b border-white/10 py-28 sm:py-36 ${riskSectionActive ? 'is-active' : ''}`}
+          data-animation-hook="risk-intelligence"
+        >
+          <div className="landing-contours absolute inset-0 opacity-25" aria-hidden="true" />
+          <div className={`${sectionShell} relative z-10`}>
+            <div className="max-w-4xl">
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">03 / Risk intelligence</p>
-              <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-5xl">Signals organized for assessment.</h2>
+              <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-5xl lg:text-6xl">Risk is never just one signal.</h2>
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-400">
+                Landslide conditions emerge from interacting environmental and geographic factors. Trinetra is designed to bring those signals together into a contextual risk picture.
+              </p>
             </div>
-            <div className="min-h-64 border-l border-white/15 pl-8 text-lg leading-8 text-slate-400">
-              Foundation for explaining the prototype’s risk assessment, alerts, simulations, and field reporting capabilities.
+
+            <div className="landing-risk-system mt-16" aria-label="Multiple environmental and geographic signals combine into explainable risk intelligence">
+              <div className="risk-system-grid" aria-hidden="true" />
+              <div className="risk-system-contours" aria-hidden="true" />
+              <svg className="risk-system-paths" viewBox="0 0 1100 720" preserveAspectRatio="none" aria-hidden="true">
+                <path pathLength="1" d="M165 136 C286 154 354 230 515 328" />
+                <path pathLength="1" d="M550 86 C550 176 550 220 550 327" />
+                <path pathLength="1" d="M935 145 C811 165 746 238 585 329" />
+                <path pathLength="1" d="M193 513 C314 486 387 431 518 371" />
+                <path pathLength="1" d="M912 520 C784 488 720 432 583 371" />
+              </svg>
+
+              {riskSignals.map(({ id, label, icon: Icon, items }, index) => (
+                <div key={id} className={`risk-signal-group risk-signal-${id}`} style={{ '--signal-index': index } as CSSProperties}>
+                  <span className="risk-signal-icon"><Icon className="h-5 w-5" /></span>
+                  <div>
+                    <h3>{label}</h3>
+                    <p>{items.join(' · ')}</p>
+                  </div>
+                  <span className="risk-signal-node" aria-hidden="true" />
+                </div>
+              ))}
+
+              <div className="risk-intelligence-core" aria-hidden="true">
+                <span className="risk-core-orbit risk-core-orbit-one" />
+                <span className="risk-core-orbit risk-core-orbit-two" />
+                <Radar className="h-7 w-7 text-cyan-200" />
+                <strong>Risk intelligence</strong>
+                <small>Contextual · location-aware · explainable</small>
+              </div>
+
+              <div className="risk-explainability">
+                <div className="risk-explainability-heading">
+                  <span>Illustrative explanation</span>
+                  <h3>Why might this area be at risk?</h3>
+                </div>
+                <div className="risk-factor-list">
+                  {['High recent rainfall', 'Steep terrain', 'Elevated soil moisture', 'Nearby exposed settlement'].map((factor) => (
+                    <span key={factor}><i aria-hidden="true" />{factor}</span>
+                  ))}
+                </div>
+                <p>Example contributing factors show how an assessment can be explained; they are not live readings.</p>
+              </div>
+            </div>
+
+            <div className="mt-10 flex flex-col gap-3 border-l border-emerald-300/30 pl-5 text-sm leading-6 text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+              <span>Built toward explainable, location-aware risk intelligence.</span>
+              <span className="font-semibold text-emerald-200">Many signals → contextual fusion → explainable risk</span>
             </div>
           </div>
         </section>
