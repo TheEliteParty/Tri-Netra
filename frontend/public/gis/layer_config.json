@@ -1,0 +1,70 @@
+{
+  "project": "North Eastern Region (NER) India GIS Web Assets",
+  "version": "1.0.0",
+  "crs": "EPSG:4326",
+  "bounds": [88.013472, 21.94125, 97.41125, 29.461528],
+  "center": [92.712361, 25.701389, 7],
+  "vector_layers": [
+    {
+      "id": "states",
+      "file": "ner_states.geojson",
+      "format": "GeoJSON",
+      "geometry_type": "Polygon/MultiPolygon",
+      "feature_count": 8,
+      "minzoom": 0,
+      "attributes": ["state_name", "shapeID", "shapeISO"]
+    },
+    {
+      "id": "districts",
+      "file": "ner_districts.geojson",
+      "format": "GeoJSON",
+      "geometry_type": "Polygon/MultiPolygon",
+      "feature_count": 119,
+      "minzoom": 6,
+      "attributes": ["district_name", "state_name", "admin_level", "shapeID"]
+    },
+    {
+      "id": "roads",
+      "file": "ner_roads.geojson",
+      "format": "GeoJSON",
+      "geometry_type": "LineString/MultiLineString",
+      "feature_count": 13052,
+      "minzoom": 7,
+      "attributes": ["name", "ref", "road_type", "surface", "state_name", "osm_id"]
+    },
+    {
+      "id": "rivers",
+      "file": "ner_rivers.geojson",
+      "format": "GeoJSON",
+      "geometry_type": "LineString/MultiLineString",
+      "feature_count": 4155,
+      "minzoom": 6,
+      "attributes": ["name", "waterway", "state_name", "osm_id"]
+    },
+    {
+      "id": "settlements",
+      "file": "ner_settlements.geojson",
+      "format": "GeoJSON",
+      "geometry_type": "Point",
+      "feature_count": 5918,
+      "minzoom": 9,
+      "attributes": ["name", "settlement_type", "population", "district_name", "state_name", "osm_id"]
+    }
+  ],
+  "raster_layers": [
+    {
+      "id": "hillshade",
+      "file": "hillshade_overlay.png",
+      "format": "PNG",
+      "bounds": [88.013472, 21.94125, 97.41125, 29.461528],
+      "description": "Pre-rendered terrain hillshade positioned by geographic bounds in Leaflet."
+    },
+    {
+      "id": "slope",
+      "file": "slope_overlay.png",
+      "format": "PNG",
+      "bounds": [88.013472, 21.94125, 97.41125, 29.461528],
+      "description": "Pre-rendered terrain slope visualization positioned by geographic bounds in Leaflet."
+    }
+  ]
+}
