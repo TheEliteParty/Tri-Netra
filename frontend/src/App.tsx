@@ -12,6 +12,7 @@ import SatelliteData from './pages/SatelliteData';
 import DemoFlow from './pages/DemoFlow';
 import FloodData from './pages/FloodData';
 import Stations from './pages/Stations';
+import LandingPage from './pages/LandingPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import MobileFAB from './components/MobileFAB';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
@@ -614,6 +615,17 @@ function MainLayout() {
   );
 }
 
+function AppRouteGate() {
+  const { isLoggedIn } = useAuth();
+  const location = useLocation();
+
+  if (location.pathname === '/welcome') {
+    return <LandingPage />;
+  }
+
+  return isLoggedIn ? <MainLayout /> : <LoginPage />;
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
@@ -651,7 +663,7 @@ function App() {
       <ThemeProvider>
         <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
           <Router>
-            {isLoggedIn ? <MainLayout /> : <LoginPage />}
+            <AppRouteGate />
           </Router>
         </AuthContext.Provider>
       </ThemeProvider>
