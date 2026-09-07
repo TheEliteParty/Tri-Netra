@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -34,6 +38,255 @@ body.dark {
     radial-gradient(circle at 100% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
     radial-gradient(circle at 0% 100%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
   background-attachment: fixed;
+}
+
+/* Landing-page terrain foundations. These remain static until scroll animation is added. */
+.landing-grid {
+  background-image:
+    linear-gradient(rgba(103, 232, 249, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(103, 232, 249, 0.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black 25%, transparent 95%);
+}
+
+.landing-contours {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900' viewBox='0 0 900 900'%3E%3Cg fill='none' stroke='%2322d3ee' stroke-opacity='.13'%3E%3Cpath d='M55 580c90-155 178-36 261-171s169-82 241-188 180-80 288-169'/%3E%3Cpath d='M19 646c103-184 205-55 299-190s181-87 259-193 185-82 300-181'/%3E%3Cpath d='M-24 714c117-210 237-77 339-207s192-94 277-201 189-88 319-190'/%3E%3Cpath d='M-63 790c128-240 277-102 383-230s209-102 300-212 207-98 346-189'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.landing-map-placeholder {
+  background-color: #071214;
+  background-image:
+    linear-gradient(150deg, transparent 5%, rgba(16, 185, 129, 0.15) 48%, transparent 49%),
+    radial-gradient(circle at 70% 32%, rgba(34, 211, 238, 0.2), transparent 2px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520' viewBox='0 0 520 520'%3E%3Cg fill='none' stroke='%2394a3b8' stroke-opacity='.18'%3E%3Cellipse cx='260' cy='260' rx='220' ry='88' transform='rotate(-18 260 260)'/%3E%3Cellipse cx='260' cy='260' rx='180' ry='67' transform='rotate(-18 260 260)'/%3E%3Cellipse cx='260' cy='260' rx='137' ry='48' transform='rotate(-18 260 260)'/%3E%3Cellipse cx='260' cy='260' rx='92' ry='29' transform='rotate(-18 260 260)'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover, auto, cover;
+}
+
+.landing-signal-scene {
+  --terrain-shift: 0px;
+  isolation: isolate;
+}
+
+.landing-signal-scene::after {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(3, 8, 9, 0.12), transparent 28%, transparent 72%, rgba(3, 8, 9, 0.62));
+  content: '';
+  pointer-events: none;
+}
+
+.landing-scene-grid {
+  background-image:
+    linear-gradient(rgba(103, 232, 249, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(103, 232, 249, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px;
+  transform: translateY(calc(var(--terrain-shift) * -0.3));
+}
+
+.landing-scene-contours {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620' viewBox='0 0 620 620'%3E%3Cg fill='none' stroke='%2367e8f9' stroke-opacity='.12'%3E%3Cpath d='M-30 480c88-67 137-24 211-92s134-29 202-99 134-49 267-158'/%3E%3Cpath d='M-42 520c99-77 154-34 232-101s142-36 214-105 143-58 270-163'/%3E%3Cpath d='M-55 563c111-90 175-44 254-111s150-43 229-114 149-66 270-167'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translateY(var(--terrain-shift)) scale(1.05);
+  animation: landing-contour-drift 14s ease-in-out infinite alternate;
+}
+
+.landing-rain-field {
+  z-index: 2;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, black 14%, black 68%, transparent 92%);
+}
+
+.landing-rain-field span {
+  position: absolute;
+  top: -12%;
+  width: 1px;
+  height: 54px;
+  background: linear-gradient(to bottom, transparent, rgba(125, 211, 252, 0.45));
+  transform: rotate(12deg);
+  animation: landing-rain-fall 3s linear infinite;
+}
+
+.landing-signal-lines {
+  z-index: 3;
+  transform: translateY(calc(var(--terrain-shift) * 0.55));
+}
+
+.terrain-ridge {
+  fill: none;
+  stroke: rgba(110, 231, 183, 0.72);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.terrain-ridge-soft {
+  stroke: rgba(110, 231, 183, 0.18);
+  stroke-width: 1;
+}
+
+.terrain-surface {
+  animation: landing-surface-emerge 7s ease-in-out infinite alternate;
+}
+
+.signal-path {
+  fill: none;
+  stroke: rgba(103, 232, 249, 0.48);
+  stroke-dasharray: 4 10;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  animation: landing-signal-flow 5s linear infinite;
+}
+
+.signal-path-two { animation-delay: -1.4s; }
+.signal-path-three { animation-delay: -2.8s; }
+
+.risk-emergence {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: landing-risk-breathe 5.5s ease-in-out infinite;
+}
+
+.monitor-point {
+  position: absolute;
+  z-index: 6;
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(207, 250, 254, 0.95);
+  border-radius: 999px;
+  background: #0891b2;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.7);
+}
+
+.monitor-point i {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(103, 232, 249, 0.45);
+  border-radius: inherit;
+  animation: landing-point-pulse 3s ease-out infinite;
+}
+
+.monitor-point-one { left: 17%; top: 59%; }
+.monitor-point-two { left: 37%; top: 72%; }
+.monitor-point-three { right: 17%; top: 42%; }
+.monitor-point-two i { animation-delay: -1s; }
+.monitor-point-three i { animation-delay: -2s; }
+
+.landing-intelligence-layer {
+  z-index: 10;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.signal-fill {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #67e8f9, transparent);
+  transform: translateX(-100%);
+  animation: landing-meter-scan 4.8s ease-in-out infinite;
+}
+
+.signal-fill-2 { animation-delay: -1.2s; }
+.signal-fill-3 { animation-delay: -2.4s; }
+.signal-fill-4 { animation-delay: -3.6s; }
+
+.landing-alert-pulse,
+.landing-warning-icon {
+  animation: landing-alert-pulse 3.2s ease-in-out infinite;
+}
+
+.landing-scan-label {
+  animation: landing-scan-label 4s ease-in-out infinite;
+}
+
+@keyframes landing-contour-drift {
+  from { translate: -5px -3px; }
+  to { translate: 7px 5px; }
+}
+
+@keyframes landing-rain-fall {
+  from { translate: 0 -80px; opacity: 0; }
+  15% { opacity: 0.55; }
+  80% { opacity: 0.3; }
+  to { translate: -38px 650px; opacity: 0; }
+}
+
+@keyframes landing-signal-flow {
+  to { stroke-dashoffset: -70; }
+}
+
+@keyframes landing-surface-emerge {
+  from { opacity: 0.52; }
+  to { opacity: 1; }
+}
+
+@keyframes landing-risk-breathe {
+  0%, 100% { opacity: 0.3; transform: scale(0.84); }
+  55% { opacity: 0.85; transform: scale(1.08); }
+}
+
+@keyframes landing-point-pulse {
+  0% { opacity: 0.75; transform: scale(0.45); }
+  75%, 100% { opacity: 0; transform: scale(1.7); }
+}
+
+@keyframes landing-meter-scan {
+  0%, 12% { transform: translateX(-100%); }
+  62%, 100% { transform: translateX(100%); }
+}
+
+@keyframes landing-alert-pulse {
+  0%, 72%, 100% { opacity: 0.5; filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
+  82% { opacity: 1; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.75)); }
+}
+
+@keyframes landing-scan-label {
+  0%, 100% { opacity: 0.58; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 639px) {
+  .landing-rain-field span:nth-child(n + 10) {
+    display: none;
+  }
+
+  .landing-scene-grid {
+    background-size: 54px 54px;
+  }
+
+  .monitor-point-three {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .landing-scene-contours,
+  .landing-rain-field span,
+  .terrain-surface,
+  .signal-path,
+  .risk-emergence,
+  .monitor-point i,
+  .signal-fill,
+  .landing-alert-pulse,
+  .landing-warning-icon,
+  .landing-scan-label {
+    animation: none !important;
+  }
+
+  .signal-fill {
+    transform: none;
+  }
 }
 
 /* Custom scrollbar */
